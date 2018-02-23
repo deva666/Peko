@@ -1,4 +1,4 @@
 package com.markodevcic.peko
 
-class PermissionRequestResult(val granted: Collection<String>,
-							  val denied: Collection<String>)
+class PermissionRequestResult(val grantedPermissions: Collection<String>,
+							  val deniedPermissions: Collection<String>)

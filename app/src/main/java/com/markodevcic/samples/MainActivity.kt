@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 				this.setMessage("Please give permissions to use this feature")
 			}
 			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = rationale)
-			Toast.makeText(this@MainActivity, "Got result ${result.granted}", Toast.LENGTH_LONG).show()
+			Toast.makeText(this@MainActivity, "Got result ${result.grantedPermissions}", Toast.LENGTH_LONG).show()
 		}
 	}
 

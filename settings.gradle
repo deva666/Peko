@@ -1,1 +1,1 @@
-include ':app', ':peko'
+include ':examples', ':peko'

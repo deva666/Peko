@@ -1,12 +1,14 @@
 # PEKO
-**_PErmissions in KOtlin_**
+### PErmissions in KOtlin
 
 
-Android Permissions with Kotlin Coroutines
+#### Android Permissions with Kotlin Coroutines
+No more callbacks and listeners for requesting Android permissions.
 
-_example in Android Activity_
+***
 
-```
+Example in Android Activity:
+```kotlin
 launch (UI) {
     val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH)
     

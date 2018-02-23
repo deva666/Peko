@@ -1,20 +1,17 @@
-package com.markodevcic.peko
+package com.markodevcic.peko.rationale
 
+import android.R
 import android.content.Context
 import android.support.v7.app.AlertDialog
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 
-interface PermissionRationale {
 
-	suspend fun shouldRequestAfterRationaleShown(): Boolean = false
-
-	companion object {
-		val EMPTY: PermissionRationale = EmptyPermissionRationale()
-	}
-}
-
-internal class EmptyPermissionRationale : PermissionRationale
-
+/**
+[PermissionRationale] implementation that displays Alert Dialog to the user.
+[builderInit] receiver function is used to set your custom message and title
+Don't use Functions [AlertDialog.Builder.setPositiveButton], [AlertDialog.Builder.setNegativeButton]
+and [AlertDialog.Builder.setOnDismissListener], they will be overridden
+ */
 class AlertDialogPermissionRationale(private val context: Context,
 									 private val builderInit: AlertDialog.Builder.() -> Unit) : PermissionRationale {
 
@@ -23,13 +20,13 @@ class AlertDialogPermissionRationale(private val context: Context,
 			var resumed = false
 			val builder = AlertDialog.Builder(context)
 			builder.builderInit()
-			builder.setPositiveButton(android.R.string.ok) { _, _ ->
-						if (!resumed) {
-							resumed = true
-							continuation.resume(true)
-						}
-					}
-					.setNegativeButton(android.R.string.cancel) { _, _ ->
+			builder.setPositiveButton(R.string.ok) { _, _ ->
+				if (!resumed) {
+					resumed = true
+					continuation.resume(true)
+				}
+			}
+					.setNegativeButton(R.string.cancel) { _, _ ->
 						if (!resumed) {
 							resumed = true
 							continuation.resume(false)

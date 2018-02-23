@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import com.markodevcic.peko.AlertDialogPermissionRationale
 import com.markodevcic.peko.Peko
+import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch

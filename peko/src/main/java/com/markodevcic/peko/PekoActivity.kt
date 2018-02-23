@@ -8,8 +8,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.PermissionChecker
 import android.view.WindowManager
 
-private const val REQUEST_CODE = 93173
-
 internal class PekoActivity : Activity(),
 		ActivityCompat.OnRequestPermissionsResultCallback,
 		PermissionRequester {
@@ -44,22 +42,20 @@ internal class PekoActivity : Activity(),
 		}
 	}
 
-	companion object {
-		private var listener: ActivityListener? = null
+	override fun finish() {
+		super.finish()
+		listener = null
+	}
 
-		internal fun startActivity(context: Context, intent: Intent, listener: ActivityListener) {
+	companion object {
+		private const val REQUEST_CODE = 93173
+
+		private var listener: PermissionRequesterListener? = null
+
+		internal fun startActivity(context: Context, intent: Intent, listener: PermissionRequesterListener) {
 			this.listener = listener
 			context.startActivity(intent)
 		}
 	}
 }
 
-internal interface PermissionRequester {
-	fun requestPermissions(permissions: Array<out String>)
-	fun finish()
-}
-
-internal interface ActivityListener {
-	fun onRequesterReady(requester: PermissionRequester)
-	fun onPermissionResult(granted: Collection<String>, denied: Collection<String>)
-}

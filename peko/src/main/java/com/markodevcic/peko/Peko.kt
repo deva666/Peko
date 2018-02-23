@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
+import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.CancellableContinuation
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import java.lang.ref.WeakReference
@@ -22,7 +23,8 @@ object Peko {
 			currentContinuation = continuation
 			val request = checkPermissions(activity, permissions)
 			if (request.denied.isNotEmpty()) {
-				service = PekoService(request, WeakReference(activity), rationale, activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
+				service = PekoService(request, WeakReference(activity), rationale,
+						activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
 				service?.requestPermissions()
 			} else {
 				onPermissionResult(PermissionRequestResult(request.granted, request.denied))

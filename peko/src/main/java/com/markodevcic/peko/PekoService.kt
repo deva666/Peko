@@ -1,7 +1,6 @@
 package com.markodevcic.peko
 
 import android.app.Activity
-import android.content.Intent
 import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.android.UI
@@ -14,8 +13,8 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 						   private val sharedPreferences: SharedPreferences) {
 
 	private val pendingPermissions = mutableSetOf<String>()
-	private val grantedPermissions = ArrayList<String>()
-	private val deniedPermissions = ArrayList<String>()
+	private val grantedPermissions = mutableSetOf<String>()
+	private val deniedPermissions = mutableSetOf<String>()
 	private var requester: PermissionRequester? = null
 
 	fun requestPermissions() {
@@ -25,8 +24,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 			return
 		}
 		pendingPermissions.addAll(permissionRequest.denied)
-		val intent = Intent(activity, PekoActivity::class.java)
-		PekoActivity.startActivity(activity, intent, object : PermissionRequesterListener {
+		PermissionRequester.startPermissionRequest(activity, object : PermissionRequesterListener {
 			override fun onPermissionResult(granted: Collection<String>, denied: Collection<String>) {
 				permissionsGranted(granted)
 				permissionsDenied(denied)

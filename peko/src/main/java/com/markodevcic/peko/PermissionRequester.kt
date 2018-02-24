@@ -21,7 +21,7 @@ internal interface PermissionRequester {
 	}
 }
 
-private class PekoActivity : Activity(),
+internal class PekoActivity : Activity(),
 		ActivityCompat.OnRequestPermissionsResultCallback,
 		PermissionRequester {
 

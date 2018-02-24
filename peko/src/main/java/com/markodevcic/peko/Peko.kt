@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.CancellableContinuation
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Deferred
 import java.lang.ref.WeakReference
@@ -13,7 +12,6 @@ import java.lang.ref.WeakReference
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 object Peko {
 
-	private var currentContinuation: CancellableContinuation<PermissionRequestResult>? = null
 	private var service: PekoService? = null
 	private var deferred: CompletableDeferred<PermissionRequestResult>? = null
 
@@ -50,7 +48,6 @@ object Peko {
 	}
 
 	internal fun onPermissionResult(result: PermissionRequestResult) {
-		currentContinuation?.resume(result)
 		if (deferred?.isActive == true) {
 			deferred?.complete(result)
 		}
@@ -58,7 +55,6 @@ object Peko {
 	}
 
 	internal fun clearCurrentRequest() {
-		currentContinuation = null
 		deferred = null
 		service = null
 	}

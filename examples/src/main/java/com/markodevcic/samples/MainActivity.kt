@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import com.markodevcic.peko.Peko
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
 import kotlinx.android.synthetic.main.activity_main.*
@@ -40,7 +39,8 @@ class MainActivity : AppCompatActivity() {
 				this.setMessage("Please give permissions to use this feature")
 			}
 			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = rationale).await()
-			Toast.makeText(this@MainActivity, "Got result ${result.grantedPermissions}", Toast.LENGTH_LONG).show()
+			result.grantedPermissions.forEach { p -> textPermissionsGranted.text = "${textPermissionsGranted.text}  $p" }
+			result.deniedPermissions.forEach { p -> textPermissionsDenied.text = "${textPermissionsDenied.text}  $p" }
 		}
 	}
 

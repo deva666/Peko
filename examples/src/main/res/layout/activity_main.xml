@@ -21,13 +21,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingTop="180dp">
+        android:paddingTop="80dp"
+        android:paddingStart="12dp">
+
         <Button
             android:id="@+id/btnFineLocation"
             android:layout_width="wrap_content"
@@ -51,6 +51,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ALL"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:id="@+id/textPermissionsGranted"
+            android:text="Granted permissions: "
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:id="@+id/textPermissionsDenied"
+            android:text="Denied permissions: "
+            />
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

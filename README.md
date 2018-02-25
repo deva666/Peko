@@ -56,6 +56,7 @@ class SnackBarRationale(private val snackbar: Snackbar) : PermissionRationale {
 					}
 				}
 			})
+			snackbar.show()
 		}
 	}
 }

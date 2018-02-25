@@ -3,7 +3,8 @@
 
 
 #### Android Permissions with Kotlin Coroutines
-No more callbacks and listeners for requesting Android permissions.
+No more callbacks, builders, listeners or verbose code for requesting Android permissions.
+Request permissions with one function call, thanks to Kotlin Coroutines.
 
 ***
 

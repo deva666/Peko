@@ -45,7 +45,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 
 	private fun permissionsDenied(permissions: Collection<String>) {
 		val showRationalePermissions = permissions.any { p -> !checkIfRationaleShownAlready(p) }
-		if (showRationalePermissions) {
+		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
 			launch(UI) {
 				if (rationale.shouldRequestAfterRationaleShown()) {
 					requester?.requestPermissions(permissions.toTypedArray())

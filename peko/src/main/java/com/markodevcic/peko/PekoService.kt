@@ -29,7 +29,11 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 		if (isTargetSdkUnderAndroidM(activity)) {
 			updateDeniedPermissions(pendingPermissions)
 		}
-		PermissionRequester.startPermissionRequest(activity, object : PermissionRequesterListener {
+		PermissionRequester.startPermissionRequest(activity, createRequesterListener())
+	}
+
+	private fun createRequesterListener(): PermissionRequesterListener {
+		return object : PermissionRequesterListener {
 			override fun onPermissionResult(granted: Collection<String>, denied: Collection<String>) {
 				permissionsGranted(granted)
 				permissionsDenied(denied)
@@ -39,7 +43,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 				this@PekoService.requester = requester
 				requester.requestPermissions(permissionRequest.denied.toTypedArray())
 			}
-		})
+		}
 	}
 
 	private fun isTargetSdkUnderAndroidM(activity: Activity): Boolean {

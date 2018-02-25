@@ -19,3 +19,15 @@ launch (UI) {
     }
 }
 ```
+
+If you want to show a permission rationale to the user, you can use the built in `AlertDialogPermissionRationale`. This will show an Alert Dialog with your message and title, explaining to user why this rationale is needed. It will be shown only once and only if user denies the permission for the first time.
+
+```kotlin
+launch (UI) {
+    val rationale = AlertDialogPermissionRationale(this@MainActivity) {
+				this.setTitle("Need permissions")
+				this.setMessage("Please give permissions to use this feature")	
+				}
+	val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH).await()
+}
+```

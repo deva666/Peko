@@ -44,6 +44,10 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
+	private fun requestPermissionWithSnackBarRationale() {
+
+	}
+
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
 		menuInflater.inflate(R.menu.menu_main, menu)
 		return true

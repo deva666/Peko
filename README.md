@@ -33,4 +33,4 @@ launch (UI) {
 }
 ```
 
-You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShown`, Permission Request will be repeated, otherwise request permission request completes.
+You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShown`, Permission Request will be repeated, otherwise the permission request completes.

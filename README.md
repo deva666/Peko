@@ -28,6 +28,8 @@ launch (UI) {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")	
 				}
-	val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH).await()
+	val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
 }
 ```
+
+You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShown`, Permission Request will be repeated, otherwise request permission request completes.

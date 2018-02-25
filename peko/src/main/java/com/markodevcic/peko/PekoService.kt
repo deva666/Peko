@@ -2,6 +2,8 @@ package com.markodevcic.peko
 
 import android.app.Activity
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -24,6 +26,9 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 			return
 		}
 		pendingPermissions.addAll(permissionRequest.denied)
+		if (isTargetSdkUnderAndroidM(activity)) {
+			updateDeniedPermissions(pendingPermissions)
+		}
 		PermissionRequester.startPermissionRequest(activity, object : PermissionRequesterListener {
 			override fun onPermissionResult(granted: Collection<String>, denied: Collection<String>) {
 				permissionsGranted(granted)
@@ -35,6 +40,16 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 				requester.requestPermissions(permissionRequest.denied.toTypedArray())
 			}
 		})
+	}
+
+	private fun isTargetSdkUnderAndroidM(activity: Activity): Boolean {
+		return try {
+			val info = activity.packageManager.getPackageInfo(activity.packageName, 0)
+			val targetSdkVersion = info.applicationInfo.targetSdkVersion
+			targetSdkVersion < Build.VERSION_CODES.M
+		} catch (fail: PackageManager.NameNotFoundException) {
+			false
+		}
 	}
 
 	private fun permissionsGranted(permissions: Collection<String>) {

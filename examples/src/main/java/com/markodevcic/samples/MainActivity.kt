@@ -1,12 +1,14 @@
 package com.markodevcic.samples
 
 import android.Manifest
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.markodevcic.peko.Peko
+import com.markodevcic.peko.PermissionRequestResult
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.android.UI
@@ -29,32 +31,66 @@ class MainActivity : AppCompatActivity() {
 			requestPermission(Manifest.permission.CAMERA)
 		}
 		btnAll.setOnClickListener {
-			requestPermission(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
+			requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
 		}
 		btnAllSnackBarRationale.setOnClickListener {
-			requestPermissionWithSnackBarRationale(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
+			requestPermissionWithSnackBarRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
 		}
 	}
 
 	private fun requestPermission(vararg permissions: String) {
+		clearTextResults()
 		launch(UI) {
 			val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")
 			}
 			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = rationale).await()
-			result.grantedPermissions.forEach { p -> textPermissionsGranted.text = "${textPermissionsGranted.text}  $p" }
-			result.deniedPermissions.forEach { p -> textPermissionsDenied.text = "${textPermissionsDenied.text}  $p" }
+			setResults(result)
 		}
 	}
 
 	private fun requestPermissionWithSnackBarRationale(vararg permissions: String) {
+		clearTextResults()
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 		val snackBarRationale = SnackBarRationale(snackBar)
 		launch(UI) {
 			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
-			result.grantedPermissions.forEach { p -> textPermissionsGranted.text = "${textPermissionsGranted.text}  $p" }
-			result.deniedPermissions.forEach { p -> textPermissionsDenied.text = "${textPermissionsDenied.text}  $p" }
+			setResults(result)
+		}
+	}
+
+	private fun clearTextResults() {
+		textCameraResult.text = ""
+		textFileResult.text = ""
+		textLocationResult.text = ""
+	}
+
+	private fun setResults(result: PermissionRequestResult) {
+		if (result.grantedPermissions.contains(Manifest.permission.ACCESS_FINE_LOCATION)) {
+			textLocationResult.text = "GRANTED"
+			textLocationResult.setTextColor(Color.GREEN)
+		}
+		if (result.grantedPermissions.contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+			textFileResult.text = "GRANTED"
+			textFileResult.setTextColor(Color.GREEN)
+		}
+		if (result.grantedPermissions.contains(Manifest.permission.CAMERA)) {
+			textCameraResult.text = "GRANTED"
+			textCameraResult.setTextColor(Color.GREEN)
+		}
+
+		if (result.deniedPermissions.contains(Manifest.permission.ACCESS_FINE_LOCATION)) {
+			textLocationResult.text = "DENIED"
+			textLocationResult.setTextColor(Color.RED)
+		}
+		if (result.deniedPermissions.contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+			textFileResult.text = "DENIED"
+			textFileResult.setTextColor(Color.RED)
+		}
+		if (result.deniedPermissions.contains(Manifest.permission.CAMERA)) {
+			textCameraResult.text = "DENIED"
+			textCameraResult.setTextColor(Color.RED)
 		}
 	}
 

@@ -28,7 +28,7 @@ launch (UI) {
     val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")	
-				}
+            }
 	val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
 }
 ```

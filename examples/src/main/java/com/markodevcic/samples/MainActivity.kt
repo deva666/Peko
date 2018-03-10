@@ -2,6 +2,7 @@ package com.markodevcic.samples
 
 import android.Manifest
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -30,6 +31,9 @@ class MainActivity : AppCompatActivity() {
 		btnAll.setOnClickListener {
 			requestPermission(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
 		}
+		btnAllSnackBarRationale.setOnClickListener {
+			requestPermissionWithSnackBarRationale(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
+		}
 	}
 
 	private fun requestPermission(vararg permissions: String) {
@@ -44,8 +48,14 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun requestPermissionWithSnackBarRationale() {
-
+	private fun requestPermissionWithSnackBarRationale(vararg permissions: String) {
+		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
+		val snackBarRationale = SnackBarRationale(snackBar)
+		launch(UI) {
+			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+			result.grantedPermissions.forEach { p -> textPermissionsGranted.text = "${textPermissionsGranted.text}  $p" }
+			result.deniedPermissions.forEach { p -> textPermissionsDenied.text = "${textPermissionsDenied.text}  $p" }
+		}
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {

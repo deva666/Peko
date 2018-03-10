@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.markodevcic.samples.MainActivity">
+    tools:context="com.markodevcic.samples.MainActivity"
+    android:id="@+id/rootView">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -51,6 +52,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ALL"/>
+
+        <Button
+            android:id="@+id/btnAllSnackBarRationale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ALL USING SNACKBAR"/>
 
         <TextView
             android:layout_width="wrap_content"

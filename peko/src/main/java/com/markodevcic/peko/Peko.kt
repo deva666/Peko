@@ -9,7 +9,6 @@ import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Deferred
 import java.lang.ref.WeakReference
 
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
 object Peko {
 
 	private var service: PekoService? = null

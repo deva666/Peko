@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun requestPermission(vararg permissions: String) {
-		clearTextResults()
 		launch(UI) {
 			val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 				this.setTitle("Need permissions")
@@ -51,19 +50,12 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun requestPermissionWithSnackBarRationale(vararg permissions: String) {
-		clearTextResults()
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 		val snackBarRationale = SnackBarRationale(snackBar)
 		launch(UI) {
 			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 			setResults(result)
 		}
-	}
-
-	private fun clearTextResults() {
-		textCameraResult.text = ""
-		textFileResult.text = ""
-		textLocationResult.text = ""
 	}
 
 	private fun setResults(result: PermissionRequestResult) {

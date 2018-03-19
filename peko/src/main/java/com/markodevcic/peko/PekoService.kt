@@ -9,8 +9,8 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
 
-internal class PekoService(private val permissionRequest: PermissionRequest,
-						   context: Context,
+internal class PekoService(context: Context,
+						   private val permissionRequest: PermissionRequest,
 						   private val rationale: PermissionRationale,
 						   private val sharedPreferences: SharedPreferences,
 						   private val requesterFactory: PermissionRequesterFactory) {
@@ -33,7 +33,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 		if (isTargetSdkUnderAndroidM(context)) {
 			updateDeniedPermissions(pendingPermissions)
 		} else {
-			launch (UI) {
+			launch(UI) {
 				requester = requesterFactory.getRequester(context).await()
 				requester.requestPermissions(permissionRequest.denied.toTypedArray())
 				for (result in requester.resultsChannel) {

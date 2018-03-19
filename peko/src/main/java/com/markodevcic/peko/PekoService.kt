@@ -12,14 +12,15 @@ import java.lang.ref.WeakReference
 internal class PekoService(private val permissionRequest: PermissionRequest,
 						   context: Context,
 						   private val rationale: PermissionRationale,
-						   private val sharedPreferences: SharedPreferences) {
+						   private val sharedPreferences: SharedPreferences,
+						   private val requesterFactory: PermissionRequesterFactory) {
 
 	private val pendingPermissions = mutableSetOf<String>()
 	private val grantedPermissions = mutableSetOf<String>()
 	private val deniedPermissions = mutableSetOf<String>()
 	private val contextReference: WeakReference<out Context> = WeakReference(context)
 
-	private var requester: PermissionRequester? = null
+	private lateinit var requester: PermissionRequester
 
 	fun requestPermissions() {
 		val context = contextReference.get()
@@ -32,20 +33,13 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 		if (isTargetSdkUnderAndroidM(context)) {
 			updateDeniedPermissions(pendingPermissions)
 		} else {
-			PermissionRequester.startPermissionRequest(context, createRequesterListener())
-		}
-	}
-
-	private fun createRequesterListener(): PermissionRequesterListener {
-		return object : PermissionRequesterListener {
-			override fun onPermissionResult(granted: Collection<String>, denied: Collection<String>) {
-				permissionsGranted(granted)
-				permissionsDenied(denied)
-			}
-
-			override fun onRequesterReady(requester: PermissionRequester) {
-				this@PekoService.requester = requester
+			launch (UI) {
+				requester = requesterFactory.getRequester(context).await()
 				requester.requestPermissions(permissionRequest.denied.toTypedArray())
+				for (result in requester.resultsChannel) {
+					permissionsGranted(result.grantedPermissions)
+					permissionsDenied(result.deniedPermissions)
+				}
 			}
 		}
 	}
@@ -71,7 +65,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
 			launch(UI) {
 				if (rationale.shouldRequestAfterRationaleShownAsync()) {
-					requester?.requestPermissions(permissions.toTypedArray())
+					requester.requestPermissions(permissions.toTypedArray())
 				} else {
 					updateDeniedPermissions(permissions)
 				}
@@ -99,8 +93,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 	}
 
 	private fun finishRequest() {
-		requester?.finish()
-		requester = null
+		requester.finish()
 	}
 
 	private fun checkIfRationaleShownAlready(permission: String): Boolean {

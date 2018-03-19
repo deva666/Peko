@@ -7,7 +7,6 @@ import android.support.v4.app.ActivityCompat
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Deferred
-import java.lang.ref.WeakReference
 
 object Peko {
 
@@ -23,7 +22,7 @@ object Peko {
 		return if (request.denied.isNotEmpty()) {
 			deferred = CompletableDeferred()
 			service = PekoService(request, activity, rationale,
-					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
+					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE), PermissionRequesterFactory.defaultFactory)
 			service?.requestPermissions()
 			deferred!!
 		} else {

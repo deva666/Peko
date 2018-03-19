@@ -7,23 +7,45 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.PermissionChecker
 import android.view.WindowManager
+import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.launch
 
 internal interface PermissionRequester {
 	fun requestPermissions(permissions: Array<out String>)
 	fun finish()
+	val resultsChannel: ReceiveChannel<PermissionRequestResult>
+}
+
+internal interface PermissionRequesterFactory {
+	fun getRequester(context: Context): Deferred<PermissionRequester>
 
 	companion object {
-		internal fun startPermissionRequest(context: Context, listener: PermissionRequesterListener) {
-			PekoActivity.listener = listener
-			val intent = Intent(context, PekoActivity::class.java)
-			context.startActivity(intent)
-		}
+		val defaultFactory: PermissionRequesterFactory = PermissionRequesterFactoryImpl()
+	}
+}
+
+private class PermissionRequesterFactoryImpl : PermissionRequesterFactory {
+	override fun getRequester(context: Context): Deferred<PermissionRequester> {
+		val completableDeferred = CompletableDeferred<PermissionRequester>()
+		PekoActivity.deferred = completableDeferred
+		val intent = Intent(context, PekoActivity::class.java)
+		context.startActivity(intent)
+		return completableDeferred
 	}
 }
 
 internal class PekoActivity : Activity(),
 		ActivityCompat.OnRequestPermissionsResultCallback,
 		PermissionRequester {
+
+	private val channel = Channel<PermissionRequestResult>()
+
+	override val resultsChannel: ReceiveChannel<PermissionRequestResult>
+		get() = channel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -32,7 +54,8 @@ internal class PekoActivity : Activity(),
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {
 		super.onPostCreate(savedInstanceState)
-		listener?.onRequesterReady(this)
+		deferred?.complete(this)
+		deferred = null
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {
@@ -51,18 +74,21 @@ internal class PekoActivity : Activity(),
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			listener?.onPermissionResult(grantedPermissions, deniedPermissions)
+			launch(UI) {
+				channel.send(PermissionRequestResult(grantedPermissions, deniedPermissions))
+			}
 		}
 	}
 
 	override fun finish() {
 		super.finish()
-		listener = null
+		channel.close()
+		deferred = null
 	}
 
 	companion object {
 		private const val REQUEST_CODE = 93173
-		internal var listener: PermissionRequesterListener? = null
+		internal var deferred: CompletableDeferred<PermissionRequester>? = null
 	}
 }
 

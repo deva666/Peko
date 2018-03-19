@@ -28,8 +28,9 @@ val rationale = AlertDialogPermissionRationale(this@MainActivity) {
     this.setTitle("Need permissions")
     this.setMessage("Please give permissions to use this feature")	
 }
+
 launch (UI) {
-	val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
+    val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
 }
 ```
 
@@ -38,6 +39,7 @@ There is also a `SnackBarRationale` class that shows a SnackBar when permission 
 ```kotlin
 val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 val snackBarRationale = SnackBarRationale(snackBar, "Request again")
+
 launch(UI) {
     val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 }

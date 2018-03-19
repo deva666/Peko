@@ -10,13 +10,15 @@ import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
 
 internal class PekoService(private val permissionRequest: PermissionRequest,
-						   private val contextReference: WeakReference<out Context>,
+						   context: Context,
 						   private val rationale: PermissionRationale,
 						   private val sharedPreferences: SharedPreferences) {
 
 	private val pendingPermissions = mutableSetOf<String>()
 	private val grantedPermissions = mutableSetOf<String>()
 	private val deniedPermissions = mutableSetOf<String>()
+	private val contextReference: WeakReference<out Context> = WeakReference(context)
+
 	private var requester: PermissionRequester? = null
 
 	fun requestPermissions() {

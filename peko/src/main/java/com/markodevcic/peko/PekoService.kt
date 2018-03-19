@@ -1,6 +1,6 @@
 package com.markodevcic.peko
 
-import android.app.Activity
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
@@ -10,7 +10,7 @@ import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
 
 internal class PekoService(private val permissionRequest: PermissionRequest,
-						   private val activityReference: WeakReference<Activity>,
+						   private val contextReference: WeakReference<out Context>,
 						   private val rationale: PermissionRationale,
 						   private val sharedPreferences: SharedPreferences) {
 
@@ -20,16 +20,16 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 	private var requester: PermissionRequester? = null
 
 	fun requestPermissions() {
-		val activity = activityReference.get()
-		if (activity == null) {
+		val context = contextReference.get()
+		if (context == null) {
 			Peko.clearCurrentRequest()
 			return
 		}
 		pendingPermissions.addAll(permissionRequest.denied)
-		if (isTargetSdkUnderAndroidM(activity)) {
+		if (isTargetSdkUnderAndroidM(context)) {
 			updateDeniedPermissions(pendingPermissions)
 		} else {
-			PermissionRequester.startPermissionRequest(activity, createRequesterListener())
+			PermissionRequester.startPermissionRequest(context, createRequesterListener())
 		}
 	}
 
@@ -47,7 +47,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 		}
 	}
 
-	private fun isTargetSdkUnderAndroidM(activity: Activity): Boolean {
+	private fun isTargetSdkUnderAndroidM(activity: Context): Boolean {
 		return try {
 			val info = activity.packageManager.getPackageInfo(activity.packageName, 0)
 			val targetSdkVersion = info.applicationInfo.targetSdkVersion
@@ -86,7 +86,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 	}
 
 	private fun checkIfRequestComplete() {
-		if (activityReference.get() == null) {
+		if (contextReference.get() == null) {
 			Peko.clearCurrentRequest()
 			finishRequest()
 		} else if (pendingPermissions.isEmpty()) {

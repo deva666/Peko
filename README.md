@@ -11,9 +11,9 @@ Request permissions with one function call, thanks to Kotlin Coroutines.
 Example in Android Activity:
 ```kotlin
 launch (UI) {
-    val resultDeferred = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH)
-    val result = resultDeferred.await()
-    if (result.grantedPermissions.contains(Manifest.permission.BLUETOOTH)) {
+    val permissionResultDeferred = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH)
+    val permissionResult = permissionResultDeferred.await()
+    if (permissionResult.grantedPermissions.contains(Manifest.permission.BLUETOOTH)) {
         //we have permission
     } else {
         //can't continue
@@ -30,7 +30,7 @@ val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 }
 
 launch (UI) {
-    val result = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
+    val permissionResult = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
 }
 ```
 
@@ -41,7 +41,7 @@ val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackba
 val snackBarRationale = SnackBarRationale(snackBar, "Request again")
 
 launch(UI) {
-    val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+    val permissionResult = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 }
 ```
 

@@ -10,6 +10,7 @@ import android.view.MenuItem
 import com.markodevcic.peko.Peko
 import com.markodevcic.peko.PermissionRequestResult
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
+import com.markodevcic.peko.rationale.SnackBarRationale
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
 	private fun requestPermissionWithSnackBarRationale(vararg permissions: String) {
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
-		val snackBarRationale = SnackBarRationale(snackBar)
+		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
 		launch(UI) {
 			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 			setResults(result)

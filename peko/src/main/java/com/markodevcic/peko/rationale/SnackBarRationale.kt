@@ -1,14 +1,13 @@
-package com.markodevcic.samples
+package com.markodevcic.peko.rationale
 
 import android.support.design.widget.Snackbar
-import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 
-class SnackBarRationale(private val snackbar: Snackbar) : PermissionRationale {
+class SnackBarRationale(private val snackbar: Snackbar, private val actionTitle: String) : PermissionRationale {
 	override suspend fun shouldRequestAfterRationaleShown(): Boolean {
 		return suspendCancellableCoroutine { continuation ->
 			var resumed = false
-			snackbar.setAction("Request again", {
+			snackbar.setAction(actionTitle, {
 				if (!resumed) {
 					resumed = true
 					continuation.resume(true)

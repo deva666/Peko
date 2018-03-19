@@ -13,6 +13,7 @@ Example in Android Activity:
 launch (UI) {
     val permissionResultDeferred = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH)
     val permissionResult = permissionResultDeferred.await()
+    
     if (permissionResult.grantedPermissions.contains(Manifest.permission.BLUETOOTH)) {
         //we have permission
     } else {
@@ -30,7 +31,7 @@ val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 }
 
 launch (UI) {
-    val permissionResult = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
+    val permissionResult = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
 }
 ```
 
@@ -41,7 +42,7 @@ val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackba
 val snackBarRationale = SnackBarRationale(snackBar, "Request again")
 
 launch(UI) {
-    val permissionResult = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 }
 ```
 

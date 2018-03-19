@@ -33,34 +33,19 @@ launch (UI) {
 }
 ```
 
+There is also a `SnackBarRationale` class that shows a SnackBar when permission rationale is required.
+
+```kotlin
+val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
+		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
+		launch(UI) {
+			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+			setResults(result)
+		}
+```
+
 You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShown`, Permission Request will be repeated, otherwise the permission request completes and returns the current permission result.
 
-Here is a SnackBar implementation:
-```kotlin
-class SnackBarRationale(private val snackbar: Snackbar) : PermissionRationale {
-	override suspend fun shouldRequestAfterRationaleShown(): Boolean {
-		return suspendCancellableCoroutine { continuation ->
-			var resumed = false
-			snackbar.setAction("Request again", {
-				if (!resumed) {
-					resumed = true
-					continuation.resume(true)
-				}
-			})
-			snackbar.addCallback(object : Snackbar.Callback(){
-				override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-					super.onDismissed(transientBottomBar, event)
-					if (!resumed) {
-						resumed = true
-						continuation.resume(false)
-					}
-				}
-			})
-			snackbar.show()
-		}
-	}
-}
-```
 
 ## License
 ```text

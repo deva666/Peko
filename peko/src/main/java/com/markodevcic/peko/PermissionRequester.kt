@@ -62,7 +62,6 @@ internal class PekoActivity : Activity(),
 
 	companion object {
 		private const val REQUEST_CODE = 93173
-
 		internal var listener: PermissionRequesterListener? = null
 	}
 }

@@ -28,6 +28,7 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 			return
 		}
 		pendingPermissions.addAll(permissionRequest.denied)
+		grantedPermissions.addAll(permissionRequest.granted)
 		if (isTargetSdkUnderAndroidM(context)) {
 			updateDeniedPermissions(pendingPermissions)
 		} else {

@@ -11,7 +11,7 @@ Request permissions with one function call, thanks to Kotlin Coroutines.
 Example in Android Activity:
 ```kotlin
 launch (UI) {
-    val permissionResultDeferred = Peko.requestPermissions(this, Manifest.permission.BLUETOOTH)
+    val permissionResultDeferred = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH)
     val permissionResult = permissionResultDeferred.await()
     if (permissionResult.grantedPermissions.contains(Manifest.permission.BLUETOOTH)) {
         //we have permission
@@ -45,7 +45,7 @@ launch(UI) {
 }
 ```
 
-You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShown`, Permission Request will be repeated, otherwise the permission request completes and returns the current permission result.
+You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, Permission Request will be repeated, otherwise the permission request completes and returns the current permission result.
 
 
 ## License

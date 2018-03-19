@@ -2,7 +2,7 @@ package com.markodevcic.peko.rationale
 
 interface PermissionRationale {
 
-	suspend fun shouldRequestAfterRationaleShown(): Boolean = false
+	suspend fun shouldRequestAfterRationaleShownAsync(): Boolean = false
 
 	companion object {
 		val EMPTY: PermissionRationale = EmptyPermissionRationale()

@@ -4,7 +4,7 @@ import android.support.design.widget.Snackbar
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 
 class SnackBarRationale(private val snackbar: Snackbar, private val actionTitle: String) : PermissionRationale {
-	override suspend fun shouldRequestAfterRationaleShown(): Boolean {
+	override suspend fun shouldRequestAfterRationaleShownAsync(): Boolean {
 		return suspendCancellableCoroutine { continuation ->
 			var resumed = false
 			snackbar.setAction(actionTitle, {

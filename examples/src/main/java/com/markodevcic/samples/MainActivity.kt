@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")
 			}
-			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = rationale).await()
+			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = rationale).await()
 			setResults(result)
 		}
 	}
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
 		launch(UI) {
-			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 			setResults(result)
 		}
 	}

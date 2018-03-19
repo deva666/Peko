@@ -14,9 +14,9 @@ object Peko {
 	private var service: PekoService? = null
 	private var deferred: CompletableDeferred<PermissionRequestResult>? = null
 
-	fun requestPermissions(activity: Activity,
-						   vararg permissions: String,
-						   rationale: PermissionRationale = PermissionRationale.EMPTY): Deferred<PermissionRequestResult> {
+	fun requestPermissionsAsync(activity: Activity,
+								vararg permissions: String,
+								rationale: PermissionRationale = PermissionRationale.EMPTY): Deferred<PermissionRequestResult> {
 
 		checkRequestNotInProgress()
 		val request = checkPermissions(activity, permissions)

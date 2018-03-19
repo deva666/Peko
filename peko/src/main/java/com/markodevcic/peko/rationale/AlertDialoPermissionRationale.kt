@@ -15,7 +15,7 @@ and [AlertDialog.Builder.setOnDismissListener], they will be overridden
 class AlertDialogPermissionRationale(private val context: Context,
 									 private val builderInit: AlertDialog.Builder.() -> Unit) : PermissionRationale {
 
-	override suspend fun shouldRequestAfterRationaleShown(): Boolean {
+	override suspend fun shouldRequestAfterRationaleShownAsync(): Boolean {
 		return suspendCancellableCoroutine { continuation ->
 			var resumed = false
 			val builder = AlertDialog.Builder(context)

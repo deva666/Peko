@@ -40,7 +40,7 @@ val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackba
 		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
 		launch(UI) {
 			val result = Peko.requestPermissions(this@MainActivity, *permissions, rationale = snackBarRationale).await()
-	}
+	    }
 ```
 
 You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShown`, Permission Request will be repeated, otherwise the permission request completes and returns the current permission result.

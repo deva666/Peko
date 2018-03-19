@@ -19,17 +19,15 @@ object Peko {
 						   rationale: PermissionRationale = PermissionRationale.EMPTY): Deferred<PermissionRequestResult> {
 
 		checkRequestNotInProgress()
-		deferred = CompletableDeferred()
 		val request = checkPermissions(activity, permissions)
 		return if (request.denied.isNotEmpty()) {
+			deferred = CompletableDeferred()
 			service = PekoService(request, WeakReference(activity), rationale,
 					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
 			service?.requestPermissions()
 			deferred!!
 		} else {
-			deferred?.apply {
-				complete(PermissionRequestResult(request.granted, request.denied))
-			}!!
+			CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
 		}
 	}
 

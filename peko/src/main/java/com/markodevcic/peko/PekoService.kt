@@ -28,8 +28,9 @@ internal class PekoService(private val permissionRequest: PermissionRequest,
 		pendingPermissions.addAll(permissionRequest.denied)
 		if (isTargetSdkUnderAndroidM(activity)) {
 			updateDeniedPermissions(pendingPermissions)
+		} else {
+			PermissionRequester.startPermissionRequest(activity, createRequesterListener())
 		}
-		PermissionRequester.startPermissionRequest(activity, createRequesterListener())
 	}
 
 	private fun createRequesterListener(): PermissionRequesterListener {

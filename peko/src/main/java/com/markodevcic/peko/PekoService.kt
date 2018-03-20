@@ -13,7 +13,7 @@ internal class PekoService(context: Context,
 						   private val permissionRequest: PermissionRequest,
 						   private val rationale: PermissionRationale,
 						   private val sharedPreferences: SharedPreferences,
-						   private val requesterFactory: PermissionRequesterFactory) {
+						   private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory) {
 
 	private val pendingPermissions = mutableSetOf<String>()
 	private val grantedPermissions = mutableSetOf<String>()

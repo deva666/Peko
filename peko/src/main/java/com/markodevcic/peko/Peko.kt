@@ -22,7 +22,7 @@ object Peko {
 		return if (request.denied.isNotEmpty()) {
 			deferred = CompletableDeferred()
 			service = PekoService(activity, request, rationale,
-					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE), PermissionRequesterFactory.defaultFactory)
+					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
 			service?.requestPermissions()
 			deferred!!
 		} else {

@@ -6,16 +6,14 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.PermissionChecker
 import android.view.WindowManager
 import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.launch
 
 internal class PekoActivity : Activity(),
 		ActivityCompat.OnRequestPermissionsResultCallback,
 		PermissionRequester {
 
-	private val channel = Channel<PermissionRequestResult>()
+	private val channel = Channel<PermissionRequestResult>(Channel.UNLIMITED)
 
 	override val resultsChannel: ReceiveChannel<PermissionRequestResult>
 		get() = channel
@@ -47,9 +45,7 @@ internal class PekoActivity : Activity(),
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			launch(UI) {
-				channel.send(PermissionRequestResult(grantedPermissions, deniedPermissions))
-			}
+			channel.offer(PermissionRequestResult(grantedPermissions, deniedPermissions))
 		}
 	}
 

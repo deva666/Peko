@@ -15,7 +15,7 @@ class PekoServiceTest {
 	@Test
 	fun testRequestPermissions() {
 		val request = PermissionRequest(listOf(), listOf("BLUETOOTH"))
-		val sut = PekoService(request, context, PermissionRationale.EMPTY, sharedPrefs, permissionRequesterFactory)
+		val sut = PekoService(context, request, PermissionRationale.EMPTY, sharedPrefs, permissionRequesterFactory)
 
 		sut.requestPermissions()
 	}

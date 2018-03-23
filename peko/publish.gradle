@@ -1,7 +1,7 @@
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-env = System.getenv('BUILD_ENV')
+def env = System.getenv('BUILD_ENV')
 
 if(env != null && env != 'Travis') {
     def libName = 'peko'

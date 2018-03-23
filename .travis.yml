@@ -12,4 +12,4 @@ before_install:
  - chmod +x gradlew
 
 script:
-  - ./gradlew build -x androidTest
+  - ./gradlew build

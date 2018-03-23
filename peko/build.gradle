@@ -4,8 +4,6 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 26
 
-
-
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
@@ -40,3 +38,5 @@ dependencies {
 }
 
 kotlin { experimental { coroutines "enable" } }
+
+apply from: 'publish.gradle'

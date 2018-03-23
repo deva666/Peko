@@ -11,7 +11,7 @@ class PekoServiceTest {
 	private val sharedPrefs = Mockito.mock(SharedPreferences::class.java)
 	private val permissionRequesterFactory = Mockito.mock(PermissionRequesterFactory::class.java)
 
-	
+
 	fun testRequestPermissions() {
 		val request = PermissionRequest(listOf(), listOf("BLUETOOTH"))
 		val sut = PekoService(context, request, PermissionRationale.EMPTY, sharedPrefs, permissionRequesterFactory)

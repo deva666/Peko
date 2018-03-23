@@ -1,7 +1,8 @@
 # PEKO
-### PErmissions in KOtlin
 
 [![Build Status](https://travis-ci.org/deva666/Peko.svg?branch=master)](https://travis-ci.org/deva666/Peko) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+---
+### PErmissions in KOtlin
 
 #### Android Permissions with Kotlin Coroutines
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.

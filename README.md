@@ -8,6 +8,14 @@ Request permissions with one function call, thanks to Kotlin Coroutines.
 
 ***
 
+### Installation
+
+Add `jcenter` repository
+
+```
+compile 'com.markodevcic.peko:peko:0.1'
+```
+
 Example in Android Activity:
 ```kotlin
 launch (UI) {

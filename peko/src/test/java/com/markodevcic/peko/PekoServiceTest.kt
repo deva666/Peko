@@ -20,7 +20,6 @@ class PekoServiceTest {
 	private val dispatcher = Unconfined
 	private val permissionRequester = Mockito.mock(PermissionRequester::class.java)
 
-
 	@Before
 	fun setup() {
 		Mockito.`when`(permissionRequesterFactory.getRequester(context)).thenReturn(CompletableDeferred(permissionRequester))
@@ -43,5 +42,4 @@ class PekoServiceTest {
 			Assert.assertTrue(result.deniedPermissions.isEmpty())
 		}
 	}
-
 }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Before
-import org.junit.Test
 import org.mockito.Mockito
 
 class PekoServiceTest {
@@ -25,7 +24,7 @@ class PekoServiceTest {
 		Mockito.`when`(permissionRequesterFactory.getRequester(Mockito.any(Context::class.java))).thenReturn(CompletableDeferred(permissionRequester))
 	}
 
-	@Test
+
 	fun testRequestPermissions() {
 		val request = PermissionRequest(listOf(), listOf("BLUETOOTH"))
 		val channel = Channel<PermissionRequestResult>()

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
@@ -21,6 +22,7 @@ internal class PekoService(context: Context,
 	private val grantedPermissions = mutableSetOf<String>()
 	private val deniedPermissions = mutableSetOf<String>()
 	private val contextReference: WeakReference<out Context> = WeakReference(context)
+	private val job = Job()
 
 	private lateinit var requester: PermissionRequester
 
@@ -35,7 +37,7 @@ internal class PekoService(context: Context,
 		if (isTargetSdkUnderAndroidM(context)) {
 			updateDeniedPermissions(pendingPermissions)
 		} else {
-			launch(dispatcher) {
+			launch(job + dispatcher) {
 				requester = requesterFactory.getRequester(context).await()
 				requester.requestPermissions(permissionRequest.denied.toTypedArray())
 				for (result in requester.resultsChannel) {
@@ -44,6 +46,10 @@ internal class PekoService(context: Context,
 				}
 			}
 		}
+	}
+
+	fun cancelRequest() {
+		job.cancel()
 	}
 
 	private fun isTargetSdkUnderAndroidM(activity: Context): Boolean {

@@ -24,6 +24,12 @@ object Peko {
 			service = PekoService(activity, request, rationale,
 					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
 			service?.requestPermissions()
+			deferred?.invokeOnCompletion(onCancelling = true) {
+				if (deferred?.isCancelled == true) {
+					service?.cancelRequest()
+					clearCurrentRequest()
+				}
+			}
 			deferred!!
 		} else {
 			CompletableDeferred(PermissionRequestResult(request.granted, request.denied))

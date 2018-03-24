@@ -3,7 +3,7 @@ apply plugin: 'com.jfrog.bintray'
 
 def env = System.getenv('BUILD_ENV')
 
-if(env == null || (env != null && env != 'Travis') {
+if(env == null || env != null && env != 'Travis') {
     def libName = 'peko'
     def libGroup = 'com.markodevcic.' + libName
     def libSite = 'https://github.com/deva666/' + libName

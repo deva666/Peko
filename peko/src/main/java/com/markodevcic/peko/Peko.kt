@@ -3,6 +3,7 @@ package com.markodevcic.peko
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.support.v4.app.ActivityCompat
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.CompletableDeferred
@@ -19,6 +20,9 @@ object Peko {
 
 		checkRequestNotInProgress()
 		val request = checkPermissions(activity, permissions)
+		if (isTargetSdkUnderAndroidM(activity)) {
+			return CompletableDeferred(PermissionRequestResult(listOf(), permissions.toList()))
+		}
 		return if (request.denied.isNotEmpty()) {
 			deferred = CompletableDeferred()
 			service = PekoService(activity, request, rationale,
@@ -39,6 +43,16 @@ object Peko {
 	private fun checkRequestNotInProgress() {
 		if (service != null) {
 			throw IllegalStateException("Can't request permission while another request in progress")
+		}
+	}
+
+	private fun isTargetSdkUnderAndroidM(context: Context): Boolean {
+		return try {
+			val info = context.packageManager.getPackageInfo(context.packageName, 0)
+			val targetSdkVersion = info.applicationInfo.targetSdkVersion
+			targetSdkVersion < Build.VERSION_CODES.M
+		} catch (fail: PackageManager.NameNotFoundException) {
+			false
 		}
 	}
 

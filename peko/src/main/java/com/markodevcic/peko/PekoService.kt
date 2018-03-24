@@ -2,8 +2,6 @@ package com.markodevcic.peko
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.os.Build
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Job
@@ -34,32 +32,19 @@ internal class PekoService(context: Context,
 		}
 		pendingPermissions.addAll(permissionRequest.denied)
 		grantedPermissions.addAll(permissionRequest.granted)
-		if (isTargetSdkUnderAndroidM(context)) {
-			updateDeniedPermissions(pendingPermissions)
-		} else {
-			launch(job + dispatcher) {
-				requester = requesterFactory.getRequester(context).await()
-				requester.requestPermissions(permissionRequest.denied.toTypedArray())
-				for (result in requester.resultsChannel) {
-					permissionsGranted(result.grantedPermissions)
-					permissionsDenied(result.deniedPermissions)
-				}
+
+		launch(job + dispatcher) {
+			requester = requesterFactory.getRequester(context).await()
+			requester.requestPermissions(permissionRequest.denied.toTypedArray())
+			for (result in requester.resultsChannel) {
+				permissionsGranted(result.grantedPermissions)
+				permissionsDenied(result.deniedPermissions)
 			}
 		}
 	}
 
 	fun cancelRequest() {
 		job.cancel()
-	}
-
-	private fun isTargetSdkUnderAndroidM(activity: Context): Boolean {
-		return try {
-			val info = activity.packageManager.getPackageInfo(activity.packageName, 0)
-			val targetSdkVersion = info.applicationInfo.targetSdkVersion
-			targetSdkVersion < Build.VERSION_CODES.M
-		} catch (fail: PackageManager.NameNotFoundException) {
-			false
-		}
 	}
 
 	private fun permissionsGranted(permissions: Collection<String>) {

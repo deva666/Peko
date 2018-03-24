@@ -21,13 +21,13 @@ compile 'com.markodevcic.peko:peko:0.1'
 Example in Android Activity:
 ```kotlin
 launch (UI) {
-    val permissionResultDeferred = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH)
+    val permissionResultDeferred = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
     val permissionResult = permissionResultDeferred.await()
     
     if (permissionResult.grantedPermissions.contains(Manifest.permission.BLUETOOTH)) {
-        //we have permission
+        //we have Bluetooth permission
     } else {
-        //can't continue
+        //no Bluetooth permission
     }
 }
 ```

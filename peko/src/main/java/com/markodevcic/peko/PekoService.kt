@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import com.markodevcic.peko.rationale.PermissionRationale
+import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
@@ -13,7 +14,8 @@ internal class PekoService(context: Context,
 						   private val permissionRequest: PermissionRequest,
 						   private val rationale: PermissionRationale,
 						   private val sharedPreferences: SharedPreferences,
-						   private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory) {
+						   private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
+						   private val dispatcher: CoroutineDispatcher = UI) {
 
 	private val pendingPermissions = mutableSetOf<String>()
 	private val grantedPermissions = mutableSetOf<String>()
@@ -33,7 +35,7 @@ internal class PekoService(context: Context,
 		if (isTargetSdkUnderAndroidM(context)) {
 			updateDeniedPermissions(pendingPermissions)
 		} else {
-			launch(UI) {
+			launch(dispatcher) {
 				requester = requesterFactory.getRequester(context).await()
 				requester.requestPermissions(permissionRequest.denied.toTypedArray())
 				for (result in requester.resultsChannel) {

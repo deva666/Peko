@@ -7,7 +7,9 @@ import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.runBlocking
+import org.junit.Assert
 import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 
 class PekoServiceTest {
@@ -21,18 +23,24 @@ class PekoServiceTest {
 
 	@Before
 	fun setup() {
-		Mockito.`when`(permissionRequesterFactory.getRequester(Mockito.any(Context::class.java))).thenReturn(CompletableDeferred(permissionRequester))
+		Mockito.`when`(permissionRequesterFactory.getRequester(context)).thenReturn(CompletableDeferred(permissionRequester))
 	}
 
-
+	@Test
 	fun testRequestPermissions() {
 		val request = PermissionRequest(listOf(), listOf("BLUETOOTH"))
 		val channel = Channel<PermissionRequestResult>()
 		Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
+
 		val sut = PekoService(context, request, PermissionRationale.EMPTY, sharedPrefs, permissionRequesterFactory, dispatcher)
-		sut.requestPermissions()
+		val deferred = sut.requestPermissions()
+
 		runBlocking {
 			channel.send(PermissionRequestResult(listOf("BLUETOOTH"), listOf()))
+			val result = deferred.await()
+			Assert.assertTrue(result.grantedPermissions.size == 1)
+			Assert.assertTrue(result.grantedPermissions.contains("BLUETOOTH"))
+			Assert.assertTrue(result.deniedPermissions.isEmpty())
 		}
 	}
 

@@ -12,7 +12,6 @@ import kotlinx.coroutines.experimental.Deferred
 object Peko {
 
 	private var service: PekoService? = null
-	private var deferred: CompletableDeferred<PermissionRequestResult>? = null
 
 	fun requestPermissionsAsync(activity: Activity,
 								vararg permissions: String,
@@ -24,17 +23,13 @@ object Peko {
 			return CompletableDeferred(PermissionRequestResult(listOf(), permissions.toList()))
 		}
 		return if (request.denied.isNotEmpty()) {
-			deferred = CompletableDeferred()
 			service = PekoService(activity, request, rationale,
 					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
-			service?.requestPermissions()
-			deferred?.invokeOnCompletion(onCancelling = true) {
-				if (deferred?.isCancelled == true) {
-					service?.cancelRequest()
-					clearCurrentRequest()
-				}
+			val deferred = service!!.requestPermissions()
+			deferred.invokeOnCompletion {
+				service = null
 			}
-			deferred!!
+			deferred
 		} else {
 			CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
 		}
@@ -61,17 +56,5 @@ object Peko {
 		val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
 		val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
 		return PermissionRequest(granted, denied)
-	}
-
-	internal fun onPermissionResult(result: PermissionRequestResult) {
-		if (deferred?.isActive == true) {
-			deferred?.complete(result)
-		}
-		clearCurrentRequest()
-	}
-
-	internal fun clearCurrentRequest() {
-		deferred = null
-		service = null
 	}
 }

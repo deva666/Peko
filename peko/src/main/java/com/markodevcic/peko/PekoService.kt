@@ -3,14 +3,12 @@ package com.markodevcic.peko
 import android.content.Context
 import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.CoroutineDispatcher
-import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
 
 internal class PekoService(context: Context,
-						   private val permissionRequest: PermissionRequest,
+						   private val request: PermissionRequest,
 						   private val rationale: PermissionRationale,
 						   private val sharedPreferences: SharedPreferences,
 						   private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
@@ -22,29 +20,38 @@ internal class PekoService(context: Context,
 	private val contextReference: WeakReference<out Context> = WeakReference(context)
 	private val job = Job()
 
+	private lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
 	private lateinit var requester: PermissionRequester
 
-	fun requestPermissions() {
+	fun requestPermissions(): Deferred<PermissionRequestResult> {
 		val context = contextReference.get()
-		if (context == null) {
-			Peko.clearCurrentRequest()
-			return
-		}
-		pendingPermissions.addAll(permissionRequest.denied)
-		grantedPermissions.addAll(permissionRequest.granted)
+				?: return CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
 
+		deferredResult = CompletableDeferred()
+		deferredResult.invokeOnCompletion(onCancelling = true) {
+			if (deferredResult.isCancelled) {
+				job.cancel()
+			}
+		}
+
+		pendingPermissions.addAll(request.denied)
+		grantedPermissions.addAll(request.granted)
+
+		requestPermissions(context)
+
+		return deferredResult
+	}
+
+	private fun requestPermissions(context: Context) {
 		launch(job + dispatcher) {
 			requester = requesterFactory.getRequester(context).await()
-			requester.requestPermissions(permissionRequest.denied.toTypedArray())
+			requester.requestPermissions(request.denied.toTypedArray())
+
 			for (result in requester.resultsChannel) {
 				permissionsGranted(result.grantedPermissions)
 				permissionsDenied(result.deniedPermissions)
 			}
 		}
-	}
-
-	fun cancelRequest() {
-		job.cancel()
 	}
 
 	private fun permissionsGranted(permissions: Collection<String>) {
@@ -63,7 +70,7 @@ internal class PekoService(context: Context,
 					updateDeniedPermissions(permissions)
 				}
 			}
-			setRationaleShownFor(permissionRequest.denied)
+			setRationaleShownFor(request.denied)
 		} else {
 			updateDeniedPermissions(permissions)
 		}
@@ -76,17 +83,10 @@ internal class PekoService(context: Context,
 	}
 
 	private fun checkIfRequestComplete() {
-		if (contextReference.get() == null) {
-			Peko.clearCurrentRequest()
-			finishRequest()
-		} else if (pendingPermissions.isEmpty()) {
-			Peko.onPermissionResult(PermissionRequestResult(grantedPermissions, deniedPermissions))
-			finishRequest()
+		if (pendingPermissions.isEmpty() || contextReference.get() == null) {
+			requester.finish()
+			deferredResult.complete(PermissionRequestResult(grantedPermissions, deniedPermissions))
 		}
-	}
-
-	private fun finishRequest() {
-		requester.finish()
 	}
 
 	private fun checkIfRationaleShownAlready(permission: String): Boolean {

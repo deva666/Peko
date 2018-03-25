@@ -18,7 +18,7 @@ internal class PekoService(context: Context,
 	private val grantedPermissions = mutableSetOf<String>()
 	private val deniedPermissions = mutableSetOf<String>()
 	private val contextReference: WeakReference<out Context> = WeakReference(context)
-	private val job = Job()
+	private lateinit var job: Job
 
 	private lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
 	private lateinit var requester: PermissionRequester
@@ -31,6 +31,9 @@ internal class PekoService(context: Context,
 		deferredResult.invokeOnCompletion(onCancelling = true) {
 			if (deferredResult.isCancelled) {
 				job.cancel()
+				if (::requester.isInitialized) {
+					requester.finish()
+				}
 			}
 		}
 
@@ -43,7 +46,7 @@ internal class PekoService(context: Context,
 	}
 
 	private fun requestPermissions(context: Context) {
-		launch(job + dispatcher) {
+		job = launch(dispatcher) {
 			requester = requesterFactory.getRequester(context).await()
 			requester.requestPermissions(request.denied.toTypedArray())
 

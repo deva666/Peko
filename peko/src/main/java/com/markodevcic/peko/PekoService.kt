@@ -3,11 +3,8 @@ package com.markodevcic.peko
 import android.content.Context
 import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.CoroutineDispatcher
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
 
 internal class PekoService(context: Context,
@@ -24,6 +21,7 @@ internal class PekoService(context: Context,
 
 	private lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
 	private lateinit var requester: PermissionRequester
+	private val job = Job()
 
 	fun requestPermissions(): Deferred<PermissionRequestResult> {
 		val context = contextReference.get()
@@ -32,6 +30,7 @@ internal class PekoService(context: Context,
 		deferredResult = CompletableDeferred()
 		deferredResult.invokeOnCompletion(onCancelling = true) {
 			if (deferredResult.isCancelled) {
+				job.cancel()
 				if (::requester.isInitialized) {
 					requester.finish()
 				}
@@ -47,7 +46,8 @@ internal class PekoService(context: Context,
 	}
 
 	private fun requestPermissions(context: Context) {
-		launch(deferredResult + dispatcher) {
+		launch(job + dispatcher) {
+			delay(500)
 			requester = requesterFactory.getRequester(context).await()
 			requester.requestPermissions(request.denied.toTypedArray())
 
@@ -67,7 +67,7 @@ internal class PekoService(context: Context,
 	private fun permissionsDenied(permissions: Collection<String>) {
 		val showRationalePermissions = permissions.any { p -> !checkIfRationaleShownAlready(p) }
 		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
-			launch(deferredResult + dispatcher) {
+			launch(job + dispatcher) {
 				if (rationale.shouldRequestAfterRationaleShownAsync()) {
 					requester.requestPermissions(permissions.toTypedArray())
 				} else {

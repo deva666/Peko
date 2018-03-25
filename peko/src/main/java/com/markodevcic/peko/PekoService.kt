@@ -22,6 +22,7 @@ internal class PekoService(context: Context,
 
 	private lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
 	private lateinit var requester: PermissionRequester
+	private lateinit var requesterDeferred: Deferred<PermissionRequester>
 
 	fun requestPermissions(): Deferred<PermissionRequestResult> {
 		val context = contextReference.get()
@@ -30,7 +31,6 @@ internal class PekoService(context: Context,
 		deferredResult = CompletableDeferred()
 		deferredResult.invokeOnCompletion(onCancelling = true) {
 			if (deferredResult.isCancelled) {
-				job.cancel()
 				if (::requester.isInitialized) {
 					requester.finish()
 				}
@@ -46,8 +46,9 @@ internal class PekoService(context: Context,
 	}
 
 	private fun requestPermissions(context: Context) {
-		job = launch(dispatcher) {
-			requester = requesterFactory.getRequester(context).await()
+		launch(deferredResult + dispatcher) {
+			requesterDeferred = requesterFactory.getRequester(context)
+			requester = requesterDeferred.await()
 			requester.requestPermissions(request.denied.toTypedArray())
 
 			for (result in requester.resultsChannel) {
@@ -66,7 +67,7 @@ internal class PekoService(context: Context,
 	private fun permissionsDenied(permissions: Collection<String>) {
 		val showRationalePermissions = permissions.any { p -> !checkIfRationaleShownAlready(p) }
 		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
-			launch(UI) {
+			launch(deferredResult + dispatcher) {
 				if (rationale.shouldRequestAfterRationaleShownAsync()) {
 					requester.requestPermissions(permissions.toTypedArray())
 				} else {

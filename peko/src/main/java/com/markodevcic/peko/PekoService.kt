@@ -3,8 +3,11 @@ package com.markodevcic.peko
 import android.content.Context
 import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
 
 internal class PekoService(context: Context,
@@ -18,11 +21,9 @@ internal class PekoService(context: Context,
 	private val grantedPermissions = mutableSetOf<String>()
 	private val deniedPermissions = mutableSetOf<String>()
 	private val contextReference: WeakReference<out Context> = WeakReference(context)
-	private lateinit var job: Job
 
 	private lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
 	private lateinit var requester: PermissionRequester
-	private lateinit var requesterDeferred: Deferred<PermissionRequester>
 
 	fun requestPermissions(): Deferred<PermissionRequestResult> {
 		val context = contextReference.get()
@@ -47,8 +48,7 @@ internal class PekoService(context: Context,
 
 	private fun requestPermissions(context: Context) {
 		launch(deferredResult + dispatcher) {
-			requesterDeferred = requesterFactory.getRequester(context)
-			requester = requesterDeferred.await()
+			requester = requesterFactory.getRequester(context).await()
 			requester.requestPermissions(request.denied.toTypedArray())
 
 			for (result in requester.resultsChannel) {

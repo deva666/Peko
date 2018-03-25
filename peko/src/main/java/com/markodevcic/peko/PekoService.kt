@@ -47,7 +47,6 @@ internal class PekoService(context: Context,
 
 	private fun requestPermissions(context: Context) {
 		launch(job + dispatcher) {
-			delay(500)
 			requester = requesterFactory.getRequester(context).await()
 			requester.requestPermissions(request.denied.toTypedArray())
 

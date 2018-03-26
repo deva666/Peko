@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
-import kotlinx.coroutines.experimental.cancelAndJoin
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert
@@ -28,7 +27,7 @@ class PekoServiceTest {
 	}
 
 	@Test
-	fun testRequestPermissions() {
+	fun testRequestPermissionsGranted() {
 		val request = PermissionRequest(listOf(), listOf("BLUETOOTH"))
 		val channel = Channel<PermissionRequestResult>()
 		Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
@@ -45,23 +44,42 @@ class PekoServiceTest {
 		}
 	}
 
-//	@Test
-	fun testCancellation() {
-		val request = PermissionRequest(listOf(), listOf("BLUETOOTH"))
+
+	@Test
+	fun testRequestPermissionsGrantedAppended() {
+		val request = PermissionRequest(listOf("CAMERA"), listOf("BLUETOOTH"))
 		val channel = Channel<PermissionRequestResult>()
 		Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
-		val requesterDeferred = CompletableDeferred<PermissionRequester>()
-		Mockito.`when`(permissionRequesterFactory.getRequester(context)).thenReturn(requesterDeferred)
 
 		val sut = PekoService(context, request, PermissionRationale.EMPTY, sharedPrefs, permissionRequesterFactory, dispatcher)
-		val requestDeferred = sut.requestPermissions()
+		val deferred = sut.requestPermissions()
 
 		runBlocking {
-			requestDeferred.cancelAndJoin()
+			channel.send(PermissionRequestResult(listOf("BLUETOOTH"), listOf()))
+			val result = deferred.await()
+			Assert.assertTrue(result.grantedPermissions.size == 2)
+			Assert.assertTrue(result.grantedPermissions.contains("BLUETOOTH"))
+			Assert.assertTrue(result.grantedPermissions.contains("CAMERA"))
+			Assert.assertTrue(result.deniedPermissions.isEmpty())
 		}
+	}
 
-		Assert.assertTrue(requesterDeferred.isCancelled)
-		Assert.assertTrue(channel.isClosedForReceive)
-		Assert.assertTrue(channel.isClosedForSend)
+	@Test
+	fun testRequestPermissionsDenied() {
+		val request = PermissionRequest(listOf("CAMERA"), listOf("BLUETOOTH"))
+		val channel = Channel<PermissionRequestResult>()
+		Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
+		Mockito.`when`(sharedPrefs.getStringSet(RATIONALE_SHOWED_SET_KEY, setOf())).thenReturn(setOf("BLUETOOTH"))
+
+		val sut = PekoService(context, request, PermissionRationale.EMPTY, sharedPrefs, permissionRequesterFactory, dispatcher)
+		val deferred = sut.requestPermissions()
+
+		runBlocking {
+			channel.send(PermissionRequestResult(listOf(), listOf("BLUETOOTH")))
+			val result = deferred.await()
+			Assert.assertTrue(result.grantedPermissions.size == 1)
+			Assert.assertTrue(result.deniedPermissions.contains("BLUETOOTH"))
+			Assert.assertTrue(result.grantedPermissions.contains("CAMERA"))
+		}
 	}
 }

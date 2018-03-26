@@ -15,7 +15,7 @@ Request permissions with one function call, thanks to Kotlin Coroutines.
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:0.1'
+compile 'com.markodevcic.peko:peko:0.2'
 ```
 
 Example in Android Activity:

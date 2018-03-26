@@ -8,36 +8,36 @@ import android.support.v4.app.ActivityCompat
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Deferred
+import java.util.concurrent.atomic.AtomicReference
 
 object Peko {
 
-	private var service: PekoService? = null
+	private val serviceReference = AtomicReference<PekoService?>(null)
 
 	fun requestPermissionsAsync(activity: Activity,
 								vararg permissions: String,
 								rationale: PermissionRationale = PermissionRationale.EMPTY): Deferred<PermissionRequestResult> {
 
-		checkRequestNotInProgress()
 		val request = checkPermissions(activity, permissions)
 		if (isTargetSdkUnderAndroidM(activity)) {
 			return CompletableDeferred(PermissionRequestResult(listOf(), permissions.toList()))
 		}
+
 		return if (request.denied.isNotEmpty()) {
-			service = PekoService(activity, request, rationale,
+			val service = PekoService(activity, request, rationale,
 					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
-			val deferred = service!!.requestPermissions()
-			deferred.invokeOnCompletion {
-				service = null
+
+			if (!serviceReference.compareAndSet(null, service)) {
+				throw IllegalStateException("Can't request permission while another request in progress")
 			}
-			deferred
+
+			service.requestPermissions().apply {
+				invokeOnCompletion {
+					serviceReference.set(null)
+				}
+			}
 		} else {
 			CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
-		}
-	}
-
-	private fun checkRequestNotInProgress() {
-		if (service != null) {
-			throw IllegalStateException("Can't request permission while another request in progress")
 		}
 	}
 

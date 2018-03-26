@@ -14,6 +14,11 @@ object Peko {
 
 	private val serviceReference = AtomicReference<PekoService?>(null)
 
+	/**
+	 * Requests [permissions] asynchronously.
+	 * This class is thread safe.
+	 * @return [Deferred] instance. Call [Deferred.await] inside a coroutine to get a [PermissionRequestResult]
+	 */
 	fun requestPermissionsAsync(activity: Activity,
 								vararg permissions: String,
 								rationale: PermissionRationale = PermissionRationale.EMPTY): Deferred<PermissionRequestResult> {

@@ -60,28 +60,30 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun setResults(result: PermissionRequestResult) {
-		if (result.grantedPermissions.contains(Manifest.permission.ACCESS_FINE_LOCATION)) {
+		val (grantedPermissions, deniedPermissions) = result
+
+		if (Manifest.permission.ACCESS_FINE_LOCATION in grantedPermissions) {
 			textLocationResult.text = "GRANTED"
 			textLocationResult.setTextColor(Color.GREEN)
 		}
-		if (result.grantedPermissions.contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+		if (Manifest.permission.WRITE_EXTERNAL_STORAGE in grantedPermissions) {
 			textFileResult.text = "GRANTED"
 			textFileResult.setTextColor(Color.GREEN)
 		}
-		if (result.grantedPermissions.contains(Manifest.permission.CAMERA)) {
+		if (Manifest.permission.CAMERA in grantedPermissions) {
 			textCameraResult.text = "GRANTED"
 			textCameraResult.setTextColor(Color.GREEN)
 		}
 
-		if (result.deniedPermissions.contains(Manifest.permission.ACCESS_FINE_LOCATION)) {
+		if (Manifest.permission.ACCESS_FINE_LOCATION in deniedPermissions) {
 			textLocationResult.text = "DENIED"
 			textLocationResult.setTextColor(Color.RED)
 		}
-		if (result.deniedPermissions.contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+		if (Manifest.permission.WRITE_EXTERNAL_STORAGE in deniedPermissions) {
 			textFileResult.text = "DENIED"
 			textFileResult.setTextColor(Color.RED)
 		}
-		if (result.deniedPermissions.contains(Manifest.permission.CAMERA)) {
+		if (Manifest.permission.CAMERA in deniedPermissions) {
 			textCameraResult.text = "DENIED"
 			textCameraResult.setTextColor(Color.RED)
 		}

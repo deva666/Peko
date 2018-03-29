@@ -22,9 +22,9 @@ Example in Android Activity:
 ```kotlin
 launch (UI) {
     val permissionResultDeferred = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
-    val permissionResult = permissionResultDeferred.await()
+    val (grantedPermissions) = permissionResultDeferred.await()
     
-    if (permissionResult.grantedPermissions.contains(Manifest.permission.BLUETOOTH)) {
+    if (Manifest.permission.BLUETOOTH in grantedPermissions) {
         //we have Bluetooth permission
     } else {
         //no Bluetooth permission

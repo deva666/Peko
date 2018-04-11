@@ -23,18 +23,23 @@ class MainActivity : AppCompatActivity() {
 		setSupportActionBar(toolbar)
 
 		btnFineLocation.setOnClickListener {
+			clearResults()
 			requestPermission(Manifest.permission.ACCESS_FINE_LOCATION)
 		}
 		btnFile.setOnClickListener {
+			clearResults()
 			requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 		}
 		btnCamera.setOnClickListener {
+			clearResults()
 			requestPermission(Manifest.permission.CAMERA)
 		}
 		btnAll.setOnClickListener {
+			clearResults()
 			requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
 		}
 		btnAllSnackBarRationale.setOnClickListener {
+			clearResults()
 			requestPermissionWithSnackBarRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
 		}
 	}
@@ -87,6 +92,12 @@ class MainActivity : AppCompatActivity() {
 			textCameraResult.text = "DENIED"
 			textCameraResult.setTextColor(Color.RED)
 		}
+	}
+
+	private fun clearResults() {
+		textCameraResult.text = ""
+		textFileResult.text = ""
+		textLocationResult.text = ""
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {

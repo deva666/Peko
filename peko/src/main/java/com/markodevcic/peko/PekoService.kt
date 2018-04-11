@@ -48,13 +48,11 @@ internal class PekoService(context: Context,
 	private fun requestPermissions(context: Context) {
 		launch(job + dispatcher) {
 			requester = requesterFactory.getRequester(context).await()
-
+			requester.requestPermissions(request.denied.toTypedArray())
 			for (result in requester.resultsChannel) {
 				permissionsGranted(result.grantedPermissions)
 				permissionsDenied(result.deniedPermissions)
 			}
-
-			requester.requestPermissions(request.denied.toTypedArray())
 		}
 	}
 

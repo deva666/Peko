@@ -6,7 +6,8 @@
 
 #### Android Permissions with Kotlin Coroutines
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.
-Request permissions with one function call, thanks to Kotlin Coroutines.
+Get Permission Request Result asynchronously with one function call. 
+Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), permissions requests are async and lightweight (no new threads are used/created).
 
 ***
 
@@ -49,14 +50,14 @@ There is also a `SnackBarRationale` class that shows a SnackBar when permission 
 
 ```kotlin
 val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
-val snackBarRationale = SnackBarRationale(snackBar, "Request again")
+val snackBarRationale = SnackBarRationale(snackBar, actionTitle = "Request again")
 
 launch(UI) {
     val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 }
 ```
 
-You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, Permission Request will be repeated, otherwise the permission request completes and returns the current permission result.
+You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, permissions will be asked for again, otherwise the request completes and returns the current permission result.
 
 
 ## License

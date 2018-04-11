@@ -53,7 +53,7 @@ internal class PekoService(context: Context,
 				permissionsGranted(result.grantedPermissions)
 				permissionsDenied(result.deniedPermissions)
 			}
-			
+
 			requester.requestPermissions(request.denied.toTypedArray())
 		}
 	}

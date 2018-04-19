@@ -4,7 +4,7 @@
     <application>
         <activity
             android:name=".PekoActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="unspecified"
             android:theme="@style/TransparentTheme"/>
     </application>
 </manifest>

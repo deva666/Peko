@@ -12,10 +12,13 @@ import com.markodevcic.peko.PermissionRequestResult
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
 import com.markodevcic.peko.rationale.SnackBarRationale
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
 class MainActivity : AppCompatActivity() {
+
+	private val job = Job()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -45,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun requestPermission(vararg permissions: String) {
-		launch(UI) {
+		launch(job + UI) {
 			val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")
@@ -58,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 	private fun requestPermissionWithSnackBarRationale(vararg permissions: String) {
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
-		launch(UI) {
+		launch(job + UI) {
 			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 			setResults(result)
 		}
@@ -110,5 +113,10 @@ class MainActivity : AppCompatActivity() {
 			R.id.action_settings -> true
 			else -> super.onOptionsItemSelected(item)
 		}
+	}
+
+	override fun onDestroy() {
+		super.onDestroy()
+		job.cancel()
 	}
 }

@@ -16,7 +16,7 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:0.21'
+compile 'com.markodevcic.peko:peko:0.3'
 ```
 
 Example in Android Activity:
@@ -33,6 +33,50 @@ launch (UI) {
 }
 ```
 
+### Screen rotations
+Library has support for screen rotations. 
+When activity get's recreated, coroutines that have not completed yet, have to be cancelled to avoid memory leaks.
+When you detect a orientation change, cancel the coroutine with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The `Deferred` can then be awaited again by calling `Peko.resultDeferred`.
+
+Example:
+
+First:
+```kotlin
+
+//job that will be cancelled in onDestroy
+private val job = Job()
+
+private fun requestPermission(vararg permissions: String) {
+    launch(job + UI) { // combine job with UI context
+        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions).await()
+        setResults(result)
+    }
+}
+```
+
+Then in `onDestroy` of Activity:
+```kotlin
+if (isChangingConfigurations) {
+    job.cancel(ActivityRotatingException()) //screen rotation, retain the results
+} else { 
+    job.cancel() //no rotation, just cancel the coroutine
+}
+``` 
+
+And when activity get's recreated in `onCreate` function:
+```kotlin
+
+//check if we have a request already (or some other way you detect screen orientation)
+if (Peko.isRequestInProgress()) {
+    launch (UI) {
+        //get the existing request and await the result
+        val result = Peko.resultDeferred!!.await()
+        setResults(result)
+    }
+}
+```
+
+### Permission Rationales
 If you want to show a permission rationale to the user, you can use the built in `AlertDialogPermissionRationale`. This will show an Alert Dialog with your message and title, explaining to user why this rationale is needed. It will be shown only once and only if user denies the permission for the first time.
 
 ```kotlin

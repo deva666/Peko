@@ -14,6 +14,10 @@ object Peko {
 
 	private val serviceReference = AtomicReference<PekoService?>(null)
 
+	/**
+	 * Get's the [Deferred] of [PermissionRequestResult] that is in progress
+	 * Returns null if there is no request in progress
+	 */
 	val resultDeferred: CompletableDeferred<PermissionRequestResult>?
 		get() = serviceReference.get()?.deferredResult
 

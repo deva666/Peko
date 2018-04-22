@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.markodevcic.peko.ActivityRotatingException
 import com.markodevcic.peko.Peko
 import com.markodevcic.peko.PermissionRequestResult
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
@@ -18,12 +19,19 @@ import kotlinx.coroutines.experimental.launch
 
 class MainActivity : AppCompatActivity() {
 
-	private val job = Job()
+	private var job = Job()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(toolbar)
+
+		if (Peko.isRequestInProgress()) {
+			launch (UI) {
+				val result = Peko.resultDeferred!!.await()
+				setResults(result)
+			}
+		}
 
 		btnFineLocation.setOnClickListener {
 			clearResults()
@@ -117,6 +125,10 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onDestroy() {
 		super.onDestroy()
-		job.cancel()
+		if (isChangingConfigurations) {
+			job.cancel(ActivityRotatingException())
+		} else {
+			job.cancel()
+		}
 	}
 }

@@ -14,10 +14,14 @@ object Peko {
 
 	private val serviceReference = AtomicReference<PekoService?>(null)
 
+	val resultDeferred: CompletableDeferred<PermissionRequestResult>?
+		get() = serviceReference.get()?.deferredResult
+
 	/**
 	 * Requests [permissions] asynchronously.
 	 * This class is thread safe.
 	 * @return [Deferred] instance. Call [Deferred.await] inside a coroutine to get a [PermissionRequestResult]
+	 * @throws [IllegalStateException] if called while another request has not completed yet
 	 */
 	fun requestPermissionsAsync(activity: Activity,
 								vararg permissions: String,
@@ -38,7 +42,9 @@ object Peko {
 
 			service.requestPermissions().apply {
 				invokeOnCompletion {
-					serviceReference.set(null)
+					if (it?.javaClass != ActivityRotatingException::class.java) {
+						serviceReference.set(null)
+					}
 				}
 			}
 		} else {
@@ -62,4 +68,10 @@ object Peko {
 		val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
 		return PermissionRequest(granted, denied)
 	}
+
+	/**
+	 * Checks if there is a request in progress.
+	 * If true is returned, get the [Deferred] of [PermissionRequestResult] that is in progress by accessing [resultDeferred] property
+	 */
+	fun isRequestInProgress(): Boolean = serviceReference.get() != null
 }

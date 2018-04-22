@@ -19,7 +19,7 @@ internal class PekoService(context: Context,
 	private val deniedPermissions = mutableSetOf<String>()
 	private val contextReference: WeakReference<out Context> = WeakReference(context)
 
-	private lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
+	internal lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
 	private lateinit var requester: PermissionRequester
 	private val job = Job()
 

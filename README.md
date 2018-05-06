@@ -18,7 +18,8 @@ Add `jcenter` repository
 compile 'com.markodevcic.peko:peko:0.31'
 ```
 
-Example in Android Activity:
+### Example 
+In an Activity or a Fragment:
 ```kotlin
 launch (UI) {
     val permissionResultDeferred = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 

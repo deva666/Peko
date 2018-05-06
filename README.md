@@ -53,7 +53,7 @@ private fun requestPermission(vararg permissions: String) {
 }
 ```
 
-Then in `onDestroy` of Activity:
+Then in `onDestroy` of an Activity:
 ```kotlin
 if (isChangingConfigurations) {
     job.cancel(ActivityRotatingException()) //screen rotation, retain the results

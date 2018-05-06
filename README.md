@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/deva666/Peko.svg?branch=master)](https://travis-ci.org/deva666/Peko) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Peko-blue.svg?style=flat)](https://android-arsenal.com/details/1/6861) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ---
-### PErmissions in KOtlin
+### **PE**rmissions with **KO**tlin
 
 #### Android Permissions with Kotlin Coroutines
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.

@@ -15,7 +15,7 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:0.3'
+compile 'com.markodevcic.peko:peko:0.31'
 ```
 
 Example in Android Activity:

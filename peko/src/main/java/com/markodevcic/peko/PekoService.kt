@@ -100,6 +100,9 @@ internal class PekoService(context: Context,
 		val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, mutableSetOf())
 		rationaleShowedSet.addAll(permissions)
 		sharedPreferences.edit()
+				.remove(RATIONALE_SHOWED_SET_KEY)
+				.apply()
+		sharedPreferences.edit()
 				.putStringSet(RATIONALE_SHOWED_SET_KEY, rationaleShowedSet)
 				.apply()
 	}

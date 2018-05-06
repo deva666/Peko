@@ -38,6 +38,8 @@
                 android:id="@+id/btnFineLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:textColor="@android:color/white"
                 android:text="LOCATION"/>
 
             <TextView
@@ -59,6 +61,8 @@
                 android:id="@+id/btnCamera"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:textColor="@android:color/white"
                 android:text="CAMERA"/>
 
             <TextView
@@ -79,6 +83,8 @@
                 android:id="@+id/btnFile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:textColor="@android:color/white"
                 android:text="FILE"/>
 
             <TextView
@@ -95,13 +101,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="ALL"/>
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
+            android:text="REQUEST ALL"/>
 
         <Button
             android:id="@+id/btnAllSnackBarRationale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ALL SNACKBAR RATIONALE"/>
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
+            android:text="SNACKBAR RATIONALE"/>
 
 
     </LinearLayout>

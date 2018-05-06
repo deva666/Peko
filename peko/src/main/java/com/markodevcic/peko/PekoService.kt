@@ -92,7 +92,7 @@ internal class PekoService(context: Context,
 	}
 
 	private fun checkIfRationaleShownAlready(permission: String): Boolean {
-		val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, setOf())
+		val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, mutableSetOf())
 		return rationaleShowedSet.contains(permission)
 	}
 

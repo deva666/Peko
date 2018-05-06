@@ -28,8 +28,8 @@ internal class PekoService(context: Context,
 				?: return CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
 
 		deferredResult = CompletableDeferred()
-		deferredResult.invokeOnCompletion(onCancelling = true) {
-			if (deferredResult.isCancelled) {
+		deferredResult.invokeOnCompletion(onCancelling = true) { fail ->
+			if (fail !is ActivityRotatingException && deferredResult.isCancelled) {
 				job.cancel()
 				if (::requester.isInitialized) {
 					requester.finish()
@@ -71,8 +71,8 @@ internal class PekoService(context: Context,
 				} else {
 					updateDeniedPermissions(permissions)
 				}
+				setRationaleShownFor(permissions)
 			}
-			setRationaleShownFor(request.denied)
 		} else {
 			updateDeniedPermissions(permissions)
 		}

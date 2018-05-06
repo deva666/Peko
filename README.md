@@ -62,7 +62,7 @@ if (isChangingConfigurations) {
 }
 ``` 
 
-And when activity get's recreated in `onCreate` function:
+And when this Activity gets recreated in one of the Activity lifecycle functions, e.g.`onCreate`:
 ```kotlin
 
 //check if we have a request already (or some other way you detect screen orientation)

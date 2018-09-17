@@ -8,7 +8,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 5
-        versionName "0.31"
+        versionName "0.32"
     }
 
     buildTypes {
@@ -24,8 +24,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.0'
     implementation 'com.android.support:design:26.1.0'
 
     testImplementation "org.mockito:mockito-core:2.+"

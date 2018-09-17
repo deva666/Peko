@@ -1,6 +1,7 @@
 package com.markodevcic.samples
 
 import android.Manifest
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -67,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun requestPermissionWithSnackBarRationale(vararg permissions: String) {
+        clearRationaleSharedPrefs()
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
 		launch(job + UI) {
@@ -74,6 +76,14 @@ class MainActivity : AppCompatActivity() {
 			setResults(result)
 		}
 	}
+
+    private fun clearRationaleSharedPrefs() {
+        this.getSharedPreferences("PekoSharedPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .remove("RATIONALE_SHOWED_SET_KEY")
+                .apply()
+
+    }
 
 	private fun setResults(result: PermissionRequestResult) {
 		val (grantedPermissions, deniedPermissions) = result

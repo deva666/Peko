@@ -36,8 +36,8 @@ launch (UI) {
 
 ### Screen rotations
 Library has support for screen rotations. 
-When activity get's recreated, Coroutines that have not completed yet, have to be cancelled to avoid memory leaks.
-When you detect a orientation change, cancel the Coroutine with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The `Deferred` can then be awaited again by calling `Peko.resultDeferred`.
+To avoid memory leaks, all Coroutines that have not completed yet, should be cancelled in the `onDestroy` function.
+When you detect a orientation change, cancel the parent `Job` of a Peko Coroutine with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The `Deferred` can then be awaited again by calling `Peko.resultDeferred`.
 
 Example:
 

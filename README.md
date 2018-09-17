@@ -15,14 +15,15 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:0.31'
+compile 'com.markodevcic.peko:peko:0.32'
 ```
 
 ### Example 
 In an Activity or a Fragment:
 ```kotlin
 launch (UI) {
-    val permissionResultDeferred = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
+    val permissionResultDeferred = Peko.requestPermissionsAsync(this,
+     Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
     val (grantedPermissions) = permissionResultDeferred.await()
     
     if (Manifest.permission.BLUETOOTH in grantedPermissions) {
@@ -35,8 +36,8 @@ launch (UI) {
 
 ### Screen rotations
 Library has support for screen rotations. 
-When activity get's recreated, coroutines that have not completed yet, have to be cancelled to avoid memory leaks.
-When you detect a orientation change, cancel the coroutine with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The `Deferred` can then be awaited again by calling `Peko.resultDeferred`.
+When activity get's recreated, Coroutines that have not completed yet, have to be cancelled to avoid memory leaks.
+When you detect a orientation change, cancel the Coroutine with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The `Deferred` can then be awaited again by calling `Peko.resultDeferred`.
 
 Example:
 
@@ -59,7 +60,7 @@ Then in `onDestroy` of an Activity:
 if (isChangingConfigurations) {
     job.cancel(ActivityRotatingException()) //screen rotation, retain the results
 } else { 
-    job.cancel() //no rotation, just cancel the coroutine
+    job.cancel() //no rotation, just cancel the Coroutine
 }
 ``` 
 
@@ -101,7 +102,7 @@ launch(UI) {
 }
 ```
 
-You can also show your own implementation of Permission Rationale to the user. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, permissions will be asked for again, otherwise the request completes and returns the current permission result.
+You can also show your own implementation of Permission Rationale to the user. This can be your Dialog, a fragment, or any other UI component. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, permissions will be asked for again, otherwise the request completes and returns the current permission result.
 
 
 ## License

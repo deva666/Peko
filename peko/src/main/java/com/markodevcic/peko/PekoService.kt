@@ -4,15 +4,18 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
 import java.lang.ref.WeakReference
+import kotlin.coroutines.experimental.CoroutineContext
 
 internal class PekoService(context: Context,
 						   private val request: PermissionRequest,
 						   private val rationale: PermissionRationale,
 						   private val sharedPreferences: SharedPreferences,
 						   private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
-						   private val dispatcher: CoroutineDispatcher = UI) {
+						   private val dispatcher: CoroutineDispatcher = Dispatchers.Main) : CoroutineScope {
+
+	override val coroutineContext: CoroutineContext
+		get() = job + dispatcher
 
 	private val pendingPermissions = mutableSetOf<String>()
 	private val grantedPermissions = mutableSetOf<String>()
@@ -46,7 +49,7 @@ internal class PekoService(context: Context,
 	}
 
 	private fun requestPermissions(context: Context) {
-		launch(job + dispatcher) {
+		launch {
 			requester = requesterFactory.getRequester(context).await()
 			requester.requestPermissions(request.denied.toTypedArray())
 			for (result in requester.resultsChannel) {
@@ -65,7 +68,7 @@ internal class PekoService(context: Context,
 	private fun permissionsDenied(permissions: Collection<String>) {
 		val showRationalePermissions = permissions.any { p -> !checkIfRationaleShownAlready(p) }
 		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
-			launch(job + dispatcher) {
+			launch {
 				if (rationale.shouldRequestAfterRationaleShownAsync()) {
 					requester.requestPermissions(permissions.toTypedArray())
 				} else {

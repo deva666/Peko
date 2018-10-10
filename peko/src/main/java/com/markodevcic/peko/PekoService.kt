@@ -7,6 +7,7 @@ import kotlinx.coroutines.experimental.*
 import java.lang.ref.WeakReference
 import kotlin.coroutines.experimental.CoroutineContext
 
+
 internal class PekoService(context: Context,
 						   private val request: PermissionRequest,
 						   private val rationale: PermissionRationale,
@@ -49,7 +50,7 @@ internal class PekoService(context: Context,
 	}
 
 	private fun requestPermissions(context: Context) {
-		launch {
+		this.launch {
 			requester = requesterFactory.getRequester(context).await()
 			requester.requestPermissions(request.denied.toTypedArray())
 			for (result in requester.resultsChannel) {
@@ -68,7 +69,7 @@ internal class PekoService(context: Context,
 	private fun permissionsDenied(permissions: Collection<String>) {
 		val showRationalePermissions = permissions.any { p -> !checkIfRationaleShownAlready(p) }
 		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
-			launch {
+			this.launch {
 				if (rationale.shouldRequestAfterRationaleShownAsync()) {
 					requester.requestPermissions(permissions.toTypedArray())
 				} else {

@@ -25,8 +25,8 @@ internal class PekoActivity : Activity(),
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {
 		super.onPostCreate(savedInstanceState)
-		deferred?.complete(this)
-		deferred = null
+		requesterDeferred?.complete(this)
+		requesterDeferred = null
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {
@@ -52,12 +52,12 @@ internal class PekoActivity : Activity(),
 	override fun finish() {
 		super.finish()
 		channel.close()
-		deferred = null
+		requesterDeferred = null
 	}
 
 	companion object {
 		private const val REQUEST_CODE = 93173
-		internal var deferred: CompletableDeferred<PermissionRequester>? = null
+		internal var requesterDeferred: CompletableDeferred<PermissionRequester>? = null
 	}
 }
 

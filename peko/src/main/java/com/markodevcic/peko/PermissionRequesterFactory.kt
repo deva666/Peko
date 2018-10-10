@@ -16,7 +16,7 @@ internal interface PermissionRequesterFactory {
 private class PermissionRequesterFactoryImpl : PermissionRequesterFactory {
 	override fun getRequester(context: Context): Deferred<PermissionRequester> {
 		val completableDeferred = CompletableDeferred<PermissionRequester>()
-		PekoActivity.deferred = completableDeferred
+		PekoActivity.requesterDeferred = completableDeferred
 		val intent = Intent(context, PekoActivity::class.java)
 		context.startActivity(intent)
 		return completableDeferred

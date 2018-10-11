@@ -29,7 +29,7 @@ object Peko {
 	 */
 	fun requestPermissionsAsync(activity: Activity,
 								vararg permissions: String,
-								rationale: PermissionRationale = PermissionRationale.EMPTY): Deferred<PermissionRequestResult> {
+								rationale: PermissionRationale = PermissionRationale.none): Deferred<PermissionRequestResult> {
 
 		val request = checkPermissions(activity, permissions)
 		if (isTargetSdkUnderAndroidM(activity)) {
@@ -37,8 +37,8 @@ object Peko {
 		}
 
 		return if (request.denied.isNotEmpty()) {
-			val service = PekoService(activity, request, rationale,
-					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
+			val sharedPreferences = activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
+			val service = PekoService(activity, request, rationale, RationaleChecker.default(sharedPreferences))
 
 			if (!serviceReference.compareAndSet(null, service)) {
 				throw IllegalStateException("Can't request permission while another request in progress")

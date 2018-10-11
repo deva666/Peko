@@ -13,14 +13,21 @@ import com.markodevcic.peko.Peko
 import com.markodevcic.peko.PermissionRequestResult
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
 import com.markodevcic.peko.rationale.SnackBarRationale
+import com.markodevcic.samples.R.id.btnFineLocation
+import com.markodevcic.samples.R.id.toolbar
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import kotlin.coroutines.experimental.CoroutineContext
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
 
 	private var job = Job()
+
+	override val coroutineContext: CoroutineContext
+		get() = job + Dispatchers.Main
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -28,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 		setSupportActionBar(toolbar)
 
 		if (Peko.isRequestInProgress()) {
-			launch (UI) {
+			launch (coroutineContext) {
 				val result = Peko.resultDeferred!!.await()
 				setResults(result)
 			}
@@ -57,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun requestPermission(vararg permissions: String) {
-		launch(job + UI) {
+		launch(coroutineContext) {
 			val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")
@@ -71,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         clearRationaleSharedPrefs()
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
-		launch(job + UI) {
+		launch(coroutineContext) {
 			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
 			setResults(result)
 		}

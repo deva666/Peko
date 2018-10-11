@@ -1,7 +1,6 @@
 package com.markodevcic.peko
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.experimental.*
 import java.lang.ref.WeakReference
@@ -11,7 +10,7 @@ import kotlin.coroutines.experimental.CoroutineContext
 internal class PekoService(context: Context,
 						   private val request: PermissionRequest,
 						   private val rationale: PermissionRationale,
-						   private val sharedPreferences: SharedPreferences,
+						   private val rationaleChecker: RationaleChecker,
 						   private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
 						   private val dispatcher: CoroutineDispatcher = Dispatchers.Main) : CoroutineScope {
 
@@ -67,15 +66,15 @@ internal class PekoService(context: Context,
 	}
 
 	private fun permissionsDenied(permissions: Collection<String>) {
-		val showRationalePermissions = permissions.any { p -> !checkIfRationaleShownAlready(p) }
-		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
+		val showRationalePermissions = permissions.any { p -> !rationaleChecker.checkIfRationaleShownAlready(p) }
+		if (showRationalePermissions && rationale != PermissionRationale.none) {
 			this.launch {
 				if (rationale.shouldRequestAfterRationaleShownAsync()) {
 					requester.requestPermissions(permissions.toTypedArray())
 				} else {
 					updateDeniedPermissions(permissions)
 				}
-				setRationaleShownFor(permissions)
+				rationaleChecker.setRationaleShownFor(permissions)
 			}
 		} else {
 			updateDeniedPermissions(permissions)
@@ -93,21 +92,5 @@ internal class PekoService(context: Context,
 			requester.finish()
 			deferredResult.complete(PermissionRequestResult(grantedPermissions, deniedPermissions))
 		}
-	}
-
-	private fun checkIfRationaleShownAlready(permission: String): Boolean {
-		val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, mutableSetOf())
-		return rationaleShowedSet.contains(permission)
-	}
-
-	private fun setRationaleShownFor(permissions: Collection<String>) {
-		val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, mutableSetOf())
-		rationaleShowedSet.addAll(permissions)
-		sharedPreferences.edit()
-				.remove(RATIONALE_SHOWED_SET_KEY)
-				.apply()
-		sharedPreferences.edit()
-				.putStringSet(RATIONALE_SHOWED_SET_KEY, rationaleShowedSet)
-				.apply()
 	}
 }

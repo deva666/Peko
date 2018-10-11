@@ -5,8 +5,8 @@ interface PermissionRationale {
 	suspend fun shouldRequestAfterRationaleShownAsync(): Boolean = false
 
 	companion object {
-		val EMPTY: PermissionRationale = EmptyPermissionRationale()
+		val none: PermissionRationale = DefaultPermissionRationale()
 	}
 }
 
-internal class EmptyPermissionRationale : PermissionRationale
+internal class DefaultPermissionRationale : PermissionRationale

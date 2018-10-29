@@ -24,8 +24,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.30.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.0'
     implementation 'com.android.support:design:26.1.0'
 
     testImplementation "org.mockito:mockito-core:2.+"

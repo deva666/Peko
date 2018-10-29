@@ -6,8 +6,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.support.v4.app.ActivityCompat
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import java.util.concurrent.atomic.AtomicReference
 
 object Peko {

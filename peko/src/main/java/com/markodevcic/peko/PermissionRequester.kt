@@ -1,6 +1,6 @@
 package com.markodevcic.peko
 
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.channels.ReceiveChannel
 
 internal interface PermissionRequester {
 	fun requestPermissions(permissions: Array<out String>)

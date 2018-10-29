@@ -2,8 +2,8 @@ package com.markodevcic.peko
 
 import android.content.Context
 import android.content.Intent
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 
 internal interface PermissionRequesterFactory {
 	fun getRequester(context: Context): Deferred<PermissionRequester>

@@ -2,9 +2,9 @@ package com.markodevcic.peko
 
 import android.content.Context
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 
 internal class PekoService(context: Context,
@@ -31,7 +31,7 @@ internal class PekoService(context: Context,
 				?: return CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
 
 		deferredResult = CompletableDeferred()
-		deferredResult.invokeOnCompletion(onCancelling = true) { fail ->
+		deferredResult.invokeOnCompletion { fail ->
 			if (fail !is ActivityRotatingException && deferredResult.isCancelled) {
 				job.cancel()
 				if (::requester.isInitialized) {

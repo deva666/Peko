@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.PermissionChecker
 import android.view.WindowManager
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class PekoActivity : Activity(),
 		ActivityCompat.OnRequestPermissionsResultCallback,

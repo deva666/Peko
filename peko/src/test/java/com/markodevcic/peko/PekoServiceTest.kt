@@ -2,8 +2,8 @@ package com.markodevcic.peko
 
 import android.content.Context
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

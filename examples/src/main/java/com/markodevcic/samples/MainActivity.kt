@@ -14,15 +14,15 @@ import com.markodevcic.peko.PermissionRequestResult
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
 import com.markodevcic.peko.rationale.SnackBarRationale
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
 
-	private var job = Job()
+	private var job = CompletableDeferred<Any>()
 
 	override val coroutineContext: CoroutineContext
 		get() = job + Dispatchers.Main
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 	override fun onDestroy() {
 		super.onDestroy()
 		if (isChangingConfigurations) {
-			job.cancel(ActivityRotatingException())
+			job.completeExceptionally(ActivityRotatingException())
 		} else {
 			job.cancel()
 		}

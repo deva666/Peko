@@ -15,13 +15,13 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:0.32'
+compile 'com.markodevcic.peko:peko:1.0.0'
 ```
 
 ### Example 
-In an Activity or a Fragment:
+In an Activity or a Fragment that implements `CoroutineScope` interface:
 ```kotlin
-launch (UI) {
+launch {
     val permissionResultDeferred = Peko.requestPermissionsAsync(this,
      Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
     val (grantedPermissions) = permissionResultDeferred.await()
@@ -45,7 +45,7 @@ First:
 ```kotlin
 
 //job that will be cancelled in onDestroy
-private val job = Job()
+private val job = CompletableDeferred<Any>()
 
 private fun requestPermission(vararg permissions: String) {
     launch(job + UI) { // combine job with UI context
@@ -58,7 +58,7 @@ private fun requestPermission(vararg permissions: String) {
 Then in `onDestroy` of an Activity:
 ```kotlin
 if (isChangingConfigurations) {
-    job.cancel(ActivityRotatingException()) //screen rotation, retain the results
+    job.completeExceptionally(ActivityRotatingException()) //screen rotation, retain the results
 } else { 
     job.cancel() //no rotation, just cancel the Coroutine
 }
@@ -69,9 +69,9 @@ And when this Activity gets recreated in one of the Activity lifecycle functions
 
 //check if we have a request already (or some other way you detect screen orientation)
 if (Peko.isRequestInProgress()) {
-    launch (UI) {
+    launch {
         //get the existing request and await the result
-        val result = Peko.resultDeferred!!.await()
+        val result = Peko.resultDeferred?.await() ?: return@launch 
         setResults(result)
     }
 }

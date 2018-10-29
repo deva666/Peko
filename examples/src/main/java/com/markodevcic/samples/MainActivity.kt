@@ -13,14 +13,12 @@ import com.markodevcic.peko.Peko
 import com.markodevcic.peko.PermissionRequestResult
 import com.markodevcic.peko.rationale.AlertDialogPermissionRationale
 import com.markodevcic.peko.rationale.SnackBarRationale
-import com.markodevcic.samples.R.id.btnFineLocation
-import com.markodevcic.samples.R.id.toolbar
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.launch
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
 

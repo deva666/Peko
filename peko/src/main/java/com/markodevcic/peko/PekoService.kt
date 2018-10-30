@@ -103,11 +103,9 @@ internal class PekoService(context: Context,
     }
 
     private fun checkIfRequestComplete() {
-        if (pendingPermissions.isEmpty()) {
-            if (continuation.isActive) {
-                requester.finish()
-                continuation.resume(PermissionRequestResult(grantedPermissions, deniedPermissions))
-            }
+        if (pendingPermissions.isEmpty() && continuation.isActive) {
+            requester.finish()
+            continuation.resume(PermissionRequestResult(grantedPermissions, deniedPermissions))
         }
     }
 }

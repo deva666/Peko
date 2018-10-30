@@ -32,7 +32,7 @@ internal class PekoService(context: Context,
 
 		deferredResult = CompletableDeferred()
 		deferredResult.invokeOnCompletion { fail ->
-			if (fail !is ActivityRotatingException && deferredResult.isCancelled) {
+			if (fail !is ActivityRotatingException) {
 				job.cancel()
 				if (::requester.isInitialized) {
 					requester.finish()

@@ -68,8 +68,8 @@ object Peko {
 
 	private fun checkPermissions(context: Context, permissions: Array<out String>): PermissionRequest {
 		val permissionsGroup = permissions.groupBy { p -> ActivityCompat.checkSelfPermission(context, p) }
-		val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf<String>()
-		val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf<String>()
+		val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
+		val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
 		return PermissionRequest(granted, denied)
 	}
 

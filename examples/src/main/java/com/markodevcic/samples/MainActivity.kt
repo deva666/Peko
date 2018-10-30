@@ -24,8 +24,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
 	private var job = CompletableDeferred<Any>()
 
+	private var snackBarRationale: SnackBarRationale? = null
+
 	override val coroutineContext: CoroutineContext
-		get() = job + Dispatchers.Main
+		get() = Dispatchers.Main + job
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -33,7 +35,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 		setSupportActionBar(toolbar)
 
 		if (Peko.isRequestInProgress()) {
-			launch (coroutineContext) {
+			launch {
 				val result = Peko.resultDeferred!!.await()
 				setResults(result)
 			}
@@ -62,7 +64,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 	}
 
 	private fun requestPermission(vararg permissions: String) {
-		launch(coroutineContext) {
+		launch {
 			val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")
@@ -75,9 +77,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 	private fun requestPermissionWithSnackBarRationale(vararg permissions: String) {
         clearRationaleSharedPrefs()
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
-		val snackBarRationale = SnackBarRationale(snackBar, "Request again")
-		launch(coroutineContext) {
-			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+		snackBarRationale = SnackBarRationale(snackBar, "Request again")
+		launch {
+			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale!!).await()
 			setResults(result)
 		}
 	}
@@ -141,6 +143,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 	override fun onDestroy() {
 		super.onDestroy()
 		if (isChangingConfigurations) {
+			snackBarRationale?.cancel()
 			job.completeExceptionally(ActivityRotatingException())
 		} else {
 			job.cancel()

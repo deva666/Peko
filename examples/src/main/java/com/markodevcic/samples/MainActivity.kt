@@ -36,8 +36,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
 		if (Peko.isRequestInProgress()) {
 			launch {
-				val result = Peko.resultDeferred!!.await()
-				setResults(result)
+				setResults(Peko.resumeRequest())
 			}
 		}
 
@@ -69,7 +68,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 				this.setTitle("Need permissions")
 				this.setMessage("Please give permissions to use this feature")
 			}
-			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = rationale).await()
+			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = rationale)
 			setResults(result)
 		}
 	}
@@ -79,7 +78,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 		val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 		snackBarRationale = SnackBarRationale(snackBar, "Request again")
 		launch {
-			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale!!).await()
+			val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale!!)
 			setResults(result)
 		}
 	}

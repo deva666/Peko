@@ -1,5 +1,5 @@
 <manifest package="com.markodevcic.peko"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+          xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <application>
         <activity

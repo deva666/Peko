@@ -1,26 +1,27 @@
 package com.markodevcic.peko
 
-import android.app.Activity
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.FragmentActivity
 import android.support.v4.content.PermissionChecker
 import android.view.WindowManager
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 
-internal class PekoActivity : Activity(),
+internal class PekoActivity : FragmentActivity(),
 		ActivityCompat.OnRequestPermissionsResultCallback,
 		PermissionRequester {
 
-	private val channel = Channel<PermissionRequestResult>(Channel.UNLIMITED)
+	private lateinit var viewModel: PekoViewModel
 
 	override val resultsChannel: ReceiveChannel<PermissionRequestResult>
-		get() = channel
+		get() = viewModel.channel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+		viewModel = ViewModelProviders.of(this@PekoActivity).get(PekoViewModel::class.java)
 	}
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -45,20 +46,18 @@ internal class PekoActivity : Activity(),
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			channel.offer(PermissionRequestResult(grantedPermissions, deniedPermissions))
+			viewModel.channel.offer(PermissionRequestResult(grantedPermissions, deniedPermissions))
 		}
 	}
 
 	override fun finish() {
 		super.finish()
-		channel.close()
+		viewModel.channel.close()
 		requesterDeferred = null
 	}
 
 	companion object {
-		private const val REQUEST_CODE = 93173
+		private const val REQUEST_CODE = 931
 		internal var requesterDeferred: CompletableDeferred<PermissionRequester>? = null
 	}
 }
-
-

@@ -21,7 +21,7 @@ class SnackBarRationale(private val snackbar: Snackbar, private val actionTitle:
 					continuation.resume(true)
 				}
 			}
-			snackbar.addCallback(object : Snackbar.Callback(){
+			snackbar.addCallback(object : Snackbar.Callback() {
 				override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
 					super.onDismissed(transientBottomBar, event)
 					if (!continuation.isCancelled && !resumed) {

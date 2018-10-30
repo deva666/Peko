@@ -22,14 +22,12 @@ compile 'com.markodevcic.peko:peko:1.0.0'
 In an Activity or a Fragment that implements `CoroutineScope` interface:
 ```kotlin
 launch {
-    val permissionResultDeferred = Peko.requestPermissionsAsync(this,
-     Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
-    val (grantedPermissions) = permissionResultDeferred.await()
+    val (grantedPermissions) = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH) 
     
     if (Manifest.permission.BLUETOOTH in grantedPermissions) {
         //we have Bluetooth permission
     } else {
-        //no Bluetooth permission
+        
     }
 }
 ```
@@ -37,7 +35,7 @@ launch {
 ### Screen rotations
 Library has support for screen rotations. 
 To avoid memory leaks, all Coroutines that have not completed yet, should be cancelled in the `onDestroy` function.
-When you detect a orientation change, cancel the parent `Job` of a Peko Coroutine with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The `Deferred` can then be awaited again by calling `Peko.resultDeferred`.
+When you detect a orientation change, cancel the `Job` of a `CoroutineScope` with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The request is then resumed with calling `resumeRequest` method.
 
 Example:
 
@@ -48,8 +46,8 @@ First:
 private val job = CompletableDeferred<Any>()
 
 private fun requestPermission(vararg permissions: String) {
-    launch(job + UI) { // combine job with UI context
-        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions).await()
+    launch { 
+        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
         setResults(result)
     }
 }
@@ -71,7 +69,7 @@ And when this Activity gets recreated in one of the Activity lifecycle functions
 if (Peko.isRequestInProgress()) {
     launch {
         //get the existing request and await the result
-        val result = Peko.resultDeferred?.await() ?: return@launch 
+        val result = Peko.resumeRequest() 
         setResults(result)
     }
 }
@@ -86,8 +84,8 @@ val rationale = AlertDialogPermissionRationale(this@MainActivity) {
     this.setMessage("Please give permissions to use this feature")	
 }
 
-launch (UI) {
-    val permissionResult = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
+launch {
+    val permissionResult = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, rationale = rationale)
 }
 ```
 
@@ -97,12 +95,45 @@ There is also a `SnackBarRationale` class that shows a SnackBar when permission 
 val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 val snackBarRationale = SnackBarRationale(snackBar, actionTitle = "Request again")
 
-launch(UI) {
-    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+launch {
+    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale)
 }
 ```
 
 You can also show your own implementation of Permission Rationale to the user. This can be your Dialog, a fragment, or any other UI component. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, permissions will be asked for again, otherwise the request completes and returns the current permission result.
+
+Here is how a Fragment Rationale can be implemented
+
+```kotlin
+class FragmentRationale : Fragment(), PermissionRationale {
+
+    var startCallback: (() -> Unit)? = null
+    private lateinit var continuation: CancellableContinuation<Boolean>
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_rationale, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        btnRequestAgain.setOnClickListener {
+            continuation.resume(true)
+            activity?.supportFragmentManager?.popBackStack()
+        }
+        btnCancel.setOnClickListener {
+            continuation.resume(false)
+            activity?.supportFragmentManager?.popBackStack()
+        }
+    }
+
+    override suspend fun shouldRequestAfterRationaleShownAsync(): Boolean {
+        return suspendCancellableCoroutine { c ->
+            startCallback?.invoke()
+            continuation = c
+        }
+    }
+}
+```
 
 
 ## License

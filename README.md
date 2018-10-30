@@ -102,12 +102,12 @@ launch {
 
 You can also show your own implementation of Permission Rationale to the user. This can be your Dialog, a fragment, or any other UI component. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, permissions will be asked for again, otherwise the request completes and returns the current permission result.
 
-Here is how a Fragment Rationale can be implemented
+Here is how a rationale with a Fragment can be implemented
 
 ```kotlin
 class FragmentRationale : Fragment(), PermissionRationale {
 
-    var startCallback: (() -> Unit)? = null
+    var startCallback: (() -> Unit)? = null // callback in parent activity to trigger replacing fragments in fragment transaction 
     private lateinit var continuation: CancellableContinuation<Boolean>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

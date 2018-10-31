@@ -28,7 +28,9 @@ object Peko {
     }
 
     /**
-     * Requests [permissions] asynchronously.
+     * Requests permissions asynchronously. The function suspends only if request contains permissions that are denied.
+     * Should be called from a coroutine which has a UI (Main) Dispatcher as context.
+     * If the parent job is cancelled with [ActivityRotatingException], ongoing request will be retained and can be resumed with [resumeRequest] function.
      * @return [PermissionRequestResult]
      * @throws [IllegalStateException] if called while another request has not completed yet
      */

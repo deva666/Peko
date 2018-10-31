@@ -47,8 +47,8 @@ private val job = CompletableDeferred<Any>()
 
 private fun requestPermission(vararg permissions: String) {
     launch { 
-        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
-        setResults(result)
+        val (grantedPermissions) = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
+        //check granted permissions
     }
 }
 ```
@@ -69,8 +69,8 @@ And when this Activity gets recreated in one of the Activity lifecycle functions
 if (Peko.isRequestInProgress()) {
     launch {
         //get the existing request and await the result
-        val result = Peko.resumeRequest() 
-        setResults(result)
+        val (grantedPermissions) = Peko.resumeRequest() 
+        //check granted permissions
     }
 }
 ```
@@ -85,7 +85,7 @@ val rationale = AlertDialogPermissionRationale(this@MainActivity) {
 }
 
 launch {
-    val permissionResult = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, rationale = rationale)
+    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, Manifest.permission.BLUETOOTH, rationale = rationale)
 }
 ```
 
@@ -96,7 +96,7 @@ val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackba
 val snackBarRationale = SnackBarRationale(snackBar, actionTitle = "Request again")
 
 launch {
-    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale)
+    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, Manifest.permission.BLUETOOTH, rationale = snackBarRationale)
 }
 ```
 

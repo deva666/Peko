@@ -6,76 +6,84 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.support.v4.app.ActivityCompat
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Deferred
 import java.util.concurrent.atomic.AtomicReference
 
 object Peko {
 
-	private val serviceReference = AtomicReference<PekoService?>(null)
+    private val serviceReference = AtomicReference<PekoService?>(null)
 
-	/**
-	 * Get's the [Deferred] of [PermissionRequestResult] that is in progress
-	 * Returns null if there is no request in progress
-	 */
-	val resultDeferred: CompletableDeferred<PermissionRequestResult>?
-		get() = serviceReference.get()?.deferredResult
+    /**
+     * Resumes a request that was previously canceled with [ActivityRotatingException]
+     * @throws [IllegalStateException] if there is no request in progress
+     */
+    suspend fun resumeRequest(): PermissionRequestResult {
+        try {
+            val service = serviceReference.get() ?: throw IllegalStateException("there is no request in progress")
+            val result = service.resumeRequest()
+            serviceReference.set(null)
+            return result
+        } catch (e: ActivityRotatingException) {
+            throw e
+        }
+    }
 
-	/**
-	 * Requests [permissions] asynchronously.
-	 * This class is thread safe.
-	 * @return [Deferred] instance. Call [Deferred.await] inside a coroutine to get a [PermissionRequestResult]
-	 * @throws [IllegalStateException] if called while another request has not completed yet
-	 */
-	fun requestPermissionsAsync(activity: Activity,
-								vararg permissions: String,
-								rationale: PermissionRationale = PermissionRationale.EMPTY): Deferred<PermissionRequestResult> {
+    /**
+     * Requests permissions asynchronously. The function suspends only if request contains permissions that are denied.
+     * Should be called from a coroutine which has a UI (Main) Dispatcher as context.
+     * If the parent job is cancelled with [ActivityRotatingException], ongoing request will be retained and can be resumed with [resumeRequest] function.
+     * @return [PermissionRequestResult]
+     * @throws [IllegalStateException] if called while another request has not completed yet
+     */
+    suspend fun requestPermissionsAsync(activity: Activity,
+                                        vararg permissions: String,
+                                        rationale: PermissionRationale = PermissionRationale.none): PermissionRequestResult {
 
-		val request = checkPermissions(activity, permissions)
-		if (isTargetSdkUnderAndroidM(activity)) {
-			return CompletableDeferred(PermissionRequestResult(listOf(), permissions.toList()))
-		}
+        if (isTargetSdkUnderAndroidM(activity)) {
+            return PermissionRequestResult(listOf(), permissions.toList())
+        }
 
-		return if (request.denied.isNotEmpty()) {
-			val service = PekoService(activity, request, rationale,
-					activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE))
+        val request = checkPermissions(activity, permissions)
+        if (request.denied.isNotEmpty()) {
+            val sharedPreferences = activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
+            val service = PekoService(activity, request, rationale, RationaleChecker.default(sharedPreferences))
 
-			if (!serviceReference.compareAndSet(null, service)) {
-				throw IllegalStateException("Can't request permission while another request in progress")
-			}
+            if (!serviceReference.compareAndSet(null, service)) {
+                throw IllegalStateException("Can't request permission while another request in progress")
+            }
 
-			service.requestPermissions().apply {
-				invokeOnCompletion {
-					if (it?.javaClass != ActivityRotatingException::class.java) {
-						serviceReference.set(null)
-					}
-				}
-			}
-		} else {
-			CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
-		}
-	}
+            try {
+                val result = service.requestPermissions()
+                serviceReference.set(null)
+                return result
+            } catch (e: ActivityRotatingException) {
+                throw e
+            }
 
-	private fun isTargetSdkUnderAndroidM(context: Context): Boolean {
-		return try {
-			val info = context.packageManager.getPackageInfo(context.packageName, 0)
-			val targetSdkVersion = info.applicationInfo.targetSdkVersion
-			targetSdkVersion < Build.VERSION_CODES.M
-		} catch (fail: PackageManager.NameNotFoundException) {
-			false
-		}
-	}
+        } else {
+            return PermissionRequestResult(request.granted, request.denied)
+        }
+    }
 
-	private fun checkPermissions(context: Context, permissions: Array<out String>): PermissionRequest {
-		val permissionsGroup = permissions.groupBy { p -> ActivityCompat.checkSelfPermission(context, p) }
-		val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
-		val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
-		return PermissionRequest(granted, denied)
-	}
+    private fun isTargetSdkUnderAndroidM(context: Context): Boolean {
+        return try {
+            val info = context.packageManager.getPackageInfo(context.packageName, 0)
+            val targetSdkVersion = info.applicationInfo.targetSdkVersion
+            targetSdkVersion < Build.VERSION_CODES.M
+        } catch (fail: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
 
-	/**
-	 * Checks if there is a request in progress.
-	 * If true is returned, get the [Deferred] of [PermissionRequestResult] that is in progress by accessing [resultDeferred] property
-	 */
-	fun isRequestInProgress(): Boolean = serviceReference.get() != null
+    private fun checkPermissions(context: Context, permissions: Array<out String>): PermissionRequest {
+        val permissionsGroup = permissions.groupBy { p -> ActivityCompat.checkSelfPermission(context, p) }
+        val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
+        val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
+        return PermissionRequest(granted, denied)
+    }
+
+    /**
+     * Checks if there is a request in progress.
+     * If true is returned, resume the existing request by calling [resumeRequest]
+     */
+    fun isRequestInProgress(): Boolean = serviceReference.get() != null
 }

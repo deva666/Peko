@@ -15,21 +15,19 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:0.32'
+compile 'com.markodevcic.peko:peko:1.0.0'
 ```
 
 ### Example 
-In an Activity or a Fragment:
+In an Activity or a Fragment that implements `CoroutineScope` interface:
 ```kotlin
-launch (UI) {
-    val permissionResultDeferred = Peko.requestPermissionsAsync(this,
-     Manifest.permission.BLUETOOTH, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
-    val (grantedPermissions) = permissionResultDeferred.await()
+launch {
+    val (grantedPermissions) = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH) 
     
     if (Manifest.permission.BLUETOOTH in grantedPermissions) {
         //we have Bluetooth permission
     } else {
-        //no Bluetooth permission
+        
     }
 }
 ```
@@ -37,7 +35,7 @@ launch (UI) {
 ### Screen rotations
 Library has support for screen rotations. 
 To avoid memory leaks, all Coroutines that have not completed yet, should be cancelled in the `onDestroy` function.
-When you detect a orientation change, cancel the parent `Job` of a Peko Coroutine with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The `Deferred` can then be awaited again by calling `Peko.resultDeferred`.
+When you detect a orientation change, cancel the `Job` of a `CoroutineScope` with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The request is then resumed with calling `resumeRequest` method.
 
 Example:
 
@@ -45,12 +43,12 @@ First:
 ```kotlin
 
 //job that will be cancelled in onDestroy
-private val job = Job()
+private val job = CompletableDeferred<Any>()
 
 private fun requestPermission(vararg permissions: String) {
-    launch(job + UI) { // combine job with UI context
-        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions).await()
-        setResults(result)
+    launch { 
+        val (grantedPermissions) = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
+        //check granted permissions
     }
 }
 ```
@@ -58,7 +56,7 @@ private fun requestPermission(vararg permissions: String) {
 Then in `onDestroy` of an Activity:
 ```kotlin
 if (isChangingConfigurations) {
-    job.cancel(ActivityRotatingException()) //screen rotation, retain the results
+    job.completeExceptionally(ActivityRotatingException()) //screen rotation, retain the results
 } else { 
     job.cancel() //no rotation, just cancel the Coroutine
 }
@@ -69,10 +67,10 @@ And when this Activity gets recreated in one of the Activity lifecycle functions
 
 //check if we have a request already (or some other way you detect screen orientation)
 if (Peko.isRequestInProgress()) {
-    launch (UI) {
+    launch {
         //get the existing request and await the result
-        val result = Peko.resultDeferred!!.await()
-        setResults(result)
+        val (grantedPermissions) = Peko.resumeRequest() 
+        //check granted permissions
     }
 }
 ```
@@ -86,8 +84,8 @@ val rationale = AlertDialogPermissionRationale(this@MainActivity) {
     this.setMessage("Please give permissions to use this feature")	
 }
 
-launch (UI) {
-    val permissionResult = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH, rationale = rationale).await()
+launch {
+    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, Manifest.permission.BLUETOOTH, rationale = rationale)
 }
 ```
 
@@ -97,12 +95,45 @@ There is also a `SnackBarRationale` class that shows a SnackBar when permission 
 val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
 val snackBarRationale = SnackBarRationale(snackBar, actionTitle = "Request again")
 
-launch(UI) {
-    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, *permissions, rationale = snackBarRationale).await()
+launch {
+    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, Manifest.permission.BLUETOOTH, rationale = snackBarRationale)
 }
 ```
 
 You can also show your own implementation of Permission Rationale to the user. This can be your Dialog, a fragment, or any other UI component. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, permissions will be asked for again, otherwise the request completes and returns the current permission result.
+
+Here is how a rationale with a Fragment can be implemented
+
+```kotlin
+class FragmentRationale : Fragment(), PermissionRationale {
+
+    var startCallback: (() -> Unit)? = null // callback in parent activity to trigger replacing fragments in fragment transaction 
+    private lateinit var continuation: CancellableContinuation<Boolean>
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_rationale, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        btnRequestAgain.setOnClickListener {
+            continuation.resume(true)
+            activity?.supportFragmentManager?.popBackStack()
+        }
+        btnCancel.setOnClickListener {
+            continuation.resume(false)
+            activity?.supportFragmentManager?.popBackStack()
+        }
+    }
+
+    override suspend fun shouldRequestAfterRationaleShownAsync(): Boolean {
+        return suspendCancellableCoroutine { c ->
+            startCallback?.invoke()
+            continuation = c
+        }
+    }
+}
+```
 
 
 ## License

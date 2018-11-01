@@ -1,3 +1,5 @@
 package com.markodevcic.peko
 
-class ActivityRotatingException : RuntimeException()
+import kotlinx.coroutines.CancellationException
+
+class ActivityRotatingException : CancellationException()

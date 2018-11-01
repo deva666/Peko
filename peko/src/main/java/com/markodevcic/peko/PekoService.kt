@@ -1,109 +1,111 @@
 package com.markodevcic.peko
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.markodevcic.peko.rationale.PermissionRationale
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+
 
 internal class PekoService(context: Context,
-						   private val request: PermissionRequest,
-						   private val rationale: PermissionRationale,
-						   private val sharedPreferences: SharedPreferences,
-						   private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
-						   private val dispatcher: CoroutineDispatcher = UI) {
+                           private val request: PermissionRequest,
+                           private val rationale: PermissionRationale,
+                           private val rationaleChecker: RationaleChecker,
+                           private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
+                           private val dispatcher: CoroutineDispatcher = Dispatchers.Main) : CoroutineScope {
 
-	private val pendingPermissions = mutableSetOf<String>()
-	private val grantedPermissions = mutableSetOf<String>()
-	private val deniedPermissions = mutableSetOf<String>()
-	private val contextReference: WeakReference<out Context> = WeakReference(context)
+    override val coroutineContext: CoroutineContext
+        get() = dispatcher + job
 
-	internal lateinit var deferredResult: CompletableDeferred<PermissionRequestResult>
-	private lateinit var requester: PermissionRequester
-	private val job = Job()
+    private val pendingPermissions = mutableSetOf<String>()
+    private val grantedPermissions = mutableSetOf<String>()
+    private val deniedPermissions = mutableSetOf<String>()
+    private val contextReference: WeakReference<out Context> = WeakReference(context)
 
-	fun requestPermissions(): Deferred<PermissionRequestResult> {
-		val context = contextReference.get()
-				?: return CompletableDeferred(PermissionRequestResult(request.granted, request.denied))
+    private val job = Job()
+    private lateinit var requester: PermissionRequester
+    private lateinit var continuation: CancellableContinuation<PermissionRequestResult>
 
-		deferredResult = CompletableDeferred()
-		deferredResult.invokeOnCompletion(onCancelling = true) { fail ->
-			if (fail !is ActivityRotatingException && deferredResult.isCancelled) {
-				job.cancel()
-				if (::requester.isInitialized) {
-					requester.finish()
-				}
-			}
-		}
+    suspend fun requestPermissions(): PermissionRequestResult {
+        val context = contextReference.get()
+                ?: return PermissionRequestResult(request.granted, request.denied)
 
-		pendingPermissions.addAll(request.denied)
-		grantedPermissions.addAll(request.granted)
+        return suspendCancellableCoroutine { continuation ->
+            setupContinuation(continuation)
 
-		requestPermissions(context)
+            pendingPermissions.addAll(request.denied)
+            grantedPermissions.addAll(request.granted)
 
-		return deferredResult
-	}
+            requestPermissions(context)
+        }
+    }
 
-	private fun requestPermissions(context: Context) {
-		launch(job + dispatcher) {
-			requester = requesterFactory.getRequester(context).await()
-			requester.requestPermissions(request.denied.toTypedArray())
-			for (result in requester.resultsChannel) {
-				permissionsGranted(result.grantedPermissions)
-				permissionsDenied(result.deniedPermissions)
-			}
-		}
-	}
+    private fun setupContinuation(continuation: CancellableContinuation<PermissionRequestResult>) {
+        this.continuation = continuation
+        continuation.invokeOnCancellation { fail ->
+            if (fail !is ActivityRotatingException) {
+                job.cancel()
+                if (::requester.isInitialized) {
+                    requester.finish()
+                }
+            }
+        }
+    }
 
-	private fun permissionsGranted(permissions: Collection<String>) {
-		pendingPermissions.removeAll(permissions)
-		grantedPermissions.addAll(permissions)
-		checkIfRequestComplete()
-	}
+    suspend fun resumeRequest(): PermissionRequestResult {
+        if (::requester.isInitialized) {
+            return suspendCancellableCoroutine { continuation ->
+                setupContinuation(continuation)
+            }
+        } else {
+            throw IllegalStateException("trying to resume a request that doesn't exist")
+        }
+    }
 
-	private fun permissionsDenied(permissions: Collection<String>) {
-		val showRationalePermissions = permissions.any { p -> !checkIfRationaleShownAlready(p) }
-		if (showRationalePermissions && rationale != PermissionRationale.EMPTY) {
-			launch(job + dispatcher) {
-				if (rationale.shouldRequestAfterRationaleShownAsync()) {
-					requester.requestPermissions(permissions.toTypedArray())
-				} else {
-					updateDeniedPermissions(permissions)
-				}
-				setRationaleShownFor(permissions)
-			}
-		} else {
-			updateDeniedPermissions(permissions)
-		}
-	}
+    private fun requestPermissions(context: Context) {
+        this.launch {
+            requester = requesterFactory.getRequester(context).await()
+            requester.requestPermissions(request.denied.toTypedArray())
+            for (result in requester.resultsChannel) {
+                permissionsGranted(result.grantedPermissions)
+                permissionsDenied(result.deniedPermissions)
+            }
+        }
+    }
 
-	private fun updateDeniedPermissions(permissions: Collection<String>) {
-		pendingPermissions.removeAll(permissions)
-		deniedPermissions.addAll(permissions)
-		checkIfRequestComplete()
-	}
+    private fun permissionsGranted(permissions: Collection<String>) {
+        pendingPermissions.removeAll(permissions)
+        grantedPermissions.addAll(permissions)
+        checkIfRequestComplete()
+    }
 
-	private fun checkIfRequestComplete() {
-		if (pendingPermissions.isEmpty() || contextReference.get() == null) {
-			requester.finish()
-			deferredResult.complete(PermissionRequestResult(grantedPermissions, deniedPermissions))
-		}
-	}
+    private fun permissionsDenied(permissions: Collection<String>) {
+        val showRationalePermissions = permissions.any { p -> !rationaleChecker.checkIfRationaleShownAlready(p) }
+        if (showRationalePermissions && rationale != PermissionRationale.none) {
+            this.launch {
+                if (rationale.shouldRequestAfterRationaleShownAsync()) {
+                    requester.requestPermissions(permissions.toTypedArray())
+                } else {
+                    updateDeniedPermissions(permissions)
+                }
+                rationaleChecker.setRationaleShownFor(permissions)
+            }
+        } else {
+            updateDeniedPermissions(permissions)
+        }
+    }
 
-	private fun checkIfRationaleShownAlready(permission: String): Boolean {
-		val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, mutableSetOf())
-		return rationaleShowedSet.contains(permission)
-	}
+    private fun updateDeniedPermissions(permissions: Collection<String>) {
+        pendingPermissions.removeAll(permissions)
+        deniedPermissions.addAll(permissions)
+        checkIfRequestComplete()
+    }
 
-	private fun setRationaleShownFor(permissions: Collection<String>) {
-		val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, mutableSetOf())
-		rationaleShowedSet.addAll(permissions)
-		sharedPreferences.edit()
-				.remove(RATIONALE_SHOWED_SET_KEY)
-				.apply()
-		sharedPreferences.edit()
-				.putStringSet(RATIONALE_SHOWED_SET_KEY, rationaleShowedSet)
-				.apply()
-	}
+    private fun checkIfRequestComplete() {
+        if (pendingPermissions.isEmpty() && continuation.isActive) {
+            requester.finish()
+            continuation.resume(PermissionRequestResult(grantedPermissions, deniedPermissions))
+        }
+    }
 }

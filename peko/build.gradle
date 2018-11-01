@@ -1,14 +1,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 26
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 26
-        versionCode 5
-        versionName "0.32"
+        versionCode 6
+        versionName "1.0.0"
     }
 
     buildTypes {
@@ -23,15 +24,17 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.0'
-    implementation 'com.android.support:design:26.1.0'
+    def lifecycle_version = "1.1.1"
 
-    testImplementation "org.mockito:mockito-core:2.+"
+    api "android.arch.lifecycle:extensions:$lifecycle_version"
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.0'
+    api 'com.android.support:design:26.1.0'
+
+    kapt "android.arch.lifecycle:compiler:$lifecycle_version"
+
+    testImplementation "org.mockito:mockito-core:2.23.0"
     testImplementation 'junit:junit:4.12'
 }
-
-kotlin { experimental { coroutines "enable" } }
 
 apply from: 'publish.gradle'

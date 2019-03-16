@@ -32,6 +32,19 @@ launch {
 }
 ```
 
+Or use one of the extension functions on Activity or a Fragment:
+```kotlin
+launch {
+    val (grantedPermissions) = requestPermissionsAsync(Manifest.permission.BLUETOOTH) 
+    
+    if (Manifest.permission.BLUETOOTH in grantedPermissions) {
+        //we have Bluetooth permission
+    } else {
+        
+    }
+}
+```
+
 ### Screen rotations
 Library has support for screen rotations. 
 To avoid memory leaks, all Coroutines that have not completed yet, should be cancelled in the `onDestroy` function.

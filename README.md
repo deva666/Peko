@@ -15,7 +15,7 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:1.0.0'
+compile 'com.markodevcic.peko:peko:1.0.1'
 ```
 
 ### Example 
@@ -151,7 +151,7 @@ class FragmentRationale : Fragment(), PermissionRationale {
 
 ## License
 ```text
-Copyright 2018 Marko Devcic
+Copyright 2019 Marko Devcic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

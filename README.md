@@ -32,7 +32,7 @@ launch {
 }
 ```
 
-Or use one of the extension functions on Activity or a Fragment:
+Or use one of the extension functions on an Activity or a Fragment:
 ```kotlin
 launch {
     val (grantedPermissions) = requestPermissionsAsync(Manifest.permission.BLUETOOTH) 

@@ -22,18 +22,21 @@ compile 'com.markodevcic.peko:peko:2.0.0-BETA'
 Peko Version `2.0` now uses Android X packages, Kotlin v1.3.31 and Coroutines 1.10.0.
 ##
 Breaking changes from Peko Version `1.0`
-#
-`PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
 
-`PermissionResult` has a sealed class hierarchy of following types:
-`PermissionResult.Granted` -> returned when all requested permissions were granted
-`PermissionResult.Denied` -> returned when at least one of the permission was denied
-`PermissionResult.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned when Android OS signals that at least one of the permissions needs to show a rationale
-`PermissionResult.DoNotAskAgain` -> subclass of `PermissionResult.Denied`, returned when no permissions need a Rationale and at least one of the permissions was ticked on Do Not Ask Again check box
+* `PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
 
-#
-`PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
-You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
+    `PermissionResult` has a sealed class hierarchy of following types:
+    `PermissionResult.Granted` -> returned when all requested permissions were granted
+    
+    `PermissionResult.Denied` -> returned when at least one of the permissions was denied
+    
+    `PermissionResult.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned when Android OS signals that at least one of the permissions needs to show a rationale
+    
+    `PermissionResult.DoNotAskAgain` -> subclass of `PermissionResult.Denied`, returned when no permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
+
+
+* `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
+    You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
 
 
 ##
@@ -87,10 +90,10 @@ launch {
     val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
     
     when (result) {
-        is PermissionResult.Granted -> { } // woohoo
-        is PermissionResult.Denied -> { } // when I only want to know if denied or not
+        is PermissionResult.Granted -> { } // woohoo, all requested permissions granted
+        is PermissionResult.Denied -> { } // at least one permission was denied
         is PermissionResult.NeedsRationale -> { } // user clicked Deny, let's show a rationale
-        is PermissionResult.DoNotAskAgain -> { } // Android System won't show Permission dialog any more, let's tell the user we can't proceed 
+        is PermissionResult.DoNotAskAgain -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed 
     }
 }
 ```

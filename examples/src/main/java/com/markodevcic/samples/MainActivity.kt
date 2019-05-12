@@ -3,7 +3,6 @@ package com.markodevcic.samples
 import android.Manifest
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -61,7 +60,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun setResults(result: PermissionResult) {
-        Log.d("Peko", "PermissionResult: $result")
         if (result is PermissionResult.Granted) {
 
             if (Manifest.permission.ACCESS_FINE_LOCATION in result.grantedPermissions) {

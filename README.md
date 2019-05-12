@@ -15,19 +15,40 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:1.0.1'
+compile 'com.markodevcic.peko:peko:2.0.0-BETA'
 ```
+
+### What is new
+Peko Version `2.0` now uses Android X packages, Kotlin v1.3.31 and Coroutines 1.10.0.
+##
+Breaking changes from Peko Version `1.0`
+#
+`PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
+
+`PermissionResult` has a sealed class hierarchy of following types:
+`PermissionResult.Granted` -> returned when all requested permissions were granted
+`PermissionResult.Denied` -> returned when at least one of the permission was denied
+`PermissionResult.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned when Android OS signals that at least one of the permissions needs to show a rationale
+`PermissionResult.DoNotAskAgain` -> subclass of `PermissionResult.Denied`, returned when no permissions need a Rationale and at least one of the permissions was ticked on Do Not Ask Again check box
+
+#
+`PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
+You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
+
+
+##
+Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/deva666/Peko/tree/release/1.0.1).
 
 ### Example 
 In an Activity or a Fragment that implements `CoroutineScope` interface:
 ```kotlin
 launch {
-    val (grantedPermissions) = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH) 
+    val result = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH) 
     
-    if (Manifest.permission.BLUETOOTH in grantedPermissions) {
-        //we have Bluetooth permission
+    if (result is PermissionResult.Granted) {
+        // we have Bluetooth permission
     } else {
-        
+        // permission denied
     }
 }
 ```
@@ -35,12 +56,41 @@ launch {
 Or use one of the extension functions on an Activity or a Fragment:
 ```kotlin
 launch {
-    val (grantedPermissions) = requestPermissionsAsync(Manifest.permission.BLUETOOTH) 
+    val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH) 
     
-    if (Manifest.permission.BLUETOOTH in grantedPermissions) {
-        //we have Bluetooth permission
+    if (result is PermissionResult.Granted) {
+        // we have Bluetooth permission
     } else {
-        
+        // permission denied
+    }
+}
+```
+
+Request multiple permissions:
+```kotlin
+launch {
+    val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
+    
+    if (result is PermissionResult.Granted) {
+        // we have both permissions
+    } else if (result is PermissionResult.Denied) {
+        result.deniedPermissions.forEach { p ->
+            // this one was denied
+        }
+    }
+}
+```
+
+Denied Result has two subtypes which can be checked to see if we need Permission Rationale or user Clicked Do Not Ask Again:
+```kotlin
+launch {
+    val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
+    
+    when (result) {
+        is PermissionResult.Granted -> { } // woohoo
+        is PermissionResult.Denied -> { } // when I only want to know if denied or not
+        is PermissionResult.NeedsRationale -> { } // user clicked Deny, let's show a rationale
+        is PermissionResult.DoNotAskAgain -> { } // Android System won't show Permission dialog any more, let's tell the user we can't proceed 
     }
 }
 ```
@@ -55,13 +105,13 @@ Example:
 First:
 ```kotlin
 
-//job that will be cancelled in onDestroy
+// job that will be cancelled in onDestroy
 private val job = CompletableDeferred<Any>()
 
 private fun requestPermission(vararg permissions: String) {
     launch { 
-        val (grantedPermissions) = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
-        //check granted permissions
+        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
+        // check granted permissions
     }
 }
 ```
@@ -69,81 +119,21 @@ private fun requestPermission(vararg permissions: String) {
 Then in `onDestroy` of an Activity:
 ```kotlin
 if (isChangingConfigurations) {
-    job.completeExceptionally(ActivityRotatingException()) //screen rotation, retain the results
+    job.completeExceptionally(ActivityRotatingException()) // screen rotation, retain the results
 } else { 
-    job.cancel() //no rotation, just cancel the Coroutine
+    job.cancel() // no rotation, just cancel the Coroutine
 }
 ``` 
 
 And when this Activity gets recreated in one of the Activity lifecycle functions, e.g.`onCreate`:
 ```kotlin
 
-//check if we have a request already (or some other way you detect screen orientation)
+// check if we have a request already (or some other way you detect screen orientation)
 if (Peko.isRequestInProgress()) {
     launch {
-        //get the existing request and await the result
-        val (grantedPermissions) = Peko.resumeRequest() 
-        //check granted permissions
-    }
-}
-```
-
-### Permission Rationales
-If you want to show a permission rationale to the user, you can use the built in `AlertDialogPermissionRationale`. This will show an Alert Dialog with your message and title, explaining to user why this rationale is needed. It will be shown only once and only if user denies the permission for the first time.
-
-```kotlin
-val rationale = AlertDialogPermissionRationale(this@MainActivity) {
-    this.setTitle("Need permissions")
-    this.setMessage("Please give permissions to use this feature")	
-}
-
-launch {
-    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, Manifest.permission.BLUETOOTH, rationale = rationale)
-}
-```
-
-There is also a `SnackBarRationale` class that shows a SnackBar when permission rationale is required.
-
-```kotlin
-val snackBar = Snackbar.make(rootView, "Permissions needed to continue", Snackbar.LENGTH_LONG)
-val snackBarRationale = SnackBarRationale(snackBar, actionTitle = "Request again")
-
-launch {
-    val permissionResult = Peko.requestPermissionsAsync(this@MainActivity, Manifest.permission.BLUETOOTH, rationale = snackBarRationale)
-}
-```
-
-You can also show your own implementation of Permission Rationale to the user. This can be your Dialog, a fragment, or any other UI component. Just implement the interface `PermissionRationale`. If `true` is returned from suspend function `shouldRequestAfterRationaleShownAsync`, permissions will be asked for again, otherwise the request completes and returns the current permission result.
-
-Here is how a rationale with a Fragment can be implemented
-
-```kotlin
-class FragmentRationale : Fragment(), PermissionRationale {
-
-    var startCallback: (() -> Unit)? = null // callback in parent activity to trigger replacing fragments in fragment transaction 
-    private lateinit var continuation: CancellableContinuation<Boolean>
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_rationale, container, false)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        btnRequestAgain.setOnClickListener {
-            continuation.resume(true)
-            activity?.supportFragmentManager?.popBackStack()
-        }
-        btnCancel.setOnClickListener {
-            continuation.resume(false)
-            activity?.supportFragmentManager?.popBackStack()
-        }
-    }
-
-    override suspend fun shouldRequestAfterRationaleShownAsync(): Boolean {
-        return suspendCancellableCoroutine { c ->
-            startCallback?.invoke()
-            continuation = c
-        }
+        // get the existing request and await the result
+        val result = Peko.resumeRequest() 
+        // check granted permissions
     }
 }
 ```

@@ -5,7 +5,6 @@ package com.markodevcic.peko
 
 import android.app.Activity
 import androidx.fragment.app.Fragment
-import com.markodevcic.peko.rationale.PermissionRationale
 
 /**
  * Requests permissions asynchronously. The function suspends only if request contains permissions that are denied.
@@ -14,9 +13,8 @@ import com.markodevcic.peko.rationale.PermissionRationale
  * @return [PermissionRequestResult]
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
-suspend fun Activity.requestPermissionsAsync(vararg permissions: String,
-                                             rationale: PermissionRationale = PermissionRationale.none) =
-        Peko.requestPermissionsAsync(this, *permissions, rationale = rationale)
+suspend fun Activity.requestPermissionsAsync(vararg permissions: String) =
+        Peko.requestPermissionsAsync(this, *permissions)
 
 /**
  * Checks if there is a request in progress.
@@ -28,7 +26,7 @@ fun Activity.isPermissionRequestInProgress(): Boolean = Peko.isRequestInProgress
  * Resumes a request that was previously canceled with [ActivityRotatingException]
  * @throws [IllegalStateException] if there is no request in progress
  */
-suspend fun Activity.resumePermissionRequest(): PermissionRequestResult = Peko.resumeRequest()
+suspend fun Activity.resumePermissionRequest(): Result = Peko.resumeRequest()
 
 /**
  * Requests permissions asynchronously. The function suspends only if request contains permissions that are denied.
@@ -37,9 +35,8 @@ suspend fun Activity.resumePermissionRequest(): PermissionRequestResult = Peko.r
  * @return [PermissionRequestResult]
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
-suspend fun android.app.Fragment.requestPermissionsAsync(vararg permissions: String,
-                                                         rationale: PermissionRationale = PermissionRationale.none) =
-        Peko.requestPermissionsAsync(this.activity, *permissions, rationale = rationale)
+suspend fun android.app.Fragment.requestPermissionsAsync(vararg permissions: String) =
+        Peko.requestPermissionsAsync(this.activity, *permissions)
 
 /**
  * Checks if there is a request in progress.
@@ -51,7 +48,7 @@ fun android.app.Fragment.isPermissionRequestInProgress(): Boolean = Peko.isReque
  * Resumes a request that was previously canceled with [ActivityRotatingException]
  * @throws [IllegalStateException] if there is no request in progress
  */
-suspend fun android.app.Fragment.resumePermissionRequest(): PermissionRequestResult = Peko.resumeRequest()
+suspend fun android.app.Fragment.resumePermissionRequest(): Result = Peko.resumeRequest()
 
 
 /**
@@ -61,9 +58,8 @@ suspend fun android.app.Fragment.resumePermissionRequest(): PermissionRequestRes
  * @return [PermissionRequestResult]
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
-suspend fun Fragment.requestPermissionsAsync(vararg permissions: String,
-                                             rationale: PermissionRationale = PermissionRationale.none) =
-        Peko.requestPermissionsAsync(this.activity ?: throw IllegalStateException("Activity not loaded yet"), *permissions, rationale = rationale)
+suspend fun Fragment.requestPermissionsAsync(vararg permissions: String) =
+        Peko.requestPermissionsAsync(this.activity ?: throw IllegalStateException("Activity not loaded yet"), *permissions)
 
 /**
  * Checks if there is a request in progress.
@@ -75,4 +71,4 @@ fun Fragment.isPermissionRequestInProgress(): Boolean = Peko.isRequestInProgress
  * Resumes a request that was previously canceled with [ActivityRotatingException]
  * @throws [IllegalStateException] if there is no request in progress
  */
-suspend fun Fragment.resumePermissionRequest(): PermissionRequestResult = Peko.resumeRequest()
+suspend fun Fragment.resumePermissionRequest(): Result = Peko.resumeRequest()

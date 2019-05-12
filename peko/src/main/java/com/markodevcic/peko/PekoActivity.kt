@@ -15,7 +15,7 @@ internal class PekoActivity : FragmentActivity(),
 
 	private lateinit var viewModel: PekoViewModel
 
-	override val resultsChannel: ReceiveChannel<PermissionRequestResult>
+	override val resultsChannel: ReceiveChannel<Result>
 		get() = viewModel.channel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +46,15 @@ internal class PekoActivity : FragmentActivity(),
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			viewModel.channel.offer(PermissionRequestResult(grantedPermissions, deniedPermissions))
+			val needsRationale = deniedPermissions.any { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
+			val doNotAskAgain = deniedPermissions.isNotEmpty() && !needsRationale
+			viewModel.channel.offer(
+					when {
+						deniedPermissions.isEmpty() -> Result.Granted(grantedPermissions)
+						needsRationale -> Result.NeedsRationale(deniedPermissions)
+						doNotAskAgain -> Result.DoNotAskAgain(deniedPermissions)
+						else -> Result.Denied(deniedPermissions)
+					})
 		}
 	}
 

@@ -1,7 +1,6 @@
 package com.markodevcic.peko
 
 import android.content.Context
-import com.markodevcic.peko.rationale.PermissionRationale
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
@@ -10,8 +9,6 @@ import kotlin.coroutines.resume
 
 internal class PekoService(context: Context,
                            private val request: PermissionRequest,
-                           private val rationale: PermissionRationale,
-                           private val rationaleChecker: RationaleChecker,
                            private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
                            private val dispatcher: CoroutineDispatcher = Dispatchers.Main) : CoroutineScope {
 
@@ -25,11 +22,11 @@ internal class PekoService(context: Context,
 
     private val job = Job()
     private lateinit var requester: PermissionRequester
-    private lateinit var continuation: CancellableContinuation<PermissionRequestResult>
+    private lateinit var continuation: CancellableContinuation<Result>
 
-    suspend fun requestPermissions(): PermissionRequestResult {
+    suspend fun requestPermissions(): Result {
         val context = contextReference.get()
-                ?: return PermissionRequestResult(request.granted, request.denied)
+                ?: return Result.Denied(request.denied)
 
         return suspendCancellableCoroutine { continuation ->
             setupContinuation(continuation)
@@ -41,7 +38,7 @@ internal class PekoService(context: Context,
         }
     }
 
-    private fun setupContinuation(continuation: CancellableContinuation<PermissionRequestResult>) {
+    private fun setupContinuation(continuation: CancellableContinuation<Result>) {
         this.continuation = continuation
         continuation.invokeOnCancellation { fail ->
             if (fail !is ActivityRotatingException) {
@@ -53,7 +50,7 @@ internal class PekoService(context: Context,
         }
     }
 
-    suspend fun resumeRequest(): PermissionRequestResult {
+    suspend fun resumeRequest(): Result {
         if (::requester.isInitialized) {
             return suspendCancellableCoroutine { continuation ->
                 setupContinuation(continuation)
@@ -68,8 +65,24 @@ internal class PekoService(context: Context,
             requester = requesterFactory.getRequester(context).await()
             requester.requestPermissions(request.denied.toTypedArray())
             for (result in requester.resultsChannel) {
-                permissionsGranted(result.grantedPermissions)
-                permissionsDenied(result.deniedPermissions)
+                when (result) {
+                    is Result.Granted -> {
+                        permissionsGranted(result.grantedPermissions)
+                    }
+                    is Result.Denied -> {
+                        updateDeniedPermissions(result.deniedPermissions)
+                    }
+                    is Result.NeedsRationale -> {
+                        requester.finish()
+                        continuation.resume(result)
+                    }
+                    is Result.DoNotAskAgain -> {
+                        requester.finish()
+                        continuation.resume(result)
+                    }
+                }
+//                permissionsGranted(result.grantedPermissions)
+//                permissionsDenied(result.deniedPermissions)
             }
         }
     }
@@ -80,21 +93,21 @@ internal class PekoService(context: Context,
         checkIfRequestComplete()
     }
 
-    private fun permissionsDenied(permissions: Collection<String>) {
-        val showRationalePermissions = permissions.any { p -> !rationaleChecker.checkIfRationaleShownAlready(p) }
-        if (showRationalePermissions && rationale != PermissionRationale.none) {
-            this.launch {
-                if (rationale.shouldRequestAfterRationaleShownAsync()) {
-                    requester.requestPermissions(permissions.toTypedArray())
-                } else {
-                    updateDeniedPermissions(permissions)
-                }
-                rationaleChecker.setRationaleShownFor(permissions)
-            }
-        } else {
-            updateDeniedPermissions(permissions)
-        }
-    }
+//    private fun permissionsDenied(permissions: Collection<String>) {
+//        val showRationalePermissions = permissions.any { p -> !rationaleChecker.checkIfRationaleShownAlready(p) }
+//        if (showRationalePermissions) {
+//            this.launch {
+//                if (rationale.shouldRequestAfterRationaleShownAsync()) {
+//                    requester.requestPermissions(permissions.toTypedArray())
+//                } else {
+//                    updateDeniedPermissions(permissions)
+//                }
+//                rationaleChecker.setRationaleShownFor(permissions)
+//            }
+//        } else {
+//            updateDeniedPermissions(permissions)
+//        }
+//    }
 
     private fun updateDeniedPermissions(permissions: Collection<String>) {
         pendingPermissions.removeAll(permissions)
@@ -105,7 +118,7 @@ internal class PekoService(context: Context,
     private fun checkIfRequestComplete() {
         if (pendingPermissions.isEmpty() && continuation.isActive) {
             requester.finish()
-            continuation.resume(PermissionRequestResult(grantedPermissions, deniedPermissions))
+            continuation.resume(if (deniedPermissions.isEmpty()) Result.Granted(grantedPermissions) else Result.Denied(deniedPermissions))
         }
     }
 }

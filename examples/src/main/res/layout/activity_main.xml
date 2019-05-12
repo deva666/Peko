@@ -106,20 +106,6 @@
                 android:textColor="@android:color/white"
                 android:text="REQUEST ALL"/>
 
-        <Button
-                android:id="@+id/btnAllSnackBarRationale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-                android:textColor="@android:color/white"
-                android:text="SNACKBAR RATIONALE"/>
-
-        <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:id="@+id/btnFragmentRationale"
-                android:backgroundTint="@color/colorAccent"
-                android:textColor="@android:color/white"
-                android:text="FILE WITH FRAGMENT RATIONALE"/>
-
     </LinearLayout>
 
 </LinearLayout>

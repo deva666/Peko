@@ -10,7 +10,6 @@ android:
     
 before_install:
  - chmod +x gradlew
- - yes | sudo sdkmanager --licenses
 
 script:
   - ./gradlew build

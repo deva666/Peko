@@ -8,19 +8,19 @@
         android:layout_height="match_parent"
         tools:context="com.markodevcic.samples.MainActivity" android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
             android:id="@+id/container"
@@ -105,20 +105,6 @@
                 android:backgroundTint="@color/colorAccent"
                 android:textColor="@android:color/white"
                 android:text="REQUEST ALL"/>
-
-        <Button
-                android:id="@+id/btnAllSnackBarRationale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-                android:textColor="@android:color/white"
-                android:text="SNACKBAR RATIONALE"/>
-
-        <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:id="@+id/btnFragmentRationale"
-                android:backgroundTint="@color/colorAccent"
-                android:textColor="@android:color/white"
-                android:text="FILE WITH FRAGMENT RATIONALE"/>
 
     </LinearLayout>
 

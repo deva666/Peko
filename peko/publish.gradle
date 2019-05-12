@@ -13,7 +13,7 @@ if(env == null || (env != null && env != 'Travis')) {
     def libTags = ['android', 'android-permissions', 'kotlin-coroutines', 'kotlin']
 
     group libGroup
-    version '1.0.1'
+    version '2.0.0-BETA'
 
     Properties properties = new Properties()
     properties.load(rootProject.file('local.properties').newDataInputStream())

@@ -1,11 +1,11 @@
 package com.markodevcic.peko
 
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.FragmentActivity
-import android.support.v4.content.PermissionChecker
 import android.view.WindowManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.PermissionChecker
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProviders
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.ReceiveChannel
 
@@ -15,7 +15,7 @@ internal class PekoActivity : FragmentActivity(),
 
 	private lateinit var viewModel: PekoViewModel
 
-	override val resultsChannel: ReceiveChannel<PermissionRequestResult>
+	override val resultsChannel: ReceiveChannel<PermissionResult>
 		get() = viewModel.channel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +46,15 @@ internal class PekoActivity : FragmentActivity(),
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			viewModel.channel.offer(PermissionRequestResult(grantedPermissions, deniedPermissions))
+			val needsRationale = deniedPermissions.any { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
+			val doNotAskAgain = deniedPermissions.isNotEmpty() && !needsRationale
+			viewModel.channel.offer(
+					when {
+						deniedPermissions.isEmpty() -> PermissionResult.Granted(grantedPermissions)
+						needsRationale -> PermissionResult.NeedsRationale(deniedPermissions)
+						doNotAskAgain -> PermissionResult.DoNotAskAgain(deniedPermissions)
+						else -> PermissionResult.Denied(deniedPermissions)
+					})
 		}
 	}
 

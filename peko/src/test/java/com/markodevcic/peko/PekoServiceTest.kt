@@ -23,7 +23,7 @@ class PekoServiceTest {
     @Test
     fun testRequestPermissionsGranted() {
         val request = PermissionRequest(listOf(), listOf("BLUETOOTH"))
-        val channel = Channel<Result>()
+        val channel = Channel<PermissionResult>()
         Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
 
         val sut = PekoService(context, request, permissionRequesterFactory, dispatcher)
@@ -31,10 +31,10 @@ class PekoServiceTest {
         runBlocking {
             async {
                 delay(200)
-                channel.send(Result.Granted(listOf("BLUETOOTH")))
+                channel.send(PermissionResult.Granted(listOf("BLUETOOTH")))
             }
             val result = sut.requestPermissions()
-            val grantedResult = result as? Result.Granted ?: throw IllegalStateException("result should be Granted")
+            val grantedResult = result as? PermissionResult.Granted ?: throw IllegalStateException("result should be Granted")
             Assert.assertTrue(grantedResult.grantedPermissions.size == 1)
             Assert.assertTrue(grantedResult.grantedPermissions.contains("BLUETOOTH"))
         }
@@ -44,7 +44,7 @@ class PekoServiceTest {
     @Test
     fun testRequestPermissionsGrantedAppended() {
         val request = PermissionRequest(listOf("CAMERA"), listOf("BLUETOOTH"))
-        val channel = Channel<Result>()
+        val channel = Channel<PermissionResult>()
         Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
 
         val sut = PekoService(context, request, permissionRequesterFactory, dispatcher)
@@ -52,10 +52,10 @@ class PekoServiceTest {
         runBlocking {
             async {
                 delay(200)
-                channel.send(Result.Granted(listOf("BLUETOOTH")))
+                channel.send(PermissionResult.Granted(listOf("BLUETOOTH")))
             }
             val result = sut.requestPermissions()
-            val grantedResult = result as? Result.Granted ?: throw IllegalStateException("result should be Granted")
+            val grantedResult = result as? PermissionResult.Granted ?: throw IllegalStateException("result should be Granted")
             Assert.assertTrue(result.grantedPermissions.size == 2)
             Assert.assertTrue(result.grantedPermissions.contains("BLUETOOTH"))
             Assert.assertTrue(result.grantedPermissions.contains("CAMERA"))
@@ -65,7 +65,7 @@ class PekoServiceTest {
     @Test
     fun testRequestPermissionsDenied() {
         val request = PermissionRequest(granted = listOf("CAMERA"), denied = listOf("BLUETOOTH"))
-        val channel = Channel<Result>()
+        val channel = Channel<PermissionResult>()
         Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
 
         val sut = PekoService(context, request, permissionRequesterFactory, dispatcher)
@@ -73,11 +73,11 @@ class PekoServiceTest {
         runBlocking {
             async {
                 delay(200)
-                channel.send(Result.Denied(listOf("BLUETOOTH")))
+                channel.send(PermissionResult.Denied(listOf("BLUETOOTH")))
             }
 
             val result = sut.requestPermissions()
-            val deniedResult = result as? Result.Denied ?: throw IllegalStateException("result should be Denied")
+            val deniedResult = result as? PermissionResult.Denied ?: throw IllegalStateException("result should be Denied")
             Assert.assertTrue(result.deniedPermissions.contains("BLUETOOTH"))
         }
     }

@@ -9,7 +9,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.markodevcic.peko.ActivityRotatingException
 import com.markodevcic.peko.Peko
-import com.markodevcic.peko.Result
+import com.markodevcic.peko.PermissionResult
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -60,9 +60,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    private fun setResults(result: Result) {
-        Log.d("Peko", "Result: $result")
-        if (result is Result.Granted) {
+    private fun setResults(result: PermissionResult) {
+        Log.d("Peko", "PermissionResult: $result")
+        if (result is PermissionResult.Granted) {
 
             if (Manifest.permission.ACCESS_FINE_LOCATION in result.grantedPermissions) {
                 textLocationResult.text = "GRANTED"
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 textCameraResult.text = "GRANTED"
                 textCameraResult.setTextColor(Color.GREEN)
             }
-        } else if (result is Result.Denied) {
+        } else if (result is PermissionResult.Denied) {
             if (Manifest.permission.ACCESS_FINE_LOCATION in result.deniedPermissions) {
                 textLocationResult.text = "DENIED"
                 textLocationResult.setTextColor(Color.RED)

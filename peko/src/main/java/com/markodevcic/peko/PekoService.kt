@@ -20,11 +20,11 @@ internal class PekoService(context: Context,
 
     private val job = Job()
     private lateinit var requester: PermissionRequester
-    private lateinit var continuation: CancellableContinuation<Result>
+    private lateinit var continuation: CancellableContinuation<PermissionResult>
 
-    suspend fun requestPermissions(): Result {
+    suspend fun requestPermissions(): PermissionResult {
         val context = contextReference.get()
-                ?: return Result.Denied(request.denied)
+                ?: return PermissionResult.Denied(request.denied)
 
         return suspendCancellableCoroutine { continuation ->
             setupContinuation(continuation)
@@ -33,7 +33,7 @@ internal class PekoService(context: Context,
         }
     }
 
-    private fun setupContinuation(continuation: CancellableContinuation<Result>) {
+    private fun setupContinuation(continuation: CancellableContinuation<PermissionResult>) {
         this.continuation = continuation
         continuation.invokeOnCancellation { fail ->
             if (fail !is ActivityRotatingException) {
@@ -45,7 +45,7 @@ internal class PekoService(context: Context,
         }
     }
 
-    suspend fun resumeRequest(): Result {
+    suspend fun resumeRequest(): PermissionResult {
         if (::requester.isInitialized) {
             return suspendCancellableCoroutine { continuation ->
                 setupContinuation(continuation)
@@ -65,11 +65,11 @@ internal class PekoService(context: Context,
         }
     }
 
-    private fun tryCompleteRequest(result: Result) {
+    private fun tryCompleteRequest(result: PermissionResult) {
         if (continuation.isActive) {
             requester.finish()
-            continuation.resume(if (result is Result.Granted)
-                Result.Granted(grantedPermissions + result.grantedPermissions)
+            continuation.resume(if (result is PermissionResult.Granted)
+                PermissionResult.Granted(grantedPermissions + result.grantedPermissions)
             else result)
         }
     }

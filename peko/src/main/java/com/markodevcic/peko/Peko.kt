@@ -15,7 +15,7 @@ object Peko {
      * Resumes a request that was previously canceled with [ActivityRotatingException]
      * @throws [IllegalStateException] if there is no request in progress
      */
-    suspend fun resumeRequest(): Result {
+    suspend fun resumeRequest(): PermissionResult {
         try {
             val service = serviceReference.get() ?: throw IllegalStateException("there is no request in progress")
             val result = service.resumeRequest()
@@ -30,14 +30,14 @@ object Peko {
      * Requests permissions asynchronously. The function suspends only if request contains permissions that are denied.
      * Should be called from a coroutine which has a UI (Main) Dispatcher as context.
      * If the parent job is cancelled with [ActivityRotatingException], ongoing request will be retained and can be resumed with [resumeRequest] function.
-     * @return [PermissionRequestResult]
+     * @return [PermissionResult]
      * @throws [IllegalStateException] if called while another request has not completed yet
      */
     suspend fun requestPermissionsAsync(activity: Activity,
-                                        vararg permissions: String): Result {
+                                        vararg permissions: String): PermissionResult {
 
         if (isTargetSdkUnderAndroidM(activity)) {
-            return Result.Denied(permissions.toList())
+            return PermissionResult.Denied(permissions.toList())
         }
 
         val request = checkPermissions(activity, permissions)
@@ -57,7 +57,7 @@ object Peko {
             }
 
         } else {
-            return Result.Granted(request.granted)
+            return PermissionResult.Granted(request.granted)
         }
     }
 

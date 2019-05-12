@@ -1,6 +1,6 @@
 package com.markodevcic.peko.rationale
 
-import android.support.design.widget.Snackbar
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 

@@ -1,6 +1,6 @@
 package com.markodevcic.peko
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.channels.Channel
 
 internal class PekoViewModel : ViewModel() {

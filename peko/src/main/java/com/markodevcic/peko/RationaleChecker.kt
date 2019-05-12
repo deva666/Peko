@@ -13,6 +13,7 @@ internal interface RationaleChecker {
     }
 }
 
+@Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 internal class RationaleCheckerImpl(private val sharedPreferences: SharedPreferences) : RationaleChecker {
     override fun checkIfRationaleShownAlready(permission: String): Boolean {
         val rationaleShowedSet = sharedPreferences.getStringSet(RATIONALE_SHOWED_SET_KEY, mutableSetOf())

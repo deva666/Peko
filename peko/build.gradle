@@ -3,11 +3,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 6
         versionName "1.0.1"
     }
@@ -24,14 +24,12 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    def lifecycle_version = "1.1.1"
-
-    api "android.arch.lifecycle:extensions:$lifecycle_version"
+    api 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-    api "com.android.support:design:26.1.0"
+    api 'com.google.android.material:material:1.0.0'
 
-    kapt "android.arch.lifecycle:compiler:$lifecycle_version"
+    kapt 'androidx.lifecycle:lifecycle-compiler:2.0.0'
 
     testImplementation "org.mockito:mockito-core:2.23.0"
     testImplementation 'junit:junit:4.12'

@@ -2,7 +2,7 @@ package com.markodevcic.peko.rationale
 
 import android.R
 import android.content.Context
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 

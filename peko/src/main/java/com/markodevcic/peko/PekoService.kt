@@ -15,9 +15,7 @@ internal class PekoService(context: Context,
     override val coroutineContext: CoroutineContext
         get() = dispatcher + job
 
-    private val pendingPermissions = mutableSetOf<String>()
     private val grantedPermissions = mutableSetOf<String>()
-    private val deniedPermissions = mutableSetOf<String>()
     private val contextReference: WeakReference<out Context> = WeakReference(context)
 
     private val job = Job()
@@ -30,10 +28,7 @@ internal class PekoService(context: Context,
 
         return suspendCancellableCoroutine { continuation ->
             setupContinuation(continuation)
-
-            pendingPermissions.addAll(request.denied)
             grantedPermissions.addAll(request.granted)
-
             requestPermissions(context)
         }
     }
@@ -65,60 +60,17 @@ internal class PekoService(context: Context,
             requester = requesterFactory.getRequester(context).await()
             requester.requestPermissions(request.denied.toTypedArray())
             for (result in requester.resultsChannel) {
-                when (result) {
-                    is Result.Granted -> {
-                        permissionsGranted(result.grantedPermissions)
-                    }
-                    is Result.Denied -> {
-                        updateDeniedPermissions(result.deniedPermissions)
-                    }
-                    is Result.NeedsRationale -> {
-                        requester.finish()
-                        continuation.resume(result)
-                    }
-                    is Result.DoNotAskAgain -> {
-                        requester.finish()
-                        continuation.resume(result)
-                    }
-                }
-//                permissionsGranted(result.grantedPermissions)
-//                permissionsDenied(result.deniedPermissions)
+                tryCompleteRequest(result)
             }
         }
     }
 
-    private fun permissionsGranted(permissions: Collection<String>) {
-        pendingPermissions.removeAll(permissions)
-        grantedPermissions.addAll(permissions)
-        checkIfRequestComplete()
-    }
-
-//    private fun permissionsDenied(permissions: Collection<String>) {
-//        val showRationalePermissions = permissions.any { p -> !rationaleChecker.checkIfRationaleShownAlready(p) }
-//        if (showRationalePermissions) {
-//            this.launch {
-//                if (rationale.shouldRequestAfterRationaleShownAsync()) {
-//                    requester.requestPermissions(permissions.toTypedArray())
-//                } else {
-//                    updateDeniedPermissions(permissions)
-//                }
-//                rationaleChecker.setRationaleShownFor(permissions)
-//            }
-//        } else {
-//            updateDeniedPermissions(permissions)
-//        }
-//    }
-
-    private fun updateDeniedPermissions(permissions: Collection<String>) {
-        pendingPermissions.removeAll(permissions)
-        deniedPermissions.addAll(permissions)
-        checkIfRequestComplete()
-    }
-
-    private fun checkIfRequestComplete() {
-        if (pendingPermissions.isEmpty() && continuation.isActive) {
+    private fun tryCompleteRequest(result: Result) {
+        if (continuation.isActive) {
             requester.finish()
-            continuation.resume(if (deniedPermissions.isEmpty()) Result.Granted(grantedPermissions) else Result.Denied(deniedPermissions))
+            continuation.resume(if (result is Result.Granted)
+                Result.Granted(grantedPermissions + result.grantedPermissions)
+            else result)
         }
     }
 }

@@ -37,7 +37,7 @@ object Peko {
                                         vararg permissions: String): PermissionResult {
 
         if (isTargetSdkUnderAndroidM(activity)) {
-            return PermissionResult.Denied(permissions.toList())
+            return PermissionResult.Denied.DeniedInitially(permissions.toList())
         }
 
         val request = checkPermissions(activity, permissions)

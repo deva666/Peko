@@ -32,7 +32,8 @@ Breaking changes from Peko Version `1.0`
     
     `PermissionResult.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned when Android OS signals that at least one of the permissions needs to show a rationale
     
-    `PermissionResult.DoNotAskAgain` -> subclass of `PermissionResult.Denied`, returned when no permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
+    `PermissionResult.Denied.DeniedPermanently` -> subclass of `PermissionResult.Denied`, returned when no 
+    permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
 
 
 * `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.

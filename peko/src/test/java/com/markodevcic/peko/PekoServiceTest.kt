@@ -73,7 +73,7 @@ class PekoServiceTest {
         runBlocking {
             async {
                 delay(200)
-                channel.send(PermissionResult.Denied(listOf("BLUETOOTH")))
+                channel.send(PermissionResult.Denied.DeniedInitially(listOf("BLUETOOTH")))
             }
 
             val result = sut.requestPermissions()

@@ -42,7 +42,8 @@ internal class PekoActivity : FragmentActivity(),
 			for (i in permissions.indices) {
 				val permission = permissions[i]
 				when (grantResults[i]) {
-					PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(permission)
+					PermissionChecker.PERMISSION_DENIED,
+					PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(permission)
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
@@ -53,7 +54,7 @@ internal class PekoActivity : FragmentActivity(),
 						deniedPermissions.isEmpty() -> PermissionResult.Granted(grantedPermissions)
 						needsRationale -> PermissionResult.Denied.NeedsRationale(deniedPermissions)
 						doNotAskAgain -> PermissionResult.Denied.DeniedPermanently(deniedPermissions)
-						else -> PermissionResult.Denied.DeniedInitially(deniedPermissions)
+						else -> PermissionResult.Denied.JustDenied(deniedPermissions)
 					})
 		}
 	}

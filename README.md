@@ -19,7 +19,7 @@ implementation 'com.markodevcic.peko:peko:2.0.0'
 ```
 
 ### What is new
-Peko Version `2.0` now uses Android X packages, Kotlin v1.3.31 and Coroutines 1.10.0.
+Peko Version `2.0` now uses Android X packages, Kotlin v1.3.50 and Coroutines 1.3.0.
 ##
 Breaking changes from Peko Version `1.0`
 
@@ -30,11 +30,14 @@ Breaking changes from Peko Version `1.0`
     
     `PermissionResult.Denied` -> returned when at least one of the permissions was denied
     
-    `PermissionResult.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned when Android OS signals that at least one of the permissions needs to show a rationale
+    `PermissionResult.Denied.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned 
+    when Android OS signals that at least one of the permissions needs to show a rationale
     
     `PermissionResult.Denied.DeniedPermanently` -> subclass of `PermissionResult.Denied`, returned when no 
     permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
 
+    `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned 
+    when no Rationale needed nor permanently denied
 
 * `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
     You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
@@ -85,16 +88,17 @@ launch {
 }
 ```
 
-Denied Result has two subtypes which can be checked to see if we need Permission Rationale or user Clicked Do Not Ask Again:
+Denied Result has three subtypes which can be checked to see if we need Permission Rationale or 
+user Clicked Do Not Ask Again:
 ```kotlin
 launch {
     val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
     
     when (result) {
         is PermissionResult.Granted -> { } // woohoo, all requested permissions granted
-        is PermissionResult.Denied -> { } // at least one permission was denied
-        is PermissionResult.NeedsRationale -> { } // user clicked Deny, let's show a rationale
-        is PermissionResult.DoNotAskAgain -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed 
+        is PermissionResult.Denied.JustDenied -> { } // at least one permission was denied
+        is PermissionResult.Denied.NeedsRationale -> { } // user clicked Deny, let's show a rationale
+        is PermissionResult.Denied.DeniedPermanently -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed 
     }
 }
 ```

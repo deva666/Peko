@@ -15,7 +15,7 @@ Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), per
 Add `jcenter` repository
 
 ```
-compile 'com.markodevcic.peko:peko:2.0.0-BETA'
+implementation 'com.markodevcic.peko:peko:2.0.0'
 ```
 
 ### What is new

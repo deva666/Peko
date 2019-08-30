@@ -51,9 +51,9 @@ internal class PekoActivity : FragmentActivity(),
 			viewModel.channel.offer(
 					when {
 						deniedPermissions.isEmpty() -> PermissionResult.Granted(grantedPermissions)
-						needsRationale -> PermissionResult.NeedsRationale(deniedPermissions)
-						doNotAskAgain -> PermissionResult.DoNotAskAgain(deniedPermissions)
-						else -> PermissionResult.Denied(deniedPermissions)
+						needsRationale -> PermissionResult.Denied.NeedsRationale(deniedPermissions)
+						doNotAskAgain -> PermissionResult.Denied.DeniedPermanently(deniedPermissions)
+						else -> PermissionResult.Denied.JustDenied(deniedPermissions)
 					})
 		}
 	}

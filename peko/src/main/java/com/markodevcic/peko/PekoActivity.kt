@@ -53,7 +53,7 @@ internal class PekoActivity : FragmentActivity(),
 						deniedPermissions.isEmpty() -> PermissionResult.Granted(grantedPermissions)
 						needsRationale -> PermissionResult.Denied.NeedsRationale(deniedPermissions)
 						doNotAskAgain -> PermissionResult.Denied.DeniedPermanently(deniedPermissions)
-						else -> PermissionResult.Denied.JustDenied(deniedPermissions)
+						else -> PermissionResult.Denied.DeniedInitially(deniedPermissions)
 					})
 		}
 	}

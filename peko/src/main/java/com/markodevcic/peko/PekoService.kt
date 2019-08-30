@@ -24,7 +24,7 @@ internal class PekoService(context: Context,
 
     suspend fun requestPermissions(): PermissionResult {
         val context = contextReference.get()
-                ?: return PermissionResult.Denied.JustDenied(request.denied)
+                ?: return PermissionResult.Denied.DeniedInitially(request.denied)
 
         return suspendCancellableCoroutine { continuation ->
             setupContinuation(continuation)

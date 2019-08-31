@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
 suspend fun Activity.requestPermissionsAsync(vararg permissions: String) =
-        Peko.requestPermissionsAsync(this, *permissions)
+		Peko.requestPermissionsAsync(this, *permissions)
 
 /**
  * Checks if there is a request in progress.
@@ -36,7 +36,7 @@ suspend fun Activity.resumePermissionRequest(): PermissionResult = Peko.resumeRe
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
 suspend fun android.app.Fragment.requestPermissionsAsync(vararg permissions: String) =
-        Peko.requestPermissionsAsync(this.activity, *permissions)
+		Peko.requestPermissionsAsync(this.activity, *permissions)
 
 /**
  * Checks if there is a request in progress.
@@ -59,8 +59,8 @@ suspend fun android.app.Fragment.resumePermissionRequest(): PermissionResult = P
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
 suspend fun Fragment.requestPermissionsAsync(vararg permissions: String) =
-        Peko.requestPermissionsAsync(this.activity
-                ?: throw IllegalStateException("Activity not loaded yet"), *permissions)
+		Peko.requestPermissionsAsync(this.activity
+				?: throw IllegalStateException("Activity not loaded yet"), *permissions)
 
 /**
  * Checks if there is a request in progress.

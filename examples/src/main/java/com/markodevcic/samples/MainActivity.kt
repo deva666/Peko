@@ -1,6 +1,7 @@
 package com.markodevcic.samples
 
 import android.Manifest
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
@@ -49,6 +50,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         btnAll.setOnClickListener {
             clearResults()
             requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+        btnLiveData.setOnClickListener {
+            val intent = Intent(this, LiveDataActivity::class.java)
+            startActivity(intent)
         }
     }
 

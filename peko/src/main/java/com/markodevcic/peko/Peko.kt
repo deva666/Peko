@@ -44,9 +44,7 @@ object Peko {
         if (request.denied.isNotEmpty()) {
             val service = PekoService(activity, request)
 
-            if (!serviceReference.compareAndSet(null, service)) {
-                throw IllegalStateException("Can't request permission while another request in progress")
-            }
+            check(serviceReference.compareAndSet(null, service)) { "Can't request permission while another request in progress" }
 
             try {
                 val result = service.requestPermissions()

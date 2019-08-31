@@ -55,10 +55,10 @@ Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/dev
 In an Activity or a Fragment that implements `CoroutineScope` interface:
 ```kotlin
 launch {
-    val result = Peko.requestPermissionsAsync(this, Manifest.permission.BLUETOOTH) 
+    val result = Peko.requestPermissionsAsync(this, Manifest.permission.READ_CONTACTS) 
     
     if (result is PermissionResult.Granted) {
-        // we have Bluetooth permission
+        // we have contacts permission
     } else {
         // permission denied
     }
@@ -68,10 +68,10 @@ launch {
 Or use one of the extension functions on an Activity or a Fragment:
 ```kotlin
 launch {
-    val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH) 
+    val result = requestPermissionsAsync(Manifest.permission.READ_CONTACTS) 
     
     if (result is PermissionResult.Granted) {
-        // we have Bluetooth permission
+        // we have contacts permission
     } else {
         // permission denied
     }
@@ -81,7 +81,7 @@ launch {
 Request multiple permissions:
 ```kotlin
 launch {
-    val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
+    val result = requestPermissionsAsync(Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA) 
     
     if (result is PermissionResult.Granted) {
         // we have both permissions
@@ -181,7 +181,7 @@ if (Peko.isRequestInProgress()) {
 
 ### LiveData and screen rotations
 You don't have to do anything, this logic is already inside the `PermissionsLiveData` class. 
-You just have to call observe in the `onCreate` method. 
+You just have to call observe in the `onCreate` method and of course use `androidx.lifecycle.ViewModel`. 
 
 
 ## License

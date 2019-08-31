@@ -3,10 +3,11 @@
 
 [![Build Status](https://travis-ci.org/deva666/Peko.svg?branch=master)](https://travis-ci.org/deva666/Peko) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Peko-blue.svg?style=flat)](https://android-arsenal.com/details/1/6861) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ---
-### Android Permissions with Kotlin Coroutines
+### Android Permissions with Kotlin Coroutines or LiveData
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.  
 Get Permission Request Result asynchronously with one function call.  
 Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), permissions requests are async and lightweight (no new threads are used/created).
+Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive Permission Results with LiveData.
 
 ***
 
@@ -36,11 +37,14 @@ Breaking changes from Peko Version `1.0`
     `PermissionResult.Denied.DeniedPermanently` -> subclass of `PermissionResult.Denied`, returned when no 
     permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
 
-    `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned 
-    when no Rationale needed nor permanently denied
+    `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned when 
+    previous two cases are not the cause, for example if you forget to register the Permission in
+     AndroidManifest
 
 * `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
     You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
+    
+*  Added support for requesting permissions with LiveData
 
 
 ##
@@ -96,11 +100,39 @@ launch {
     
     when (result) {
         is PermissionResult.Granted -> { } // woohoo, all requested permissions granted
-        is PermissionResult.Denied.JustDenied -> { } // at least one permission was denied
+        is PermissionResult.Denied.JustDenied -> { } // at least one permission was denied, maybe we forgot to register it in the AndroidManifest?
         is PermissionResult.Denied.NeedsRationale -> { } // user clicked Deny, let's show a rationale
         is PermissionResult.Denied.DeniedPermanently -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed 
     }
 }
+```
+
+### LiveData
+Hate Coroutines? No problem ... just create an instance of `PermissionsLiveData` and observe the results with your `LifecycleOwner`
+
+In a ViewModel ... if you need to support orientation changes, or anywhere else if not (Presenter)
+```kotlin
+    val permissionLiveData = PermissionsLiveData()
+    
+    fun checkPermissions(vararg permissions: String) {
+        permissionLiveData.checkPermissions(*permissions)
+    }
+```
+
+In your `LifecycleOwner`, for example in an Activity
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+    viewModel = ViewModelProviders.of(this).get(YourViewModel::class.java)
+    // observe has to be called before checkPermissions, so we can get the LifecycleOwner
+    viewModel.permissionLiveData.observe(this, Observer { r: PermissionResult ->
+        // do something with permission results
+    })
+}
+
+private fun askContactsPermissions() {
+    viewModel.checkPermissions(Manifest.permission.READ_CONTACTS)
+}
+
 ```
 
 ### Screen rotations
@@ -145,6 +177,10 @@ if (Peko.isRequestInProgress()) {
     }
 }
 ```
+
+## LiveData and Orientation changes
+You don't have to do anything, this logic is already inside the `PermissionsLiveData` class. 
+You just have to call observe in the `onCreate` method. 
 
 
 ## License

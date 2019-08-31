@@ -147,7 +147,7 @@ First:
 ```kotlin
 
 // job that will be cancelled in onDestroy
-private val job = CompletableDeferred<Any>()
+private val job = Job()
 
 private fun requestPermission(vararg permissions: String) {
     launch { 
@@ -160,7 +160,7 @@ private fun requestPermission(vararg permissions: String) {
 Then in `onDestroy` of an Activity:
 ```kotlin
 if (isChangingConfigurations) {
-    job.completeExceptionally(ActivityRotatingException()) // screen rotation, retain the results
+    job.cancel(ActivityRotatingException()) // screen rotation, retain the results
 } else { 
     job.cancel() // no rotation, just cancel the Coroutine
 }

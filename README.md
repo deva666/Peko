@@ -7,7 +7,7 @@
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.  
 Get Permission Request Result asynchronously with one function call.  
 Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), permissions requests are async and lightweight (no new threads are used/created).
---
+
 Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive Permission Results with LiveData.
 
 ***

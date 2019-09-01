@@ -11,8 +11,26 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class PermissionsLiveData : LiveData<PermissionResult>() {
+
+	private val requester = LiveDataRequester(this)
+
+	override fun observe(owner: LifecycleOwner, observer: Observer<in PermissionResult>) {
+		super.observe(owner, observer)
+		requester.onObserve(owner)
+	}
+
+	fun checkPermissions(vararg permissions: String) {
+		requester.checkPermissions(*permissions)
+	}
+
+	fun postResult(value: PermissionResult) {
+		super.postValue(value)
+	}
+}
+
+private class LiveDataRequester(private val liveData: PermissionsLiveData) {
 	private lateinit var lifecycleOwnerScope: LifecycleOwnerScope
-	private var owner: LifecycleOwner? = null
+	var owner: LifecycleOwner? = null
 
 	fun checkPermissions(vararg permissions: String) {
 		val ownerCopy = owner ?: throw IllegalStateException("Lifecycle owner not registered")
@@ -31,7 +49,7 @@ class PermissionsLiveData : LiveData<PermissionResult>() {
 											" where activity is not null"))
 						else ownerCopy as Activity
 						val result = Peko.requestPermissionsAsync(activity, *permissions)
-						postValue(result)
+						liveData.postResult(result)
 					}
 				}
 				else -> throw IllegalArgumentException("Unsupported lifecycle owner")
@@ -41,8 +59,7 @@ class PermissionsLiveData : LiveData<PermissionResult>() {
 		}
 	}
 
-	override fun observe(owner: LifecycleOwner, observer: Observer<in PermissionResult>) {
-		super.observe(owner, observer)
+	fun onObserve(owner: LifecycleOwner) {
 		this.owner = owner
 		if (Peko.isRequestInProgress()) {
 			resumeRequest(owner)
@@ -53,7 +70,7 @@ class PermissionsLiveData : LiveData<PermissionResult>() {
 		lifecycleOwnerScope = LifecycleOwnerScope(owner) { this.owner = null }
 		lifecycleOwnerScope.launch {
 			val result = Peko.resumeRequest()
-			postValue(result)
+			liveData.postResult(result)
 		}
 	}
 }

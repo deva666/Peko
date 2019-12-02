@@ -51,6 +51,7 @@ internal class PekoActivity : FragmentActivity(),
 			val doNotAskAgain = deniedPermissions.isNotEmpty() && !needsRationale
 			viewModel.channel.offer(
 					when {
+						permissions.isEmpty() -> PermissionResult.Cancelled
 						deniedPermissions.isEmpty() -> PermissionResult.Granted(grantedPermissions)
 						needsRationale -> PermissionResult.Denied.NeedsRationale(deniedPermissions)
 						doNotAskAgain -> PermissionResult.Denied.DeniedPermanently(deniedPermissions)

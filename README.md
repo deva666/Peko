@@ -100,6 +100,7 @@ launch {
     val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
     
     when (result) {
+        is PermissionResult.Cancelled -> { } // interaction was interrupted
         is PermissionResult.Granted -> { } // woohoo, all requested permissions granted
         is PermissionResult.Denied.JustDenied -> { } // at least one permission was denied, maybe we forgot to register it in the AndroidManifest?
         is PermissionResult.Denied.NeedsRationale -> { } // user clicked Deny, let's show a rationale

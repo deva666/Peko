@@ -81,4 +81,23 @@ class PekoServiceTest {
             Assert.assertTrue(result.deniedPermissions.contains("BLUETOOTH"))
         }
     }
+
+    @Test
+    fun testRequestPermissionCancelled() {
+        val request = PermissionRequest(granted = listOf("CAMERA"), denied = listOf("BLUETOOTH"))
+        val channel = Channel<PermissionResult>()
+        Mockito.`when`(permissionRequester.resultsChannel).thenReturn(channel)
+
+        val sut = PekoService(context, request, permissionRequesterFactory, dispatcher)
+
+        runBlocking {
+            async {
+                delay(200)
+                channel.send(PermissionResult.Cancelled)
+            }
+
+            val result = sut.requestPermissions()
+            Assert.assertSame("result should be Cancelled", PermissionResult.Cancelled, result)
+        }
+    }
 }

@@ -17,7 +17,7 @@ Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive 
 Add `jcenter` repository
 
 ```
-implementation 'com.markodevcic.peko:peko:2.0.0'
+implementation 'com.markodevcic.peko:peko:2.1.0'
 ```
 
 ### What is new
@@ -41,6 +41,8 @@ Breaking changes from Peko Version `1.0`
     `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned when 
     previous two cases are not the cause, for example if you forget to register the Permission in
      AndroidManifest
+
+    `PermissionResult.Cancelled` -> returned when Android System cancels the request, ie returned
 
 * `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
     You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
@@ -100,11 +102,11 @@ launch {
     val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
     
     when (result) {
-        is PermissionResult.Cancelled -> { } // interaction was interrupted
         is PermissionResult.Granted -> { } // woohoo, all requested permissions granted
         is PermissionResult.Denied.JustDenied -> { } // at least one permission was denied, maybe we forgot to register it in the AndroidManifest?
         is PermissionResult.Denied.NeedsRationale -> { } // user clicked Deny, let's show a rationale
-        is PermissionResult.Denied.DeniedPermanently -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed 
+        is PermissionResult.Denied.DeniedPermanently -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed
+        is PermissionResult.Cancelled -> { } // interaction was interrupted
     }
 }
 ```

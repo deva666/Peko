@@ -17,11 +17,11 @@ Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive 
 Add `jcenter` repository
 
 ```
-implementation 'com.markodevcic.peko:peko:2.1.0'
+implementation 'com.markodevcic.peko:peko:2.1.1'
 ```
 
 ### What is new
-Peko Version `2.0` now uses Android X packages, Kotlin v1.3.50 and Coroutines 1.3.0.
+Peko Version `2` now uses Android X packages, Kotlin v1.3.50 and Coroutines 1.3.0.
 ##
 Breaking changes from Peko Version `1.0`
 

@@ -24,12 +24,14 @@ class LiveDataActivity : AppCompatActivity() {
 
 		viewModel.permissionLiveData.observe(this, Observer { r: PermissionResult ->
 			textContactsResult.text = when (r) {
+				is PermissionResult.Cancelled -> "CANCELLED"
 				is PermissionResult.Granted -> "GRANTED"
 				is PermissionResult.Denied -> if (r.deniedPermissions.contains(Manifest
 								.permission.READ_CONTACTS)) "DENIED" else ""
 				else -> ""
 			}
 			textPhoneResult.text = when (r) {
+				is PermissionResult.Cancelled -> "CANCELLED"
 				is PermissionResult.Granted -> "GRANTED"
 				is PermissionResult.Denied -> if (r.deniedPermissions.contains(Manifest
 								.permission.ANSWER_PHONE_CALLS)) "DENIED" else ""

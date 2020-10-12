@@ -17,7 +17,7 @@ Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive 
 Add `jcenter` repository
 
 ```
-implementation 'com.markodevcic.peko:peko:2.1.1'
+implementation 'com.markodevcic.peko:peko:2.1.2'
 ```
 
 ### What is new

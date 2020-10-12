@@ -2,7 +2,6 @@
 
 package com.markodevcic.peko
 
-
 import android.app.Activity
 import androidx.fragment.app.Fragment
 

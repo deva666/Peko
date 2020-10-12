@@ -5,7 +5,7 @@ import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.ReceiveChannel
 
@@ -21,7 +21,7 @@ internal class PekoActivity : FragmentActivity(),
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-		viewModel = ViewModelProviders.of(this@PekoActivity).get(PekoViewModel::class.java)
+		viewModel = ViewModelProvider(this@PekoActivity).get(PekoViewModel::class.java)
 	}
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {

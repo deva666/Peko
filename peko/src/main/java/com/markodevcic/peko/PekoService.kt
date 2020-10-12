@@ -6,7 +6,6 @@ import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 
-
 internal class PekoService(context: Context,
                            private val request: PermissionRequest,
                            private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory,
@@ -57,7 +56,7 @@ internal class PekoService(context: Context,
 
     private fun requestPermissions(context: Context) {
         this.launch {
-            requester = requesterFactory.getRequester(context).await()
+            requester = requesterFactory.getRequesterAsync(context).await()
             requester.requestPermissions(request.denied.toTypedArray())
             for (result in requester.resultsChannel) {
                 tryCompleteRequest(result)

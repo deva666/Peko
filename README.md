@@ -21,7 +21,7 @@ implementation 'com.markodevcic.peko:peko:2.1.1'
 ```
 
 ### What is new
-Peko Version `2` now uses Android X packages, Kotlin v1.3.50 and Coroutines 1.3.0.
+Peko Version `2` now uses Android X packages, Kotlin v1.4.0 and Coroutines 1.3.9.
 ##
 Breaking changes from Peko Version `1.0`
 
@@ -189,7 +189,7 @@ You just have to call observe in the `onCreate` method and of course use `androi
 
 ## License
 ```text
-Copyright 2019 Marko Devcic
+Copyright 2020 Marko Devcic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

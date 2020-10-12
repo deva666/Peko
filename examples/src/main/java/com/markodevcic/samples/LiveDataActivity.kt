@@ -6,7 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.markodevcic.peko.PermissionResult
 import kotlinx.android.synthetic.main.activity_live_data.*
 
@@ -20,7 +20,7 @@ class LiveDataActivity : AppCompatActivity() {
 		setContentView(R.layout.activity_live_data)
 		setSupportActionBar(toolbar)
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
-		viewModel = ViewModelProviders.of(this).get(LiveDataViewModel::class.java)
+		viewModel = ViewModelProvider(this).get(LiveDataViewModel::class.java)
 
 		viewModel.permissionLiveData.observe(this, Observer { r: PermissionResult ->
 			textContactsResult.text = when (r) {

@@ -11,15 +11,12 @@ import com.markodevcic.peko.ActivityRotatingException
 import com.markodevcic.peko.Peko
 import com.markodevcic.peko.PermissionResult
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
 
-    private var job = CompletableDeferred<Any>()
+    private var job = Job()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job

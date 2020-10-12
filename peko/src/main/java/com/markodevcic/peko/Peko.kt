@@ -1,6 +1,5 @@
 package com.markodevcic.peko
 
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -33,16 +32,15 @@ object Peko {
      * @return [PermissionResult]
      * @throws [IllegalStateException] if called while another request has not completed yet
      */
-    suspend fun requestPermissionsAsync(activity: Activity,
-                                        vararg permissions: String): PermissionResult {
+    suspend fun requestPermissionsAsync(context: Context, vararg permissions: String): PermissionResult {
 
-        if (isTargetSdkUnderAndroidM(activity)) {
+        if (isTargetSdkUnderAndroidM(context)) {
             return PermissionResult.Denied.JustDenied(permissions.toList())
         }
 
-        val request = checkPermissions(activity, permissions)
+        val request = checkPermissions(context, permissions)
         if (request.denied.isNotEmpty()) {
-            val service = PekoService(activity, request)
+            val service = PekoService(context, request)
 
             check(serviceReference.compareAndSet(null, service)) { "Can't request permission while another request in progress" }
 

@@ -1,6 +1,13 @@
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+def getRepositoryUsername() {
+    return hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
+}
+
+def getRepositoryPassword() {
+    return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
+}
 
 afterEvaluate { project ->
 
@@ -17,7 +24,7 @@ afterEvaluate { project ->
                 pom.version = VERSION_NAME
 
                 repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: NEXUS_USERNAME, password: NEXUS_PASSWORD)
+                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
                 }
 
                 pom.project {

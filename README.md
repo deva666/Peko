@@ -14,10 +14,10 @@ Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive 
 
 ### Installation
 
-Add `jcenter` repository
+Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.1.2/aar)
 
 ```
-implementation 'com.markodevcic.peko:peko:2.1.2'
+implementation 'com.markodevcic:peko:2.1.2'
 ```
 
 ### What is new
@@ -96,7 +96,7 @@ launch {
 ```
 
 Denied Result has three subtypes which can be checked to see if we need Permission Rationale or 
-user Clicked Do Not Ask Again:
+user Clicked Do Not Ask Again.
 ```kotlin
 launch {
     val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
@@ -109,6 +109,11 @@ launch {
         is PermissionResult.Cancelled -> { } // interaction was interrupted
     }
 }
+```
+
+If you want to know which permissions were denied, they are a property of `Denied` class.
+```
+class Denied(val deniedPermissions: Collection<String>)
 ```
 
 ### LiveData
@@ -189,7 +194,7 @@ You just have to call observe in the `onCreate` method and of course use `androi
 
 ## License
 ```text
-Copyright 2020 Marko Devcic
+Copyright 2021 Marko Devcic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

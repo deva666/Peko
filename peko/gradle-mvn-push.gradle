@@ -1,0 +1,80 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+
+afterEvaluate { project ->
+
+    project.version = VERSION_NAME
+    project.group = GROUP
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                pom.groupId = 'com.markodevcic'
+                pom.artifactId = 'peko'
+                pom.version = VERSION_NAME
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: NEXUS_USERNAME, password: NEXUS_PASSWORD)
+                }
+
+                pom.project {
+                    name 'Peko'
+                    packaging 'jar'
+                    description POM_DESCRIPTION
+                    url POM_SCM_URL
+
+                    scm {
+                        url POM_SCM_URL
+                        connection POM_SCM_CONNECTION
+                        developerConnection POM_SCM_DEV_CONNECTION
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'Marko Devcic (Peko Signing Key) <madevcic@gmail.com>'
+                            name 'Marko Devcic'
+                            email 'madevcic@gmail.com'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    signing {
+        sign configurations.archives
+    }
+
+    task androidJavadocs(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+    }
+
+    task androidJavadocsJar(type: Jar) {
+        classifier = 'javadoc'
+        baseName = 'peko'
+        from androidJavadocs.destinationDir
+    }
+
+    task androidSourcesJar(type: Jar) {
+        classifier = 'sources'
+        baseName = 'peko'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    artifacts {
+        // archives packageReleaseJar
+        archives androidSourcesJar
+        archives androidJavadocsJar
+    }
+}

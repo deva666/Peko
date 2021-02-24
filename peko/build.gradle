@@ -35,4 +35,4 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-apply from: 'publish.gradle'
+apply from: 'gradle-mvn-push.gradle'

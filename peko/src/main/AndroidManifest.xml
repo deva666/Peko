@@ -6,6 +6,7 @@
             android:name=".PekoActivity"
             android:screenOrientation="unspecified"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/TransparentTheme"/>
+            android:theme="@style/TransparentTheme"
+            android:exported="true"/>
     </application>
 </manifest>

@@ -17,7 +17,7 @@ Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive 
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.1.2/aar)
 
 ```
-implementation 'com.markodevcic:peko:2.1.2'
+implementation 'com.markodevcic:peko:2.1.3'
 ```
 
 ### What is new

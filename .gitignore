@@ -10,3 +10,5 @@
 /.idea
 publish.gradle
 local.properties
+.settings/*
+/.project

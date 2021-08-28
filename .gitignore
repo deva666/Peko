@@ -12,4 +12,5 @@ publish.gradle
 local.properties
 .settings/*
 .project
-/examples
+/examples/.classpath
+/examples/.settings

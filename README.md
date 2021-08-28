@@ -208,3 +208,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
+
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width=200 height=112/>](https://www.jetbrains.com/)

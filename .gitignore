@@ -11,4 +11,5 @@
 publish.gradle
 local.properties
 .settings/*
-/.project
+.project
+/examples

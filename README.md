@@ -212,4 +212,4 @@ limitations under the License.
 ## Thanks to JetBrains
 Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
 
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width=200 height=112/>](https://www.jetbrains.com/)
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width=200 height=200/>](https://www.jetbrains.com/)

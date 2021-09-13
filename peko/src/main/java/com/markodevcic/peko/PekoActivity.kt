@@ -7,6 +7,7 @@ import androidx.core.content.PermissionChecker
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class PekoActivity : FragmentActivity(),
@@ -34,6 +35,7 @@ internal class PekoActivity : FragmentActivity(),
 		ActivityCompat.requestPermissions(this@PekoActivity, permissions, REQUEST_CODE)
 	}
 
+	@ExperimentalCoroutinesApi
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		if (requestCode == REQUEST_CODE) {
@@ -49,6 +51,9 @@ internal class PekoActivity : FragmentActivity(),
 			}
 			val needsRationale = deniedPermissions.any { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
 			val doNotAskAgain = deniedPermissions.isNotEmpty() && !needsRationale
+			if (viewModel.channel.isClosedForSend) {
+				return
+			}
 			viewModel.channel.offer(
 					when {
 						permissions.isEmpty() -> PermissionResult.Cancelled

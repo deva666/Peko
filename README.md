@@ -12,6 +12,12 @@ Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive 
 
 ***
 
+
+### Thanks to JetBrains
+Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
+
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width=200 height=200/>](https://www.jetbrains.com/)
+
 ### Installation
 
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.1.2/aar)
@@ -19,39 +25,6 @@ Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko
 ```
 implementation 'com.markodevcic:peko:2.1.4'
 ```
-
-### What is new
-Peko Version `2` now uses Android X packages, Kotlin v1.4.0 and Coroutines 1.3.9.
-##
-Breaking changes from Peko Version `1.0`
-
-* `PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
-
-    `PermissionResult` has a sealed class hierarchy of following types:
-    `PermissionResult.Granted` -> returned when all requested permissions were granted
-    
-    `PermissionResult.Denied` -> returned when at least one of the permissions was denied
-    
-    `PermissionResult.Denied.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned 
-    when Android OS signals that at least one of the permissions needs to show a rationale
-    
-    `PermissionResult.Denied.DeniedPermanently` -> subclass of `PermissionResult.Denied`, returned when no 
-    permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
-
-    `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned when 
-    previous two cases are not the cause, for example if you forget to register the Permission in
-     AndroidManifest
-
-    `PermissionResult.Cancelled` -> returned when Android System cancels the request, ie returned
-
-* `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
-    You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
-    
-*  Added support for requesting permissions with LiveData
-
-
-##
-Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/deva666/Peko/tree/release/1.0.1).
 
 ### Example 
 In an Activity or a Fragment that implements `CoroutineScope` interface:
@@ -192,7 +165,41 @@ You don't have to do anything, this logic is already inside the `PermissionsLive
 You just have to call observe in the `onCreate` method and of course use `androidx.lifecycle.ViewModel`. 
 
 
-## License
+### What is new
+Peko Version `2` now uses Android X packages, Kotlin v1.4.0 and Coroutines 1.3.9.
+##
+Breaking changes from Peko Version `1.0`
+
+* `PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
+
+    `PermissionResult` has a sealed class hierarchy of following types:
+    `PermissionResult.Granted` -> returned when all requested permissions were granted
+    
+    `PermissionResult.Denied` -> returned when at least one of the permissions was denied
+    
+    `PermissionResult.Denied.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned 
+    when Android OS signals that at least one of the permissions needs to show a rationale
+    
+    `PermissionResult.Denied.DeniedPermanently` -> subclass of `PermissionResult.Denied`, returned when no 
+    permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
+
+    `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned when 
+    previous two cases are not the cause, for example if you forget to register the Permission in
+     AndroidManifest
+
+    `PermissionResult.Cancelled` -> returned when Android System cancels the request, ie returned
+
+* `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
+    You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
+    
+*  Added support for requesting permissions with LiveData
+
+
+##
+Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/deva666/Peko/tree/release/1.0.1).
+
+
+### License
 ```text
 Copyright 2021 Marko Devcic
 
@@ -208,8 +215,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
-## Thanks to JetBrains
-Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
-
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width=200 height=200/>](https://www.jetbrains.com/)

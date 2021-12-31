@@ -64,29 +64,31 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private fun setResults(result: PermissionResult) {
         if (result is PermissionResult.Granted) {
 
+            val granted = "GRANTED"
             if (Manifest.permission.ACCESS_FINE_LOCATION in result.grantedPermissions) {
-                textLocationResult.text = "GRANTED"
+                textLocationResult.text = granted
                 textLocationResult.setTextColor(Color.GREEN)
             }
             if (Manifest.permission.WRITE_EXTERNAL_STORAGE in result.grantedPermissions) {
-                textFileResult.text = "GRANTED"
+                textFileResult.text = granted
                 textFileResult.setTextColor(Color.GREEN)
             }
             if (Manifest.permission.CAMERA in result.grantedPermissions) {
-                textCameraResult.text = "GRANTED"
+                textCameraResult.text = granted
                 textCameraResult.setTextColor(Color.GREEN)
             }
         } else if (result is PermissionResult.Denied) {
+            val denied = "DENIED"
             if (Manifest.permission.ACCESS_FINE_LOCATION in result.deniedPermissions) {
-                textLocationResult.text = "DENIED"
+                textLocationResult.text = denied
                 textLocationResult.setTextColor(Color.RED)
             }
             if (Manifest.permission.WRITE_EXTERNAL_STORAGE in result.deniedPermissions) {
-                textFileResult.text = "DENIED"
+                textFileResult.text = denied
                 textFileResult.setTextColor(Color.RED)
             }
             if (Manifest.permission.CAMERA in result.deniedPermissions) {
-                textCameraResult.text = "DENIED"
+                textCameraResult.text = denied
                 textCameraResult.setTextColor(Color.RED)
             }
         }

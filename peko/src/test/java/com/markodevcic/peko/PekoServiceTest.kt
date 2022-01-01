@@ -56,9 +56,9 @@ class PekoServiceTest {
             }
             val result = sut.requestPermissions()
             val grantedResult = result as? PermissionResult.Granted ?: throw IllegalStateException("result should be Granted")
-            Assert.assertTrue(result.grantedPermissions.size == 2)
-            Assert.assertTrue(result.grantedPermissions.contains("BLUETOOTH"))
-            Assert.assertTrue(result.grantedPermissions.contains("CAMERA"))
+            Assert.assertTrue(grantedResult.grantedPermissions.size == 2)
+            Assert.assertTrue(grantedResult.grantedPermissions.contains("BLUETOOTH"))
+            Assert.assertTrue(grantedResult.grantedPermissions.contains("CAMERA"))
         }
     }
 
@@ -78,7 +78,7 @@ class PekoServiceTest {
 
             val result = sut.requestPermissions()
             val deniedResult = result as? PermissionResult.Denied ?: throw IllegalStateException("result should be Denied")
-            Assert.assertTrue(result.deniedPermissions.contains("BLUETOOTH"))
+            Assert.assertTrue(deniedResult.deniedPermissions.contains("BLUETOOTH"))
         }
     }
 

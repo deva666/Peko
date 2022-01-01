@@ -19,7 +19,7 @@ class PermissionsLiveDataTest {
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
 
-    val sut = PermissionsLiveData()
+    private val sut = PermissionsLiveData()
 
     private val owner: LifecycleOwner = Mockito.mock(LifecycleOwner::class.java)
 
@@ -40,7 +40,6 @@ class PermissionsLiveDataTest {
 
         sut.checkPermissions("some permission")
     }
-
 }
 
 class DestroyedLifecycle : Lifecycle() {

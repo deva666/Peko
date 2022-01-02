@@ -21,7 +21,8 @@ class PekoServiceTest {
 
     @Before
     fun setup() {
-        Mockito.`when`(permissionRequesterFactory.getRequesterAsync(context)).thenReturn(CompletableDeferred(permissionRequester))
+        Mockito.`when`(permissionRequesterFactory.getRequesterAsync(context))
+            .thenReturn(CompletableDeferred(permissionRequester))
     }
 
     @Test

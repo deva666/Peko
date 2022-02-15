@@ -77,6 +77,7 @@ object Peko {
     /**
      * Checks if there is a request in progress.
      * If true is returned, resume the existing request by calling [resumeRequest]
+     * Otherwise requesting a new permission while another one is in progress will result in [IllegalStateException]
      */
     fun isRequestInProgress(): Boolean = serviceReference.get() != null
 }

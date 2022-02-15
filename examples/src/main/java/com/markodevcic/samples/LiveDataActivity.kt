@@ -22,22 +22,22 @@ class LiveDataActivity : AppCompatActivity() {
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		viewModel = ViewModelProvider(this).get(LiveDataViewModel::class.java)
 
-		viewModel.permissionLiveData.observe(this, Observer { r: PermissionResult ->
+		viewModel.permissionLiveData.observe(this) { r: PermissionResult ->
 			textContactsResult.text = when (r) {
 				is PermissionResult.Cancelled -> "CANCELLED"
 				is PermissionResult.Granted -> "GRANTED"
 				is PermissionResult.Denied -> if (r.deniedPermissions.contains(Manifest
-								.permission.READ_CONTACTS)) "DENIED" else ""
+						.permission.READ_CONTACTS)) "DENIED" else ""
 				else -> ""
 			}
 			textPhoneResult.text = when (r) {
 				is PermissionResult.Cancelled -> "CANCELLED"
 				is PermissionResult.Granted -> "GRANTED"
 				is PermissionResult.Denied -> if (r.deniedPermissions.contains(Manifest
-								.permission.ANSWER_PHONE_CALLS)) "DENIED" else ""
+						.permission.ANSWER_PHONE_CALLS)) "DENIED" else ""
 				else -> ""
 			}
-		})
+		}
 
 		btnContacts.setOnClickListener {
 			viewModel.checkPermissions(Manifest.permission.READ_CONTACTS)

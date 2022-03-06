@@ -11,7 +11,10 @@ import com.markodevcic.peko.ActivityRotatingException
 import com.markodevcic.peko.Peko
 import com.markodevcic.peko.PermissionResult
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -46,7 +49,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
         btnAll.setOnClickListener {
             clearResults()
-            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
+            requestPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
         }
         btnLiveData.setOnClickListener {
             val intent = Intent(this, LiveDataActivity::class.java)

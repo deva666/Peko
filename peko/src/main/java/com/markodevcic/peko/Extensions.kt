@@ -68,8 +68,7 @@ suspend fun android.app.Fragment.resumePermissionRequest(): PermissionResult = P
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
 suspend fun Fragment.requestPermissionsAsync(vararg permissions: String) =
-    Peko.requestPermissionsAsync(this.activity
-        ?: throw IllegalStateException("Activity not loaded yet"), *permissions)
+    Peko.requestPermissionsAsync(this.requireActivity(), *permissions)
 
 /**
  * Checks if there is a request in progress.

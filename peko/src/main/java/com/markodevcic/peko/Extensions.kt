@@ -28,6 +28,11 @@ fun Activity.isPermissionRequestInProgress(): Boolean = Peko.isRequestInProgress
 suspend fun Activity.resumePermissionRequest(): PermissionResult = Peko.resumeRequest()
 
 /**
+ * Checks if all permissions are granted
+ */
+fun Activity.areGranted(vararg permissions: String) = Peko.areGranted(this, *permissions)
+
+/**
  * Requests permissions asynchronously. The function suspends only if request contains permissions that are denied.
  * Should be called from a coroutine which has a UI (Main) Dispatcher as context.
  * If the parent job is cancelled with [ActivityRotatingException], ongoing request will be retained and can be resumed with [resumePermissionRequest] function.

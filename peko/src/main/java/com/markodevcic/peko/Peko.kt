@@ -35,7 +35,7 @@ object Peko {
     suspend fun requestPermissionsAsync(context: Context, vararg permissions: String): PermissionResult {
 
         if (isTargetSdkUnderAndroidM(context)) {
-            return PermissionResult.Denied.JustDenied(permissions.toList())
+            return PermissionResult.Granted(permissions.toList())
         }
 
         val request = checkPermissions(context, permissions)

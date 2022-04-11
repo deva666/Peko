@@ -1,5 +1,6 @@
 package com.markodevcic.peko
 
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -80,4 +81,13 @@ object Peko {
      * Otherwise requesting a new permission while another one is in progress will result in [IllegalStateException]
      */
     fun isRequestInProgress(): Boolean = serviceReference.get() != null
+
+
+    /**
+     * Checks if all permissions are granted
+     */
+    fun areGranted(activity: Activity, vararg permissions: String) : Boolean {
+        val request = checkPermissions(activity, permissions)
+        return request.denied.isEmpty()
+    }
 }

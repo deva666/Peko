@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
 suspend fun Activity.requestPermissionsAsync(vararg permissions: String) =
-		Peko.requestPermissionsAsync(this, *permissions)
+    Peko.requestPermissionsAsync(this, *permissions)
 
 /**
  * Checks if there is a request in progress.
@@ -40,13 +40,18 @@ fun Activity.areGranted(vararg permissions: String) = Peko.areGranted(this, *per
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
 suspend fun android.app.Fragment.requestPermissionsAsync(vararg permissions: String) =
-		Peko.requestPermissionsAsync(this.activity, *permissions)
+    Peko.requestPermissionsAsync(this.activity, *permissions)
 
 /**
  * Checks if there is a request in progress.
  * If true is returned, resume the existing request by calling [resumePermissionRequest]
  */
 fun android.app.Fragment.isPermissionRequestInProgress(): Boolean = Peko.isRequestInProgress()
+
+/**
+ * Checks if all permissions are granted
+ */
+fun android.app.Fragment.areGranted(vararg permissions: String) = Peko.areGranted(this.activity, *permissions)
 
 /**
  * Resumes a request that was previously canceled with [ActivityRotatingException]
@@ -63,8 +68,8 @@ suspend fun android.app.Fragment.resumePermissionRequest(): PermissionResult = P
  * @throws [IllegalStateException] if called while another request has not completed yet
  */
 suspend fun Fragment.requestPermissionsAsync(vararg permissions: String) =
-		Peko.requestPermissionsAsync(this.activity
-				?: throw IllegalStateException("Activity not loaded yet"), *permissions)
+    Peko.requestPermissionsAsync(this.activity
+        ?: throw IllegalStateException("Activity not loaded yet"), *permissions)
 
 /**
  * Checks if there is a request in progress.
@@ -77,3 +82,8 @@ fun Fragment.isPermissionRequestInProgress(): Boolean = Peko.isRequestInProgress
  * @throws [IllegalStateException] if there is no request in progress
  */
 suspend fun Fragment.resumePermissionRequest(): PermissionResult = Peko.resumeRequest()
+
+/**
+ * Checks if all permissions are granted
+ */
+fun Fragment.areGranted(vararg permissions: String) = Peko.areGranted(this.requireActivity(), *permissions)

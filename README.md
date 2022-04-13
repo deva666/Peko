@@ -23,7 +23,7 @@ Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensou
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.1.2/aar)
 
 ```
-implementation 'com.markodevcic:peko:2.1.4'
+implementation 'com.markodevcic:peko:2.2.0'
 ```
 
 ### Example 

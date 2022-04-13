@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 31
-        versionCode 13
-        versionName "2.1.4"
+        versionCode 14
+        versionName "2.2.0"
         consumerProguardFile("proguard-rules.pro")
     }
     compileOptions {

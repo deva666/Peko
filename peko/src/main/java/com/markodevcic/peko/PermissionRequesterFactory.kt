@@ -18,6 +18,7 @@ private class PermissionRequesterFactoryImpl : PermissionRequesterFactory {
 		val completableDeferred = CompletableDeferred<PermissionRequester>()
 		PekoActivity.requesterDeferred = completableDeferred
 		val intent = Intent(context, PekoActivity::class.java)
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		context.startActivity(intent)
 		return completableDeferred
 	}

@@ -201,7 +201,7 @@ Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/dev
 
 ### License
 ```text
-Copyright 2021 Marko Devcic
+Copyright 2022 Marko Devcic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

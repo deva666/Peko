@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private fun requestPermission(vararg permissions: String) {
         launch {
-            val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
+            val result = Peko.requestPermissionsAsync(applicationContext, *permissions)
             setResults(result)
         }
     }
@@ -85,17 +85,22 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 textCameraResult.setTextColor(Color.GREEN)
             }
         } else if (result is PermissionResult.Denied) {
-            val denied = "DENIED"
+            val message = when (result) {
+                is PermissionResult.Denied.NeedsRationale -> "NEEDS RATIONALE"
+                is PermissionResult.Denied.DeniedPermanently -> "DENIED PERMANENT"
+                is PermissionResult.Denied.JustDenied -> "JUST DENIED"
+                else -> "DENIED"
+            }
             if (Manifest.permission.ACCESS_FINE_LOCATION in result.deniedPermissions) {
-                textLocationResult.text = denied
+                textLocationResult.text = message
                 textLocationResult.setTextColor(Color.RED)
             }
             if (Manifest.permission.WRITE_EXTERNAL_STORAGE in result.deniedPermissions) {
-                textFileResult.text = denied
+                textFileResult.text = message
                 textFileResult.setTextColor(Color.RED)
             }
             if (Manifest.permission.CAMERA in result.deniedPermissions) {
-                textCameraResult.text = denied
+                textCameraResult.text = message
                 textCameraResult.setTextColor(Color.RED)
             }
         }

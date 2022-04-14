@@ -20,7 +20,7 @@ Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensou
 
 ### Installation
 
-Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.1.2/aar)
+Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.2.0/aar)
 
 ```
 implementation 'com.markodevcic:peko:2.2.0'

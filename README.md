@@ -172,7 +172,7 @@ You just have to call observe in the `onCreate` method and of course use `androi
 
 
 ### What is new
-Peko Version `2` now uses Android X packages, Kotlin v1.4.0 and Coroutines 1.3.9.
+Peko Version `2` now uses Android X packages, Kotlin v1.5.30 and Coroutines 1.5.2.
 ##
 Breaking changes from Peko Version `1.0`
 

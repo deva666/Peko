@@ -89,6 +89,12 @@ If you want to know which permissions were denied, they are a property of `Denie
 class Denied(val deniedPermissions: Collection<String>)
 ```
 
+Need to check if permission is granted? Yes, let's skip the horrible Android API.
+Single call, accepts multiple Strings as arguments, returns true if all are granted.
+```
+val granted = Peko.areGranted(activity, Manifest.permission.READ_CONTACTS)
+```
+
 ### LiveData
 Hate Coroutines? No problem ... just create an instance of `PermissionsLiveData` and observe the results with your `LifecycleOwner`
 

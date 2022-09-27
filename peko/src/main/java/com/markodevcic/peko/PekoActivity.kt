@@ -11,8 +11,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class PekoActivity : FragmentActivity(),
-		ActivityCompat.OnRequestPermissionsResultCallback,
-		PermissionRequester {
+	ActivityCompat.OnRequestPermissionsResultCallback,
+	PermissionRequester {
 
 	private lateinit var viewModel: PekoViewModel
 
@@ -40,28 +40,44 @@ internal class PekoActivity : FragmentActivity(),
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		if (requestCode == REQUEST_CODE) {
 			val grantedPermissions = ArrayList<String>()
-			val deniedPermissions = ArrayList<String>()
+			val userDeniedPermissions = ArrayList<String>()
+			val deniedApOpPermissions = ArrayList<String>()
 			for (i in permissions.indices) {
 				val permission = permissions[i]
 				when (grantResults[i]) {
-					PermissionChecker.PERMISSION_DENIED,
-					PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(permission)
+					PermissionChecker.PERMISSION_DENIED -> userDeniedPermissions.add(permission)
+					PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedApOpPermissions.add(permission)
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			val needsRationale = deniedPermissions.any { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
-			val doNotAskAgain = deniedPermissions.isNotEmpty() && !needsRationale
+			val deniedPermissions = HashSet<String>(userDeniedPermissions + deniedApOpPermissions)
+			val needsRationale =
+				userDeniedPermissions.any { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
+			val doNotAskAgain = userDeniedPermissions.isNotEmpty() && !needsRationale
+			val deniedApOp = deniedApOpPermissions.isNotEmpty() && !needsRationale
 			if (viewModel.channel.isClosedForSend) {
 				return
 			}
 			viewModel.channel.offer(
-					when {
-						permissions.isEmpty() -> PermissionResult.Cancelled
-						deniedPermissions.isEmpty() -> PermissionResult.Granted(grantedPermissions)
-						needsRationale -> PermissionResult.Denied.NeedsRationale(deniedPermissions)
-						doNotAskAgain -> PermissionResult.Denied.DeniedPermanently(deniedPermissions)
-						else -> PermissionResult.Denied.JustDenied(deniedPermissions)
+				when {
+					permissions.isEmpty() -> PermissionResult.Cancelled
+					deniedPermissions.isEmpty() -> PermissionResult.Granted(grantedPermissions)
+					needsRationale -> PermissionResult.Denied.NeedsRationale(userDeniedPermissions.filter { p ->
+						ActivityCompat.shouldShowRequestPermissionRationale(
+							this,
+							p
+						)
 					})
+					deniedApOp -> PermissionResult.Denied.JustDenied(deniedApOpPermissions)
+					doNotAskAgain -> PermissionResult.Denied.DeniedPermanently(userDeniedPermissions.filter { p ->
+						!ActivityCompat.shouldShowRequestPermissionRationale(
+							this,
+							p
+						)
+					})
+					else -> PermissionResult.Denied.JustDenied(deniedPermissions)
+				}
+			)
 		}
 	}
 

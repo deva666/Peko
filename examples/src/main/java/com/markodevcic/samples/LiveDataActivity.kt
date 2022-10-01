@@ -6,7 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.markodevcic.peko.PermissionResult
+import com.markodevcic.peko.PermissionResults
 import kotlinx.android.synthetic.main.activity_live_data.*
 
 class LiveDataActivity : AppCompatActivity() {
@@ -21,18 +21,18 @@ class LiveDataActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel = ViewModelProvider(this).get(LiveDataViewModel::class.java)
 
-        viewModel.permissionLiveData.observe(this) { r: PermissionResult ->
+        viewModel.permissionLiveData.observe(this) { r: PermissionResults ->
             textContactsResult.text = when (r) {
-                is PermissionResult.Cancelled -> "CANCELLED"
-                is PermissionResult.Granted -> "GRANTED"
-                is PermissionResult.Denied -> if (r.deniedPermissions.contains(Manifest
+                is PermissionResults.Cancelled -> "CANCELLED"
+                is PermissionResults.Granted -> "GRANTED"
+                is PermissionResults.Denied -> if (r.deniedReasons.contains(Manifest
                         .permission.READ_CONTACTS)) "DENIED" else ""
                 else -> ""
             }
             textPhoneResult.text = when (r) {
-                is PermissionResult.Cancelled -> "CANCELLED"
-                is PermissionResult.Granted -> "GRANTED"
-                is PermissionResult.Denied -> if (r.deniedPermissions.contains(Manifest
+                is PermissionResults.Cancelled -> "CANCELLED"
+                is PermissionResults.Granted -> "GRANTED"
+                is PermissionResults.Denied -> if (r.deniedReasons.contains(Manifest
                         .permission.ANSWER_PHONE_CALLS)) "DENIED" else ""
                 else -> ""
             }

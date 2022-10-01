@@ -10,11 +10,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class PermissionsLiveData : LiveData<PermissionResult>() {
+class PermissionsLiveData : LiveData<PermissionResults>() {
 
 	private val requester = LiveDataRequester(this)
 
-	override fun observe(owner: LifecycleOwner, observer: Observer<in PermissionResult>) {
+	override fun observe(owner: LifecycleOwner, observer: Observer<in PermissionResults>) {
 		super.observe(owner, observer)
 		requester.onObserve(owner)
 	}
@@ -23,7 +23,7 @@ class PermissionsLiveData : LiveData<PermissionResult>() {
 		requester.checkPermissions(*permissions)
 	}
 
-	fun postResult(value: PermissionResult) {
+	fun postResult(value: PermissionResults) {
 		super.postValue(value)
 	}
 }

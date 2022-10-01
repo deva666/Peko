@@ -97,6 +97,28 @@
                     android:layout_marginStart="16dp"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnContacts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:textColor="@android:color/white"
+                android:text="CONTACTS"/>
+
+            <TextView
+                android:id="@+id/textContactsResult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Granted"
+                android:textSize="18sp"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
+
         <Button
                 android:id="@+id/btnAll"
                 android:layout_width="wrap_content"

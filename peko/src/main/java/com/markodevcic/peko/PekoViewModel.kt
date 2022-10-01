@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.channels.Channel
 
 internal class PekoViewModel : ViewModel() {
-    val channel = Channel<PermissionResult>(Channel.UNLIMITED)
+    val channel = Channel<PermissionResults>(Channel.UNLIMITED)
 
     override fun onCleared() {
         super.onCleared()

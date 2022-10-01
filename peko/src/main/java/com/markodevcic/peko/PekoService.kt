@@ -19,11 +19,11 @@ internal class PekoService(context: Context,
 
     private val job = Job()
     private lateinit var requester: PermissionRequester
-    private lateinit var continuation: CancellableContinuation<PermissionResult>
+    private lateinit var continuation: CancellableContinuation<PermissionResults>
 
-    suspend fun requestPermissions(): PermissionResult {
+    suspend fun requestPermissions(): PermissionResults {
         val context = contextReference.get()
-                ?: return PermissionResult.Denied.JustDenied(request.denied)
+                ?: return PermissionResults.Denied.JustDenied(request.denied)
 
         return suspendCancellableCoroutine { continuation ->
             setupContinuation(continuation)
@@ -32,7 +32,7 @@ internal class PekoService(context: Context,
         }
     }
 
-    private fun setupContinuation(continuation: CancellableContinuation<PermissionResult>) {
+    private fun setupContinuation(continuation: CancellableContinuation<PermissionResults>) {
         this.continuation = continuation
         continuation.invokeOnCancellation { fail ->
             if (fail !is ActivityRotatingException) {
@@ -44,7 +44,7 @@ internal class PekoService(context: Context,
         }
     }
 
-    suspend fun resumeRequest(): PermissionResult {
+    suspend fun resumeRequest(): PermissionResults {
         if (::requester.isInitialized) {
             return suspendCancellableCoroutine { continuation ->
                 setupContinuation(continuation)
@@ -64,11 +64,11 @@ internal class PekoService(context: Context,
         }
     }
 
-    private fun tryCompleteRequest(result: PermissionResult) {
+    private fun tryCompleteRequest(result: PermissionResults) {
         if (continuation.isActive) {
             requester.finish()
-            continuation.resume(if (result is PermissionResult.Granted)
-                PermissionResult.Granted(grantedPermissions + result.grantedPermissions)
+            continuation.resume(if (result is PermissionResults.Granted)
+                PermissionResults.Granted(grantedPermissions + result.grantedPermissions)
             else result)
         }
     }

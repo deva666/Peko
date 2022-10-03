@@ -6,7 +6,7 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.flow.*
 
-class PekoPermissonRequester : PermissonRequester {
+class PekoPermissionRequester : PermissionRequester {
 
 	private val requesterFactory: NativeRequesterFactory = NativeRequesterFactory.defaultFactory
 

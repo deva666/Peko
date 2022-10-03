@@ -7,7 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.markodevcic.peko.PekoPermissonRequester
+import com.markodevcic.peko.PekoPermissionRequester
 import com.markodevcic.peko.PermissionResult
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		PekoPermissonRequester.initialize(applicationContext)
+		PekoPermissionRequester.initialize(applicationContext)
 		viewModel = ViewModelProvider(this@MainActivity).get(MainViewModel::class.java)
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(toolbar)

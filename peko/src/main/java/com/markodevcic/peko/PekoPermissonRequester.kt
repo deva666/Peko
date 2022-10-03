@@ -6,18 +6,18 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.flow.*
 
-class PekoRequester {
+class PekoPermissonRequester : PermissonRequester {
 
 	private val requesterFactory: NativeRequesterFactory = NativeRequesterFactory.defaultFactory
 
 
-	fun areGranted(vararg permissions: String) : Boolean {
+	override fun areGranted(vararg permissions: String) : Boolean {
 		val context = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
 		val request = checkPermissions(context, permissions)
 		return request.denied.isEmpty()
 	}
 
-	fun flowPermissions(vararg permissions: String): Flow<PermissionResult> {
+	override fun flowPermissions(vararg permissions: String): Flow<PermissionResult> {
 		val context = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
 		if (isTargetSdkUnderAndroidM(context)) {
 			return permissions.map { p -> PermissionResult.Granted(p) }.asFlow()

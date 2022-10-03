@@ -7,9 +7,13 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.markodevcic.peko.PekoPermissionRequester
+import androidx.lifecycle.lifecycleScope
+import com.markodevcic.peko.PermissionRequester
 import com.markodevcic.peko.PermissionResult
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,10 +21,13 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		PekoPermissionRequester.initialize(applicationContext)
-		viewModel = ViewModelProvider(this@MainActivity).get(MainViewModel::class.java)
+		PermissionRequester.initialize(applicationContext)
+
+		viewModel = ViewModelProvider(this@MainActivity, MainViewModelFactory(PermissionRequester())).get(MainViewModel::class.java)
+
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(toolbar)
+
 		viewModel.liveData.observe(this) {
 			setResult(it)
 		}
@@ -44,6 +51,13 @@ class MainActivity : AppCompatActivity() {
 				Manifest.permission.ACCESS_COARSE_LOCATION,
 				Manifest.permission.READ_CONTACTS
 			)
+		}
+	}
+
+	private fun checkAllGranted(vararg permissions: String) {
+		lifecycleScope.launch {
+			val allGranted = viewModel.flowPermissions(*permissions).filterIsInstance<PermissionResult.Granted>()
+				.count() == permissions.size
 		}
 	}
 
@@ -88,6 +102,15 @@ class MainActivity : AppCompatActivity() {
 				textContactsResult.text = deniedReasonText(result)
 				textContactsResult.setTextColor(Color.RED)
 			}
+		} else if (result is PermissionResult.Cancelled) {
+			textLocationResult.text = "CANCELLED"
+			textLocationResult.setTextColor(Color.RED)
+			textFileResult.text = "CANCELLED"
+			textFileResult.setTextColor(Color.RED)
+			textCameraResult.text = "CANCELLED"
+			textCameraResult.setTextColor(Color.RED)
+			textContactsResult.text = "CANCELLED"
+			textContactsResult.setTextColor(Color.RED)
 		}
 	}
 

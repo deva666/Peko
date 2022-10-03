@@ -7,34 +7,30 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.markodevcic.peko.ActivityRotatingException
-import com.markodevcic.peko.Peko
+import androidx.lifecycle.ViewModelProvider
+import com.markodevcic.peko.PekoRequester
+import com.markodevcic.peko.PermissionResult
 import com.markodevcic.peko.PermissionResults
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity(), CoroutineScope {
+class MainActivity : AppCompatActivity() {
 
-	private var job = Job()
-
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Main + job
+	private lateinit var viewModel: MainViewModel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+		PekoRequester.initialize(applicationContext)
+		viewModel = ViewModelProvider(this@MainActivity).get(MainViewModel::class.java)
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(toolbar)
-
-		if (Peko.isRequestInProgress()) {
-			launch {
-				setResults(Peko.resumeRequest())
-			}
+		viewModel.liveData.observe(this) {
+			setResult(it)
 		}
 
+		btnContacts.setOnClickListener {
+			clearResults()
+			requestPermission(Manifest.permission.READ_CONTACTS)
+		}
 		btnFineLocation.setOnClickListener {
 			clearResults()
 			requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -49,7 +45,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 		}
 		btnAll.setOnClickListener {
 			clearResults()
-			requestPermission(
+			viewModel.requestPermissions(
 				Manifest.permission.WRITE_EXTERNAL_STORAGE,
 				Manifest.permission.CAMERA,
 				Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -63,49 +59,56 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 	}
 
 	private fun requestPermission(vararg permissions: String) {
-		launch {
-			val result = Peko.requestPermissionsAsync(applicationContext, *permissions)
-			setResults(result)
-		}
+
+		viewModel.requestPermissions(*permissions)
 	}
 
-	private fun setResults(result: PermissionResults) {
-		if (result is PermissionResults.AllGranted) {
+	private fun setResult(result: PermissionResult) {
+		if (result is PermissionResult.Granted) {
 
 			val granted = "GRANTED"
-			if (Manifest.permission.ACCESS_COARSE_LOCATION in result.grantedPermissions) {
+			if (Manifest.permission.ACCESS_COARSE_LOCATION == result.permission) {
 				textLocationResult.text = granted
 				textLocationResult.setTextColor(Color.GREEN)
 			}
-			if (Manifest.permission.WRITE_EXTERNAL_STORAGE in result.grantedPermissions) {
+			if (Manifest.permission.WRITE_EXTERNAL_STORAGE == result.permission) {
 				textFileResult.text = granted
 				textFileResult.setTextColor(Color.GREEN)
 			}
-			if (Manifest.permission.CAMERA in result.grantedPermissions) {
+			if (Manifest.permission.CAMERA == result.permission) {
 				textCameraResult.text = granted
 				textCameraResult.setTextColor(Color.GREEN)
 			}
-			if (Manifest.permission.READ_CONTACTS in result.grantedPermissions) {
+			if (Manifest.permission.READ_CONTACTS == result.permission) {
 				textContactsResult.text = granted
 				textContactsResult.setTextColor(Color.GREEN)
 			}
-		} else if (result is PermissionResults.Denied) {
-			if (Manifest.permission.ACCESS_COARSE_LOCATION in result.deniedPermissions) {
-				textLocationResult.text = deniedReasonText(Manifest.permission.ACCESS_COARSE_LOCATION, result)
+		} else if (result is PermissionResult.Denied) {
+			if (Manifest.permission.ACCESS_COARSE_LOCATION == result.permission) {
+				textLocationResult.text = deniedReasonText(result)
 				textLocationResult.setTextColor(Color.RED)
 			}
-			if (Manifest.permission.WRITE_EXTERNAL_STORAGE in result.deniedPermissions) {
-				textFileResult.text = deniedReasonText(Manifest.permission.WRITE_EXTERNAL_STORAGE, result)
+			if (Manifest.permission.WRITE_EXTERNAL_STORAGE == result.permission) {
+				textFileResult.text = deniedReasonText(result)
 				textFileResult.setTextColor(Color.RED)
 			}
-			if (Manifest.permission.CAMERA in result.deniedPermissions) {
-				textCameraResult.text = deniedReasonText(Manifest.permission.CAMERA, result)
+			if (Manifest.permission.CAMERA == result.permission) {
+				textCameraResult.text = deniedReasonText(result)
 				textCameraResult.setTextColor(Color.RED)
 			}
-			if (Manifest.permission.READ_CONTACTS in result.deniedPermissions) {
-				textContactsResult.text = deniedReasonText(Manifest.permission.READ_CONTACTS, result	)
+			if (Manifest.permission.READ_CONTACTS == result.permission) {
+				textContactsResult.text = deniedReasonText(result)
 				textContactsResult.setTextColor(Color.RED)
 			}
+		}
+	}
+
+	private fun deniedReasonText(result: PermissionResult): String {
+		return when (result) {
+			is PermissionResult.Denied.NeedsRationale -> "NEEDS RATIONALE"
+			is PermissionResult.Denied.PermanentlyDenied -> "DENIED PERMANENTLY"
+			is PermissionResult.Denied.JustDenied -> "JUST DENIED"
+			else -> ""
 		}
 	}
 
@@ -133,15 +136,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 		return when (item.itemId) {
 			R.id.action_settings -> true
 			else -> super.onOptionsItemSelected(item)
-		}
-	}
-
-	override fun onDestroy() {
-		super.onDestroy()
-		if (isChangingConfigurations) {
-			job.completeExceptionally(ActivityRotatingException())
-		} else {
-			job.cancel()
 		}
 	}
 }

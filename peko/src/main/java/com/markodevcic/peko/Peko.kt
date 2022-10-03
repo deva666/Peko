@@ -4,7 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.ActivityCompat
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onCompletion
 import java.util.concurrent.atomic.AtomicReference
 
 object Peko {
@@ -15,12 +19,14 @@ object Peko {
      * Resumes a request that was previously canceled with [ActivityRotatingException]
      * @throws [IllegalStateException] if there is no request in progress
      */
-    suspend fun resumeRequest(): PermissionResults {
+    fun resumeRequest(): Flow<PermissionResults> {
         try {
-            val service = serviceReference.get() ?: throw IllegalStateException("there is no request in progress")
-            val result = service.resumeRequest()
-            serviceReference.set(null)
-            return result
+//            val service = serviceReference.get() ?: throw IllegalStateException("there is no request in progress")
+//            val result = service.resumeRequest()
+//            serviceReference.set(null)
+//            return resultVkk
+            Log.d("Peko", "resume")
+            return serviceReference.get()!!.flowPermissions()
         } catch (e: ActivityRotatingException) {
             throw e
         }
@@ -33,28 +39,29 @@ object Peko {
      * @return [PermissionResults]
      * @throws [IllegalStateException] if called while another request has not completed yet
      */
-    suspend fun requestPermissionsAsync(context: Context, vararg permissions: String): PermissionResults {
+    fun requestPermissionsAsync(context: Context, vararg permissions: String): Flow<PermissionResults> {
 
         if (isTargetSdkUnderAndroidM(context)) {
-            return PermissionResults.Granted(permissions.toList())
+            return flowOf(PermissionResults.AllGranted(permissions.map { p -> PermissionResult.Granted(p) }))
         }
 
         val request = checkPermissions(context, permissions)
         if (request.denied.isNotEmpty()) {
             val service = PekoService(context, request)
-
             check(serviceReference.compareAndSet(null, service)) { "Can't request permission while another request in progress" }
+            serviceReference.set(service)
+
 
             try {
-                val result = service.requestPermissions()
-                serviceReference.set(null)
-                return result
+                return service.flowPermissions().onCompletion {
+                    serviceReference.set(null)
+                }
             } catch (e: ActivityRotatingException) {
                 throw e
             }
 
         } else {
-            return PermissionResults.Granted(request.granted)
+            return flowOf(PermissionResults.AllGranted(request.granted.map { p -> PermissionResult.Granted(p) }))
         }
     }
 
@@ -72,7 +79,7 @@ object Peko {
         val permissionsGroup = permissions.groupBy { p -> ActivityCompat.checkSelfPermission(context, p) }
         val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
         val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
-        return PermissionRequest(granted, denied)
+        return PermissionRequest(granted, listOf(), denied)
     }
 
     /**
@@ -80,7 +87,7 @@ object Peko {
      * If true is returned, resume the existing request by calling [resumeRequest]
      * Otherwise requesting a new permission while another one is in progress will result in [IllegalStateException]
      */
-    fun isRequestInProgress(): Boolean = serviceReference.get() != null
+    fun isRequestInProgress(): Boolean =  serviceReference.get() != null
 
 
     /**

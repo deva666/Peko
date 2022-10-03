@@ -49,7 +49,7 @@ private class LiveDataRequester(private val liveData: PermissionsLiveData) {
 											" where activity is not null"))
 						else ownerCopy as Activity
 						val result = Peko.requestPermissionsAsync(activity, *permissions)
-						liveData.postResult(result)
+//						liveData.postResult(result)
 					}
 				}
 				else -> throw IllegalArgumentException("Unsupported lifecycle owner")
@@ -70,7 +70,7 @@ private class LiveDataRequester(private val liveData: PermissionsLiveData) {
 		lifecycleOwnerScope = LifecycleOwnerScope(owner) { this.owner = null }
 		lifecycleOwnerScope.launch {
 			val result = Peko.resumeRequest()
-			liveData.postResult(result)
+//			liveData.postResult(result)
 		}
 	}
 }

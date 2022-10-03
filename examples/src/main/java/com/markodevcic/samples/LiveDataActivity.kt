@@ -21,22 +21,22 @@ class LiveDataActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel = ViewModelProvider(this).get(LiveDataViewModel::class.java)
 
-        viewModel.permissionLiveData.observe(this) { r: PermissionResults ->
-            textContactsResult.text = when (r) {
-                is PermissionResults.Cancelled -> "CANCELLED"
-                is PermissionResults.Granted -> "GRANTED"
-                is PermissionResults.Denied -> if (r.deniedReasons.contains(Manifest
-                        .permission.READ_CONTACTS)) "DENIED" else ""
-                else -> ""
-            }
-            textPhoneResult.text = when (r) {
-                is PermissionResults.Cancelled -> "CANCELLED"
-                is PermissionResults.Granted -> "GRANTED"
-                is PermissionResults.Denied -> if (r.deniedReasons.contains(Manifest
-                        .permission.ANSWER_PHONE_CALLS)) "DENIED" else ""
-                else -> ""
-            }
-        }
+//        viewModel.permissionLiveData.observe(this) { r: PermissionResults ->
+//            textContactsResult.text = when (r) {
+//                is PermissionResults.Cancelled -> "CANCELLED"
+//                is PermissionResults.Granted -> "GRANTED"
+//                is PermissionResults.Denied -> if (r.deniedReasons.contains(Manifest
+//                        .permission.READ_CONTACTS)) "DENIED" else ""
+//                else -> ""
+//            }
+//            textPhoneResult.text = when (r) {
+//                is PermissionResults.Cancelled -> "CANCELLED"
+//                is PermissionResults.Granted -> "GRANTED"
+//                is PermissionResults.Denied -> if (r.deniedReasons.contains(Manifest
+//                        .permission.ANSWER_PHONE_CALLS)) "DENIED" else ""
+//                else -> ""
+//            }
+//        }
 
         btnContacts.setOnClickListener {
             viewModel.checkPermissions(Manifest.permission.READ_CONTACTS)

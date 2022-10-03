@@ -25,7 +25,7 @@ fun Activity.isPermissionRequestInProgress(): Boolean = Peko.isRequestInProgress
  * Resumes a request that was previously canceled with [ActivityRotatingException]
  * @throws [IllegalStateException] if there is no request in progress
  */
-suspend fun Activity.resumePermissionRequest(): PermissionResults = Peko.resumeRequest()
+//suspend fun Activity.resumePermissionRequest(): PermissionResults = Peko.resumeRequest()
 
 /**
  * Checks if all permissions are granted
@@ -57,7 +57,7 @@ fun android.app.Fragment.areGranted(vararg permissions: String) = Peko.areGrante
  * Resumes a request that was previously canceled with [ActivityRotatingException]
  * @throws [IllegalStateException] if there is no request in progress
  */
-suspend fun android.app.Fragment.resumePermissionRequest(): PermissionResults = Peko.resumeRequest()
+//suspend fun android.app.Fragment.resumePermissionRequest(): PermissionResults = Peko.resumeRequest()
 
 
 /**
@@ -80,7 +80,7 @@ fun Fragment.isPermissionRequestInProgress(): Boolean = Peko.isRequestInProgress
  * Resumes a request that was previously canceled with [ActivityRotatingException]
  * @throws [IllegalStateException] if there is no request in progress
  */
-suspend fun Fragment.resumePermissionRequest(): PermissionResults = Peko.resumeRequest()
+//suspend fun Fragment.resumePermissionRequest(): PermissionResults = Peko.resumeRequest()
 
 /**
  * Checks if all permissions are granted

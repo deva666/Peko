@@ -1,13 +1,13 @@
 package com.markodevcic.peko
 
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class PekoActivity : FragmentActivity(),
@@ -16,13 +16,13 @@ internal class PekoActivity : FragmentActivity(),
 
 	private lateinit var viewModel: PekoViewModel
 
-	override val resultsChannel: ReceiveChannel<PermissionResults>
+	override val resultsChannel: ReceiveChannel<PermissionResult>
 		get() = viewModel.channel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-		viewModel = ViewModelProvider(this@PekoActivity).get(PekoViewModel::class.java)
+		viewModel = ViewModelProvider(this@PekoActivity)[PekoViewModel::class.java]
 	}
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -32,10 +32,10 @@ internal class PekoActivity : FragmentActivity(),
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {
+		Log.d("Peko", "requestPermissions")
 		ActivityCompat.requestPermissions(this@PekoActivity, permissions, REQUEST_CODE)
 	}
 
-	@ExperimentalCoroutinesApi
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		if (requestCode == REQUEST_CODE) {
@@ -50,7 +50,9 @@ internal class PekoActivity : FragmentActivity(),
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			val deniedPermissions = setOf(userDeniedPermissions + deniedApOpPermissions)
+			val deniedPermissions = mutableSetOf<String>()
+			deniedPermissions.addAll(userDeniedPermissions)
+			deniedPermissions.addAll(deniedApOpPermissions)
 			val needsRationalePermissions =
 				userDeniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
 			val doNotAskAgainPermissions = userDeniedPermissions.filter { p -> !needsRationalePermissions.contains(p) }
@@ -59,36 +61,57 @@ internal class PekoActivity : FragmentActivity(),
 			if (viewModel.channel.isClosedForSend) {
 				return
 			}
-			viewModel.channel.trySend(
-				when {
-					permissions.isEmpty() -> PermissionResults.Cancelled
-					deniedPermissions.isEmpty() -> PermissionResults.AllGranted(grantedPermissions.map { p ->
-						PermissionResult.Granted(
-							p
-						)
-					}.toSet())
-					else -> {
-						val denied = mutableSetOf<PermissionResult>()
-						if (needsRationalePermissions.isNotEmpty()) {
-							denied.addAll(needsRationalePermissions.map { p -> PermissionResult.Denied.NeedsRationale(p) }
-								.toSet())
-						}
-						if (doNotAskAgainPermissions.isNotEmpty()) {
-							denied.addAll(doNotAskAgainPermissions.map { p ->
-								PermissionResult.Denied.PermanentlyDenied(
-									p
-								)
-							}.toSet())
-						}
-						if (deniedApOpPermissions.isNotEmpty()) {
-							denied.addAll(deniedApOpPermissions.map { p -> PermissionResult.Denied.JustDenied(p) }
-								.toSet())
-						}
-						PermissionResults.Denied((grantedPermissions.map { p -> PermissionResult.Granted(p) } + denied).toSet())
-					}
+			if (permissions.isEmpty()) {
+				viewModel.channel.trySend(PermissionResult.Cancelled)
+			} else {
+				for (p in grantedPermissions) {
+					viewModel.channel.trySend(PermissionResult.Granted(p))
 				}
-			)
+				for (p in needsRationalePermissions) {
+					viewModel.channel.trySend(PermissionResult.Denied.NeedsRationale(p))
+				}
+				for (p in doNotAskAgainPermissions) {
+					viewModel.channel.trySend(PermissionResult.Denied.PermanentlyDenied(p))
+				}
+				for (p in deniedApOpPermissions) {
+					viewModel.channel.trySend(PermissionResult.Denied.JustDenied(p))
+				}
+			}
+//			viewModel.channel.trySend(
+//				when {
+//					permissions.isEmpty() -> PermissionResults.Cancelled
+//					deniedPermissions.isEmpty() -> PermissionResults.AllGranted(grantedPermissions.map { p ->
+//						PermissionResult.Granted(
+//							p
+//						)
+//					}.toSet())
+//					else -> {
+//						val denied = mutableSetOf<PermissionResult>()
+//						if (needsRationalePermissions.isNotEmpty()) {
+//							denied.addAll(needsRationalePermissions.map { p -> PermissionResult.Denied.NeedsRationale(p) }
+//								.toSet())
+//						}
+//						if (doNotAskAgainPermissions.isNotEmpty()) {
+//							denied.addAll(doNotAskAgainPermissions.map { p ->
+//								PermissionResult.Denied.PermanentlyDenied(
+//									p
+//								)
+//							}.toSet())
+//						}
+//						if (deniedApOpPermissions.isNotEmpty()) {
+//							denied.addAll(deniedApOpPermissions.map { p -> PermissionResult.Denied.JustDenied(p) }
+//								.toSet())
+//						}
+//						PermissionResults.Denied((grantedPermissions.map { p -> PermissionResult.Granted(p) } + denied).toSet())
+//					}
+//				}
+//			)
+			viewModel.channel.close()
 		}
+	}
+
+	override fun close() {
+
 	}
 
 	override fun finish() {

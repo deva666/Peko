@@ -18,7 +18,9 @@ sealed class PermissionResults(
 
 	class AllGranted(
 		results: Collection<PermissionResult>,
-	) : PermissionResults(results)
+	) : PermissionResults(results) {
+//		internal constructor(permissions: Collection<String>): this(permissions.map { p -> PermissionResult.Granted(p) })
+	}
 
 	class Denied(
 		results: Collection<PermissionResult>,

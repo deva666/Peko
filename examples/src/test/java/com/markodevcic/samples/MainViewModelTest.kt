@@ -2,11 +2,9 @@ package com.markodevcic.samples
 
 import com.markodevcic.peko.IPermissionRequester
 import com.markodevcic.peko.PermissionResult
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mockito
 
 class MainViewModelTest {

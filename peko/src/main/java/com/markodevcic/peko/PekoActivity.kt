@@ -77,41 +77,8 @@ internal class PekoActivity : FragmentActivity(),
 					viewModel.channel.trySend(PermissionResult.Denied.JustDenied(p))
 				}
 			}
-//			viewModel.channel.trySend(
-//				when {
-//					permissions.isEmpty() -> PermissionResults.Cancelled
-//					deniedPermissions.isEmpty() -> PermissionResults.AllGranted(grantedPermissions.map { p ->
-//						PermissionResult.Granted(
-//							p
-//						)
-//					}.toSet())
-//					else -> {
-//						val denied = mutableSetOf<PermissionResult>()
-//						if (needsRationalePermissions.isNotEmpty()) {
-//							denied.addAll(needsRationalePermissions.map { p -> PermissionResult.Denied.NeedsRationale(p) }
-//								.toSet())
-//						}
-//						if (doNotAskAgainPermissions.isNotEmpty()) {
-//							denied.addAll(doNotAskAgainPermissions.map { p ->
-//								PermissionResult.Denied.PermanentlyDenied(
-//									p
-//								)
-//							}.toSet())
-//						}
-//						if (deniedApOpPermissions.isNotEmpty()) {
-//							denied.addAll(deniedApOpPermissions.map { p -> PermissionResult.Denied.JustDenied(p) }
-//								.toSet())
-//						}
-//						PermissionResults.Denied((grantedPermissions.map { p -> PermissionResult.Granted(p) } + denied).toSet())
-//					}
-//				}
-//			)
 			viewModel.channel.close()
 		}
-	}
-
-	override fun close() {
-
 	}
 
 	override fun finish() {

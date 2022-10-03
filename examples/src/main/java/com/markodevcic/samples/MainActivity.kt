@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.markodevcic.peko.PekoRequester
 import com.markodevcic.peko.PermissionResult
-import com.markodevcic.peko.PermissionResults
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -28,23 +27,18 @@ class MainActivity : AppCompatActivity() {
 		}
 
 		btnContacts.setOnClickListener {
-			clearResults()
 			requestPermission(Manifest.permission.READ_CONTACTS)
 		}
 		btnFineLocation.setOnClickListener {
-			clearResults()
 			requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
 		}
 		btnFile.setOnClickListener {
-			clearResults()
 			requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 		}
 		btnCamera.setOnClickListener {
-			clearResults()
 			requestPermission(Manifest.permission.CAMERA)
 		}
 		btnAll.setOnClickListener {
-			clearResults()
 			viewModel.requestPermissions(
 				Manifest.permission.WRITE_EXTERNAL_STORAGE,
 				Manifest.permission.CAMERA,
@@ -52,14 +46,9 @@ class MainActivity : AppCompatActivity() {
 				Manifest.permission.READ_CONTACTS
 			)
 		}
-		btnLiveData.setOnClickListener {
-			val intent = Intent(this, LiveDataActivity::class.java)
-			startActivity(intent)
-		}
 	}
 
 	private fun requestPermission(vararg permissions: String) {
-
 		viewModel.requestPermissions(*permissions)
 	}
 
@@ -112,20 +101,6 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun deniedReasonText(permission: String, result: PermissionResults): String {
-		return when (permission) {
-			in result.needsRationalePermissions -> "NEEDS RATIONALE"
-			in result.deniedPermanentlyPermissions -> "DENIED PERMANENTLY"
-			in result.justDeniedPermissions -> "JUST DENIED"
-			else -> ""
-		}
-	}
-
-	private fun clearResults() {
-		textCameraResult.text = ""
-		textFileResult.text = ""
-		textLocationResult.text = ""
-	}
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
 		menuInflater.inflate(R.menu.menu_main, menu)

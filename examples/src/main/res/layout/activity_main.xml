@@ -128,14 +128,6 @@
                 android:textColor="@android:color/white"
                 android:text="REQUEST ALL"/>
 
-        <Button
-            android:id="@+id/btnLiveData"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="@color/colorAccent"
-            android:textColor="@android:color/white"
-            android:text="LIVE DATA"/>
 
     </LinearLayout>
 

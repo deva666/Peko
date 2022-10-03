@@ -10,6 +10,13 @@ class PekoRequester {
 
 	private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory
 
+
+	fun areGranted(vararg permissions: String) : Boolean {
+		val context = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
+		val request = checkPermissions(context, permissions)
+		return request.denied.isEmpty()
+	}
+
 	fun flowPermissions(vararg permissions: String): Flow<PermissionResult> {
 		val context = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
 		if (isTargetSdkUnderAndroidM(context)) {
@@ -51,7 +58,7 @@ class PekoRequester {
 		val permissionsGroup = permissions.groupBy { p -> ActivityCompat.checkSelfPermission(context, p) }
 		val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
 		val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
-		return PermissionRequest(granted,listOf(), denied)
+		return PermissionRequest(granted, denied)
 	}
 
 	companion object {

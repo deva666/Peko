@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.*
 
 class PekoRequester {
 
-	private val requesterFactory: PermissionRequesterFactory = PermissionRequesterFactory.defaultFactory
+	private val requesterFactory: NativeRequesterFactory = NativeRequesterFactory.defaultFactory
 
 
 	fun areGranted(vararg permissions: String) : Boolean {
@@ -63,6 +63,7 @@ class PekoRequester {
 
 	companion object {
 		fun initialize(context: Context) {
+			check(context.applicationContext == context) { "Application Context expected as parameter to avoid memory leaks." }
 			appContext = context
 		}
 

@@ -12,7 +12,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class PekoActivity : FragmentActivity(),
 	ActivityCompat.OnRequestPermissionsResultCallback,
-	PermissionRequester {
+	NativeRequester {
 
 	private lateinit var viewModel: PekoViewModel
 
@@ -89,6 +89,6 @@ internal class PekoActivity : FragmentActivity(),
 
 	companion object {
 		private const val REQUEST_CODE = 931
-		internal var requesterDeferred: CompletableDeferred<PermissionRequester>? = null
+		internal var requesterDeferred: CompletableDeferred<NativeRequester>? = null
 	}
 }

@@ -5,17 +5,17 @@ import android.content.Intent
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
-internal interface PermissionRequesterFactory {
-	fun getRequesterAsync(context: Context): Deferred<PermissionRequester>
+internal interface NativeRequesterFactory {
+	fun getRequesterAsync(context: Context): Deferred<NativeRequester>
 
 	companion object {
-		val defaultFactory: PermissionRequesterFactory = PermissionRequesterFactoryImpl()
+		val defaultFactory: NativeRequesterFactory = NativeRequesterFactoryImpl()
 	}
 }
 
-private class PermissionRequesterFactoryImpl : PermissionRequesterFactory {
-	override fun getRequesterAsync(context: Context): Deferred<PermissionRequester> {
-		val completableDeferred = CompletableDeferred<PermissionRequester>()
+private class NativeRequesterFactoryImpl : NativeRequesterFactory {
+	override fun getRequesterAsync(context: Context): Deferred<NativeRequester> {
+		val completableDeferred = CompletableDeferred<NativeRequester>()
 		PekoActivity.requesterDeferred = completableDeferred
 		val intent = Intent(context, PekoActivity::class.java)
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

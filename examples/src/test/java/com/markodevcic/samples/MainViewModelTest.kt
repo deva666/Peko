@@ -16,9 +16,11 @@ class MainViewModelTest {
 	@Test
 	fun testSingleGranted() {
 		Mockito.`when`(requester.flowPermissions("A")).thenReturn(flowOf(PermissionResult.Granted("A")))
+		Mockito.`when`(requester.flowPermissions("B")).thenReturn(flowOf(PermissionResult.Denied.JustDenied("B")))
 
 		runBlocking {
 			assert(sut.isPermissionGranted("A"))
+			assert(!sut.isPermissionGranted("B"))
 		}
 	}
 }

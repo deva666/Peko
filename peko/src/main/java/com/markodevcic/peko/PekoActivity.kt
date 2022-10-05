@@ -1,7 +1,6 @@
 package com.markodevcic.peko
 
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
@@ -43,7 +42,9 @@ internal class PekoActivity : FragmentActivity(),
 			for (i in permissions.indices) {
 				val permission = permissions[i]
 				when (grantResults[i]) {
-					PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(permission)
+					PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(
+						permission
+					)
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}

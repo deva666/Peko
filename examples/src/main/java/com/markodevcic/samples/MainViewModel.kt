@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.markodevcic.peko.IPermissionRequester
+import com.markodevcic.peko.PermissionRequester
 import com.markodevcic.peko.PermissionResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class MainViewModel(val permissionRequester: IPermissionRequester) : ViewModel() {
+class MainViewModel(private val permissionRequester: PermissionRequester) : ViewModel() {
 
 	val liveData = MutableLiveData<PermissionResult>()
 
@@ -34,7 +34,7 @@ class MainViewModel(val permissionRequester: IPermissionRequester) : ViewModel()
 	}
 }
 
-class MainViewModelFactory(private val requester: IPermissionRequester): ViewModelProvider.Factory {
+class MainViewModelFactory(private val requester: PermissionRequester): ViewModelProvider.Factory {
 	override fun <T : ViewModel> create(modelClass: Class<T>): T {
 		return MainViewModel(requester) as T
 	}

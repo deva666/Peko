@@ -32,7 +32,6 @@ internal class PekoActivity : FragmentActivity(),
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {
-		Log.d("Peko", "requestPermissions")
 		ActivityCompat.requestPermissions(this@PekoActivity, permissions, REQUEST_CODE)
 	}
 
@@ -40,24 +39,17 @@ internal class PekoActivity : FragmentActivity(),
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		if (requestCode == REQUEST_CODE) {
 			val grantedPermissions = mutableSetOf<String>()
-			val userDeniedPermissions = mutableSetOf<String>()
-			var deniedApOpPermissions = mutableSetOf<String>()
+			val deniedPermissions = mutableSetOf<String>()
 			for (i in permissions.indices) {
 				val permission = permissions[i]
 				when (grantResults[i]) {
-					PermissionChecker.PERMISSION_DENIED -> userDeniedPermissions.add(permission)
-					PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedApOpPermissions.add(permission)
+					PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(permission)
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
-			val deniedPermissions = mutableSetOf<String>()
-			deniedPermissions.addAll(userDeniedPermissions)
-			deniedPermissions.addAll(deniedApOpPermissions)
 			val needsRationalePermissions =
-				userDeniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
-			val doNotAskAgainPermissions = userDeniedPermissions.filter { p -> !needsRationalePermissions.contains(p) }
-			deniedApOpPermissions =
-				deniedApOpPermissions.filter { p -> !needsRationalePermissions.contains(p) }.toMutableSet()
+				deniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
+			val doNotAskAgainPermissions = deniedPermissions.filter { p -> !needsRationalePermissions.contains(p) }
 			if (viewModel.channel.isClosedForSend) {
 				return
 			}
@@ -71,10 +63,7 @@ internal class PekoActivity : FragmentActivity(),
 					viewModel.channel.trySend(PermissionResult.Denied.NeedsRationale(p))
 				}
 				for (p in doNotAskAgainPermissions) {
-					viewModel.channel.trySend(PermissionResult.Denied.PermanentlyDenied(p))
-				}
-				for (p in deniedApOpPermissions) {
-					viewModel.channel.trySend(PermissionResult.Denied.JustDenied(p))
+					viewModel.channel.trySend(PermissionResult.Denied.DeniedPermanently(p))
 				}
 			}
 			viewModel.channel.close()

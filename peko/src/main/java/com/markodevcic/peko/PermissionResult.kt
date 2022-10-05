@@ -2,14 +2,11 @@
 
 package com.markodevcic.peko
 
-sealed class PermissionResult(val permission: String) {
-	class Granted(permission: String) : PermissionResult(permission)
-
-	sealed class Denied(permission: String) : PermissionResult(permission) {
-		class NeedsRationale(permission: String) : Denied(permission)
-		class JustDenied(permission: String) : Denied(permission)
-		class PermanentlyDenied(permission: String) : Denied(permission)
+sealed class PermissionResult {
+	data class Granted(val permission: String) : PermissionResult()
+	sealed class Denied(open val permission: String): PermissionResult() {
+		data class NeedsRationale(override val permission: String): Denied(permission)
+		data class DeniedPermanently(override val permission: String): Denied(permission)
 	}
-
-	object Cancelled : PermissionResult("")
+	object Cancelled : PermissionResult()
 }

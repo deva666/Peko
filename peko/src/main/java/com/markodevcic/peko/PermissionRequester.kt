@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.*
 
 class PermissionRequester : IPermissionRequester {
@@ -55,7 +56,7 @@ class PermissionRequester : IPermissionRequester {
 	}
 
 	private fun checkPermissions(context: Context, permissions: Array<out String>): PermissionRequest {
-		val permissionsGroup = permissions.groupBy { p -> ActivityCompat.checkSelfPermission(context, p) }
+		val permissionsGroup = permissions.groupBy { p -> ContextCompat.checkSelfPermission(context, p) }
 		val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
 		val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
 		return PermissionRequest(granted, denied)

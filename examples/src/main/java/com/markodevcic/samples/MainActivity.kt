@@ -117,8 +117,7 @@ class MainActivity : AppCompatActivity() {
 	private fun deniedReasonText(result: PermissionResult): String {
 		return when (result) {
 			is PermissionResult.Denied.NeedsRationale -> "NEEDS RATIONALE"
-			is PermissionResult.Denied.PermanentlyDenied -> "DENIED PERMANENTLY"
-			is PermissionResult.Denied.JustDenied -> "JUST DENIED"
+			is PermissionResult.Denied.DeniedPermanently -> "DENIED PERMANENTLY"
 			else -> ""
 		}
 	}

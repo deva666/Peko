@@ -9,7 +9,8 @@ internal interface NativeRequesterFactory {
 	fun getRequesterAsync(context: Context): Deferred<NativeRequester>
 
 	companion object {
-		val defaultFactory: NativeRequesterFactory = NativeRequesterFactoryImpl()
+		val default: NativeRequesterFactory
+		get() = NativeRequesterFactoryImpl()
 	}
 }
 

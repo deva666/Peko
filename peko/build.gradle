@@ -6,7 +6,7 @@ android {
     compileSdkVersion 33
     buildToolsVersion "30.0.3"
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 23
         targetSdkVersion 33
         versionCode 14
         versionName "2.2.0"
@@ -36,6 +36,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.activity:activity-ktx:1.6.0'
     implementation 'androidx.fragment:fragment-ktx:1.5.3'
+    testImplementation project(path: ':peko')
 
     kapt 'androidx.lifecycle:lifecycle-compiler:2.4.1'
 

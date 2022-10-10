@@ -22,13 +22,21 @@ class MainActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		PermissionRequester.initialize(applicationContext)
 
-		viewModel = ViewModelProvider(this@MainActivity, MainViewModelFactory(PermissionRequester.instance))[MainViewModel::class.java]
+		viewModel = ViewModelProvider(
+			this@MainActivity,
+			MainViewModelFactory(PermissionRequester.instance)
+		)[MainViewModel::class.java]
 
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(toolbar)
 
-		viewModel.liveData.observe(this) {
-			setResult(it)
+//		viewModel.liveData.observe(this) {
+//			setResult(it)
+//		}
+
+		lifecycleScope.launchWhenStarted {
+			viewModel.permissionsFlow
+				.collect { setResult(it) }
 		}
 
 		btnContacts.setOnClickListener {

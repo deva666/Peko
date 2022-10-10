@@ -6,15 +6,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.markodevcic.peko.PermissionRequester
 import com.markodevcic.peko.PermissionResult
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val permissionRequester: PermissionRequester) : ViewModel() {
 
 	val liveData = MutableLiveData<PermissionResult>()
+
+	private val permissionChannel: Channel<PermissionResult> = Channel()
+
+	val permissionsFlow: Flow<PermissionResult> = permissionChannel.receiveAsFlow()
 
 	fun flowPermissions(vararg permission: String): Flow<PermissionResult> {
 		return permissionRequester.flowPermissions(*permission)
@@ -23,7 +25,10 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 	fun requestPermissions(vararg permission: String) {
 		viewModelScope.launch {
 			permissionRequester.flowPermissions(*permission)
-				.onEach { liveData.value = it }
+				.onEach {
+					liveData.value = it
+					permissionChannel.send(it)
+				}
 				.collect()
 		}
 	}
@@ -32,9 +37,14 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 		return permissionRequester.flowPermissions(permission)
 			.first() is PermissionResult.Granted
 	}
+
+	override fun onCleared() {
+		super.onCleared()
+		permissionChannel.close()
+	}
 }
 
-class MainViewModelFactory(private val requester: PermissionRequester): ViewModelProvider.Factory {
+class MainViewModelFactory(private val requester: PermissionRequester) : ViewModelProvider.Factory {
 	override fun <T : ViewModel> create(modelClass: Class<T>): T {
 		return MainViewModel(requester) as T
 	}

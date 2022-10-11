@@ -3,13 +3,10 @@
 
 [![Build Status](https://travis-ci.org/deva666/Peko.svg?branch=master)](https://travis-ci.org/deva666/Peko) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=deva666_Peko&metric=alert_status)](https://sonarcloud.io/dashboard?id=deva666_Peko) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Peko-blue.svg?style=flat)](https://android-arsenal.com/details/1/6861) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ---
-### Android Permissions with Kotlin Coroutines or LiveData
+### Android Permissions with Kotlin Coroutines and Flow API
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.  
-Get Permission Request Result asynchronously with one function call.  
-Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), permissions requests are async and lightweight (no new threads are used/created).
-
-Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive Permission Results with LiveData.
-
+Get Permission Request Result as 
+Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines) and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/) receive Permission Results .
 ***
 
 
@@ -27,6 +24,71 @@ implementation 'com.markodevcic:peko:2.2.0'
 ```
 
 ### Example 
+First initialize the requester with Application Context. If you pass an `Activity` as `Context`, `IllegalStateException` is raised.
+```kotlin
+PermissionRequester.initialize(applicationContext)
+```
+Get the `PermissionRequester` interface.
+```kotlin
+val requester = PermissionRequester.instance
+```
+Request one or more permissions
+```kotlin
+launch {
+	requester.requestPermissions(Manifest.permission.CAMERA)
+      .collect { p ->
+        when (p) {
+			is PermissionResult.Granted -> print("${p.permission} granted") // nice, proceed 
+            is PermissionResult.Denied -> print("${p.permission} denied") // denied, not interested in reason
+            is PermissionResult.Denied.NeedsRationale -> print("${p.permission} needs rationale") // show rationale
+            is PermissionResult.Denied.DeniedPermanently -> print("${p.permission} denied for good") // no go
+            is PermissionResult.Cancelled -> print("request cancelled") // op canceled, repeat the request
+        } 
+      }
+}
+
+```
+
+### Why Flows?
+Requesting multiple permissions in a single go represents a data stream of `PermissionsResult` objects. `Flow` fits here perfectly.
+Each permission requested is either granted or denied, with `Flow` we can operate on each emitted result item and inspect it individually, that is check if it is Granted, Denied or Needs Rationale.
+And `Flow` is now part of `Kotlin Coroutines library, so no new dependencies are added.
+They are also suspendable, require a coroutine to collect.
+
+Don't want to use `Flow` API and collect items? No problem, suspendable extension functions that collect for you are there.
+```kotlin
+// just check all granted
+launch {
+  val isGranted: Boolean = requester.requestPermissions(Manifest.permission.CAMERA).allGranted()
+}
+
+// give me just granted permissions
+launch {
+  val granted: Collection<PermissionResult> =
+    requester.requestPermissions(Manifest.permission.CAMERA).grantedPermissions()
+}
+
+
+// give me all denied permissions
+launch {
+  val denied: Collection<PermissionResult> =
+    requester.requestPermissions(Manifest.permission.CAMERA).deniedPermissions()
+}
+
+// give me needs rationale permissions
+launch {
+  val needsRationale: Collection<PermissionResult> =
+    requester.requestPermissions(Manifest.permission.CAMERA).needsRationalePermissions()
+}
+
+// give me needs denied permanently permissions
+launch {
+  val deniedPermanently: Collection<PermissionResult> =
+    requester.requestPermissions(Manifest.permission.CAMERA).deniedPermanently()
+}
+```
+
+
 In an Activity or a Fragment that implements `CoroutineScope` interface:
 ```kotlin
 launch {
@@ -39,6 +101,15 @@ launch {
     }
 }
 ```
+
+### Testing
+Common use case is that some business logic triggers permission requests. Business logic usually is placed in a `ViewModel`, `Presenter` or is decouple from a view in other way.
+Android Permissions API requires `Context` for all Permission checks. This breaks the flow of business logic, in a way that a `ViewModel` has to delagete or communicate to the view to get the permissions.
+Business Logic should be testable
+Peko is built to break this dependency and all permission requests can be called from your business logic without requiring any `Context` or `Activity`.
+Furthermore, having permission request free from view means that you can run your unit tests on JVM, without the need for emulators or physical devices.
+To support this, `PermissionRequest` is an interface which can be easily mocked in your JVM unit tests.
+One time registration of Application `Context` needs to be done during app startup with `PermissionRequester.initialize` method.
 
 Or use one of the extension functions on an Activity or a Fragment:
 ```kotlin

@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "unused", "CanBeParameter")
-
 package com.markodevcic.peko
 
 sealed class PermissionResult {

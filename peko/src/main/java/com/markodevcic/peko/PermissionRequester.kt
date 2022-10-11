@@ -41,11 +41,11 @@ interface PermissionRequester {
 			val request = permissionRequestBuilder.createPermissionRequest(context, *permissions)
 
 			val flow = callbackFlow {
-				val requester = requesterFactory.getRequesterAsync(context).await()
 				for (granted in request.granted) {
 					trySend(PermissionResult.Granted(granted))
 				}
 				if (request.denied.isNotEmpty()) {
+					val requester = requesterFactory.getRequesterAsync(context).await()
 					requester.requestPermissions(request.denied.toTypedArray())
 					for (result in requester.resultsChannel) {
 						send(result)
@@ -53,7 +53,6 @@ interface PermissionRequester {
 					requester.finish()
 					channel.close()
 				} else {
-					requester.finish()
 					channel.close()
 				}
 			}

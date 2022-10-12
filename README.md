@@ -105,141 +105,18 @@ launch {
 ### Testing
 Common use case is that some business logic triggers permission requests. Business logic usually is placed in a `ViewModel`, `Presenter` or is decouple from a view in other way.
 Android Permissions API requires `Context` for all Permission checks. This breaks the flow of business logic, in a way that a `ViewModel` has to delagete or communicate to the view to get the permissions.
-Business Logic should be testable
+Business Logic should be testable, not only that these tests should be fast and without the need for an emulator or real Android device.
 Peko is built to break this dependency and all permission requests can be called from your business logic without requiring any `Context` or `Activity`.
 Furthermore, having permission request free from view means that you can run your unit tests on JVM, without the need for emulators or physical devices.
 To support this, `PermissionRequest` is an interface which can be easily mocked in your JVM unit tests.
 One time registration of Application `Context` needs to be done during app startup with `PermissionRequester.initialize` method.
 
-Or use one of the extension functions on an Activity or a Fragment:
-```kotlin
-launch {
-    val result = requestPermissionsAsync(Manifest.permission.READ_CONTACTS) 
-    
-    if (result is PermissionResult.Granted) {
-        // we have contacts permission
-    } else {
-        // permission denied
-    }
-}
-```
-
-Request multiple permissions:
-```kotlin
-launch {
-    val result = requestPermissionsAsync(Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA) 
-    
-    if (result is PermissionResult.Granted) {
-        // we have both permissions
-    } else if (result is PermissionResult.Denied) {
-        result.deniedPermissions.forEach { p ->
-            // this one was denied
-        }
-    }
-}
-```
-
-Denied Result has three subtypes which can be checked to see if we need Permission Rationale or 
-user Clicked Do Not Ask Again.
-```kotlin
-launch {
-    val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
-    
-    when (result) {
-        is PermissionResult.Granted -> { } // woohoo, all requested permissions granted
-        is PermissionResult.Denied.JustDenied -> { } // at least one permission was denied, maybe we forgot to register it in the AndroidManifest?
-        is PermissionResult.Denied.NeedsRationale -> { } // user clicked Deny, let's show a rationale
-        is PermissionResult.Denied.DeniedPermanently -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed
-        is PermissionResult.Cancelled -> { } // interaction was interrupted
-    }
-}
-```
-
-If you want to know which permissions were denied, they are a property of `Denied` class.
-```
-class Denied(val deniedPermissions: Collection<String>)
-```
-
-Need to check if permission is granted? Yes, let's skip the horrible Android API.
-Single call, accepts multiple Strings as arguments, returns true if all are granted.
-```
-val granted = Peko.areGranted(activity, Manifest.permission.READ_CONTACTS)
-```
-
-### LiveData
-Hate Coroutines? No problem ... just create an instance of `PermissionsLiveData` and observe the results with your `LifecycleOwner`
-
-In a ViewModel ... if you need to support orientation changes, or anywhere else if not (Presenter)
-```kotlin
-    val permissionLiveData = PermissionsLiveData()
-    
-    fun checkPermissions(vararg permissions: String) {
-        permissionLiveData.checkPermissions(*permissions)
-    }
-```
-
-In your `LifecycleOwner`, for example in an Activity
-```kotlin
-override fun onCreate(savedInstanceState: Bundle?) {
-    viewModel = ViewModelProviders.of(this).get(YourViewModel::class.java)
-    // observe has to be called before checkPermissions, so we can get the LifecycleOwner
-    viewModel.permissionLiveData.observe(this, Observer { r: PermissionResult ->
-        // do something with permission results
-    })
-}
-
-private fun askContactsPermissions() {
-    viewModel.checkPermissions(Manifest.permission.READ_CONTACTS)
-}
-
-```
 
 ### Screen rotations
 Library has support for screen rotations. 
-To avoid memory leaks, all Coroutines that have not completed yet, should be cancelled in the `onDestroy` function.
-When you detect a orientation change, cancel the `Job` of a `CoroutineScope` with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The request is then resumed with calling `resumeRequest` method.
+The only requirement is to preserve the instance of `PermissionRequester` during device orientation change. How to do this is entirely up to a developer.
+Easiest way is to use `PermissionRequester` with lifecycle aware Jetpack `ViewModel` which does this automatically.
 
-Example:
-
-First:
-```kotlin
-
-// job that will be cancelled in onDestroy
-private val job = Job()
-
-private fun requestPermission(vararg permissions: String) {
-    launch { 
-        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
-        // check granted permissions
-    }
-}
-```
-
-Then in `onDestroy` of an Activity:
-```kotlin
-if (isChangingConfigurations) {
-    job.cancel(ActivityRotatingException()) // screen rotation, retain the results
-} else { 
-    job.cancel() // no rotation, just cancel the Coroutine
-}
-``` 
-
-And when this Activity gets recreated in one of the Activity lifecycle functions, e.g.`onCreate`:
-```kotlin
-
-// check if we have a request already (or some other way you detect screen orientation)
-if (Peko.isRequestInProgress()) {
-    launch {
-        // get the existing request and await the result
-        val result = Peko.resumeRequest() 
-        // check granted permissions
-    }
-}
-```
-
-### LiveData and screen rotations
-You don't have to do anything, this logic is already inside the `PermissionsLiveData` class. 
-You just have to call observe in the `onCreate` method and of course use `androidx.lifecycle.ViewModel`. 
 
 
 ### What is new

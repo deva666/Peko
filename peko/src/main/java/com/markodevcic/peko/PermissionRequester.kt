@@ -40,7 +40,7 @@ interface PermissionRequester {
 			val context = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
 			val request = permissionRequestBuilder.createPermissionRequest(context, *permissions)
 
-			val flow = callbackFlow {
+			val flow = channelFlow {
 				for (granted in request.granted) {
 					trySend(PermissionResult.Granted(granted))
 				}
@@ -48,7 +48,7 @@ interface PermissionRequester {
 					val requester = requesterFactory.getRequesterAsync(context).await()
 					requester.requestPermissions(request.denied.toTypedArray())
 					for (result in requester.resultsChannel) {
-						send(result)
+						trySend(result)
 					}
 					requester.finish()
 					channel.close()
@@ -63,7 +63,7 @@ interface PermissionRequester {
 
 
 suspend fun Flow<PermissionResult>.allGranted(): Boolean {
-	return this.toList().all { p -> p is PermissionResult.Granted }
+	return this.toSet().all { p -> p is PermissionResult.Granted }
 }
 
 suspend fun Flow<PermissionResult>.deniedPermissions(): Collection<PermissionResult> {

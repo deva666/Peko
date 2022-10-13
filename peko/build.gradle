@@ -9,7 +9,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 33
         versionCode 15
-        versionName "3.0.0-ALPHA"
+        versionName "3.0.0-ALPHA-01"
         consumerProguardFile("proguard-rules.pro")
     }
     compileOptions {

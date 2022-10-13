@@ -5,8 +5,8 @@
 ---
 ### Android Permissions with Kotlin Coroutines and Flow API
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.  
-Get Permission Request Result as 
-Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines) and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/) receive Permission Results .
+Get Permission Request Result as async stream of permission result data. 
+Built with [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines) and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/).
 ***
 
 
@@ -20,7 +20,7 @@ Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensou
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.2.0/aar)
 
 ```
-implementation 'com.markodevcic:peko:2.2.0'
+implementation 'com.markodevcic:peko:3.0.0-ALPHA-01'
 ```
 
 ### Example 
@@ -52,7 +52,7 @@ launch {
 ### Why Flows?
 Requesting multiple permissions in a single go represents a data stream of `PermissionsResult` objects. `Flow` fits here perfectly.
 Each permission requested is either granted or denied, with `Flow` we can operate on each emitted result item and inspect it individually, that is check if it is Granted, Denied or Needs Rationale.
-And `Flow` is now part of `Kotlin Coroutines library, so no new dependencies are added.
+Furthermore, `Flow` is now part of `Kotlin Coroutines library, so no new dependencies are added.
 They are also suspendable, require a coroutine to collect.
 
 Don't want to use `Flow` API and collect items? No problem, suspendable extension functions that collect for you are there.
@@ -88,22 +88,8 @@ launch {
 }
 ```
 
-
-In an Activity or a Fragment that implements `CoroutineScope` interface:
-```kotlin
-launch {
-    val result = Peko.requestPermissionsAsync(this, Manifest.permission.READ_CONTACTS) 
-    
-    if (result is PermissionResult.Granted) {
-        // we have contacts permission
-    } else {
-        // permission denied
-    }
-}
-```
-
 ### Testing
-Common use case is that some business logic triggers permission requests. Business logic usually is placed in a `ViewModel`, `Presenter` or is decouple from a view in other way.
+Common use case is that some business logic triggers permission requests. Business logic usually is placed in a `ViewModel`, `Presenter` or is decoupled from a view in other way.
 Android Permissions API requires `Context` for all Permission checks. This breaks the flow of business logic, in a way that a `ViewModel` has to delagete or communicate to the view to get the permissions.
 Business Logic should be testable, not only that these tests should be fast and without the need for an emulator or real Android device.
 Peko is built to break this dependency and all permission requests can be called from your business logic without requiring any `Context` or `Activity`.
@@ -149,7 +135,6 @@ Breaking changes from Peko Version `1.0`
 *  Added support for requesting permissions with LiveData
 
 
-##
 Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/deva666/Peko/tree/release/1.0.1).
 
 

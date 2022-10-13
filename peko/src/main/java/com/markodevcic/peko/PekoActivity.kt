@@ -51,9 +51,6 @@ internal class PekoActivity : FragmentActivity(),
 			val needsRationalePermissions =
 				deniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
 			val doNotAskAgainPermissions = deniedPermissions.filter { p -> !needsRationalePermissions.contains(p) }
-			if (viewModel.channel.isClosedForSend) {
-				return
-			}
 			if (permissions.isEmpty()) {
 				viewModel.channel.trySend(PermissionResult.Cancelled)
 			} else {

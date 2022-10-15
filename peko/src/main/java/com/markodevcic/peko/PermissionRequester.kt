@@ -17,11 +17,10 @@ interface PermissionRequester {
 
 		private var appContext: Context? = null
 
-		internal var requesterFactory = NativeRequesterFactory.default
-		internal var requestBuilder = PermissionRequestBuilder.default
+		internal var requesterFactory = NativeRequesterFactory.default()
+		internal var requestBuilder = PermissionRequestBuilder.default()
 
-		val instance: PermissionRequester
-			get() = PekoPermissionRequester(requesterFactory, requestBuilder)
+		fun instance(): PermissionRequester = PekoPermissionRequester(requesterFactory, requestBuilder)
 	}
 
 	private class PekoPermissionRequester(

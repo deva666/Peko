@@ -18,7 +18,6 @@ internal interface PermissionRequestBuilder {
 	}
 
 	companion object {
-		val default: PermissionRequestBuilder
-			get() = PekoPermissionRequestBuilder()
+		fun default(): PermissionRequestBuilder = PekoPermissionRequestBuilder()
 	}
 }

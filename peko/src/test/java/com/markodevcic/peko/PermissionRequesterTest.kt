@@ -32,7 +32,7 @@ class PermissionRequesterTest {
 		Mockito.`when`(requesterFactory.getRequesterAsync(context)).thenReturn(CompletableDeferred(nativeRequester))
 		Mockito.`when`(nativeRequester.resultsChannel).thenReturn(permissionChannel)
 
-		sut = PermissionRequester.instance
+		sut = PermissionRequester.instance()
 	}
 
 	@Test

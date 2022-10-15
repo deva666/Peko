@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
 		viewModel = ViewModelProvider(
 			this@MainActivity,
-			MainViewModelFactory(PermissionRequester.instance)
+			MainViewModelFactory(PermissionRequester.instance())
 		)[MainViewModel::class.java]
 
 		setContentView(R.layout.activity_main)

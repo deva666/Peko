@@ -89,13 +89,9 @@ launch {
 ```
 
 ### Testing
-Common use case is that some business logic triggers permission requests. Business logic usually is placed in a `ViewModel`, `Presenter` or is decoupled from a view in other way.
-Android Permissions API requires `Context` for all Permission checks. This breaks the flow of business logic, in a way that a `ViewModel` has to delagete or communicate to the view to get the permissions.
-Business Logic should be testable, not only that these tests should be fast and without the need for an emulator or real Android device.
-Peko is built to break this dependency and all permission requests can be called from your business logic without requiring any `Context` or `Activity`.
-Furthermore, having permission request free from view means that you can run your unit tests on JVM, without the need for emulators or physical devices.
-To support this, `PermissionRequest` is an interface which can be easily mocked in your JVM unit tests.
-One time registration of Application `Context` needs to be done during app startup with `PermissionRequester.initialize` method.
+Using permission requests as part of your business logic and want to run your unit tests on JVM?
+Perfect, `PermissionRequester` is an interface which can be easily mocked in your unit tests. It does not require a `Context` or `Activity` for any methods.
+Only a one time registration of Application `Context` needs to be done during app startup with `PermissionRequester.initialize` method.
 
 
 ### Screen rotations
@@ -106,9 +102,9 @@ Easiest way is to use `PermissionRequester` with lifecycle aware Jetpack `ViewMo
 
 
 ### What is new
-Peko Version `2` now uses Android X packages, Kotlin v1.5.30 and Coroutines 1.5.2.
+Peko Version `3` now uses coroutine `Flow` instead of `suspend` function for returning `PermissionResult`.
 ##
-Breaking changes from Peko Version `1.0`
+Breaking changes from Peko Version `2`
 
 * `PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
 
@@ -135,7 +131,7 @@ Breaking changes from Peko Version `1.0`
 *  Added support for requesting permissions with LiveData
 
 
-Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/deva666/Peko/tree/release/1.0.1).
+Peko Version `2.0` uses plain Kotlin coroutines [here](https://github.com/deva666/Peko/tree/release/2.0.0).
 
 
 ### License

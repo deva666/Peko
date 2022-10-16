@@ -30,7 +30,7 @@ PermissionRequester.initialize(applicationContext)
 ```
 Get the `PermissionRequester` interface.
 ```kotlin
-val requester = PermissionRequester.instance
+val requester = PermissionRequester.instance()
 ```
 Request one or more permissions
 ```kotlin
@@ -53,7 +53,6 @@ launch {
 Requesting multiple permissions in a single go represents a data stream of `PermissionsResult` objects. `Flow` fits here perfectly.
 Each permission requested is either granted or denied, with `Flow` we can operate on each emitted result item and inspect it individually, that is check if it is Granted, Denied or Needs Rationale.
 Furthermore, `Flow` is now part of `Kotlin Coroutines library, so no new dependencies are added.
-They are also suspendable, require a coroutine to collect.
 
 Don't want to use `Flow` API and collect items? No problem, suspendable extension functions that collect for you are there.
 ```kotlin
@@ -95,43 +94,25 @@ Only a one time registration of Application `Context` needs to be done during ap
 
 
 ### Screen rotations
-Library has support for screen rotations. 
+Library supports screen rotations. 
 The only requirement is to preserve the instance of `PermissionRequester` during device orientation change. How to do this is entirely up to a developer.
 Easiest way is to use `PermissionRequester` with lifecycle aware Jetpack `ViewModel` which does this automatically.
 
 
-
 ### What is new
 Peko Version `3` now uses coroutine `Flow` instead of `suspend` function for returning `PermissionResult`.
+Support for `LiveData` is removed. `Flow` can easily be adapted to work with `LiveData`.
+
 ##
 Breaking changes from Peko Version `2`
 
-* `PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
+* `PermissionResult` now has a single `String` permission as property.
 
-    `PermissionResult` has a sealed class hierarchy of following types:
-    `PermissionResult.Granted` -> returned when all requested permissions were granted
-    
-    `PermissionResult.Denied` -> returned when at least one of the permissions was denied
-    
-    `PermissionResult.Denied.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned 
-    when Android OS signals that at least one of the permissions needs to show a rationale
-    
-    `PermissionResult.Denied.DeniedPermanently` -> subclass of `PermissionResult.Denied`, returned when no 
-    permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
-
-    `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned when 
-    previous two cases are not the cause, for example if you forget to register the Permission in
-     AndroidManifest
-
-    `PermissionResult.Cancelled` -> returned when Android System cancels the request, ie returned
-
-* `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
-    You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
-    
-*  Added support for requesting permissions with LiveData
+* `Peko` singleton is removed. `PermissionRequester` interface is now its replacement 
 
 
-Peko Version `2.0` uses plain Kotlin coroutines [here](https://github.com/deva666/Peko/tree/release/2.0.0).
+
+Peko Version `2.0` uses vanilla Kotlin coroutines, and is [here](https://github.com/deva666/Peko/tree/release/2.0.0).
 
 
 ### License

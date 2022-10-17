@@ -24,18 +24,19 @@ implementation 'com.markodevcic:peko:3.0.0-ALPHA-01'
 ```
 
 ### Example 
-First initialize the requester with Application Context. If you pass an `Activity` as `Context`, `IllegalStateException` is raised.
+First initialize the `PermissionRequester` with Application Context. This enables all requests to be made without a `Context` or `Activity`.   
+If you pass an `Activity` as `Context`, `IllegalStateException` is raised.
 ```kotlin
 PermissionRequester.initialize(applicationContext)
 ```
-Get the `PermissionRequester` interface.
+Get the instance of `PermissionRequester` interface.
 ```kotlin
 val requester = PermissionRequester.instance()
 ```
-Request one or more permissions
+Request one or more permissions. For each permission receive `PermissionResult` as async `Flow` stream of data.
 ```kotlin
 launch {
-	requester.requestPermissions(Manifest.permission.CAMERA)
+	requester.requestPermissions(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
       .collect { p ->
         when (p) {
 			is PermissionResult.Granted -> print("${p.permission} granted") // nice, proceed 

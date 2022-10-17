@@ -48,16 +48,18 @@ Request one or more permissions. For each permission receive `PermissionResult` 
 
 ```kotlin
 launch {
-	requester.requestPermissions(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
-        .collect { p ->
-            when (p) {
-                is PermissionResult.Granted -> print("${p.permission} granted") // nice, proceed 
-                is PermissionResult.Denied -> print("${p.permission} denied") // denied, not interested in reason
-                is PermissionResult.Denied.NeedsRationale -> print("${p.permission} needs rationale") // show rationale
-                is PermissionResult.Denied.DeniedPermanently -> print("${p.permission} denied for good") // no go
-                is PermissionResult.Cancelled -> print("request cancelled") // op canceled, repeat the request
-            }
-        }
+	requester.requestPermissions(
+			Manifest.permission.CAMERA,
+			Manifest.permission.READ_CONTACTS
+	).collect { p ->
+		when (p) {
+			is PermissionResult.Granted -> print("${p.permission} granted") // nice, proceed 
+			is PermissionResult.Denied -> print("${p.permission} denied") // denied, not interested in reason
+			is PermissionResult.Denied.NeedsRationale -> print("${p.permission} needs rationale") // show rationale
+			is PermissionResult.Denied.DeniedPermanently -> print("${p.permission} denied for good") // no go
+			is PermissionResult.Cancelled -> print("request cancelled") // op canceled, repeat the request
+		}
+	}
 }
 ```
 Need to check only if permissions are granted? Let's skip the horrible Android API. No coroutine required.

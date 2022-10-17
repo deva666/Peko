@@ -7,8 +7,9 @@
 
 ### Android Permissions with Kotlin Coroutines and Flow API
 
-No more callbacks, builders, listeners or verbose code for requesting Android permissions.  
-Get Permission Request Result with one function call.    
+No more callbacks, listeners or verbose code for requesting Android permissions.    
+Get Permission Request Result asynchronously with one function call.  
+`Context` or `Activity` not needed for requests, request permissions from your View Model or Presenter.  
 Built with [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
 and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/).
 ***
@@ -67,7 +68,7 @@ val granted: Boolean = requester.areGranted(Manifest.permission.CAMERA, Manifest
 
 ### Why Flows?
 
-Requesting multiple permissions in a single go represents a data stream of `PermissionsResult` objects. `Flow` fits here
+Requesting multiple permissions in a single request represents a data stream of `PermissionsResult` objects. `Flow` fits here
 perfectly. Each permission requested is either granted or denied, with `Flow` we can operate on each emitted result item
 and inspect it individually, that is check if it is Granted, Denied or Needs Rationale. Flows are async and require a
 coroutine to collect so this is not a huge update from Peko version 2. Also, they are now part of Kotlin Coroutines

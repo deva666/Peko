@@ -22,7 +22,7 @@ Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensou
 
 ### Installation
 
-Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.2.0/aar)
+Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/3.0.0-ALPHA-01/aar)
 
 ```
 implementation 'com.markodevcic:peko:3.0.0-ALPHA-01'
@@ -137,7 +137,7 @@ removed. `Flow` can easily be adapted to work with `LiveData`.
 * `Peko` singleton is removed. `PermissionRequester` interface is now its replacement.
 * Extension functions for `Fragment` and `Activity` are removed.
 
-Peko Version `2.0` uses vanilla Kotlin coroutines, and is [here](https://github.com/deva666/Peko/tree/release/2.0.0).
+Peko Version `2.0` uses vanilla Kotlin coroutines, and is [here](https://github.com/deva666/Peko/tree/release/2.2.0).
 
 ### License
 

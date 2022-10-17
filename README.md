@@ -58,6 +58,10 @@ launch {
 				}
 			}
 }
+```
+Need to check only if permissions are granted? Let's skip the horrible Android API. No coroutine required.
+```kotlin
+val granted: Boolean = requester.areGranted(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
 
 ```
 

@@ -2,7 +2,10 @@ package com.markodevcic.peko
 
 import android.app.Activity
 import android.content.Context
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.toSet
 
 
 interface PermissionRequester {
@@ -24,8 +27,8 @@ interface PermissionRequester {
 	}
 
 	private class PekoPermissionRequester(
-		private val requesterFactory: NativeRequesterFactory,
-		private val permissionRequestBuilder: PermissionRequestBuilder
+			private val requesterFactory: NativeRequesterFactory,
+			private val permissionRequestBuilder: PermissionRequestBuilder
 	) : PermissionRequester {
 
 		override fun areGranted(vararg permissions: String): Boolean {

@@ -10,8 +10,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class PekoActivity : FragmentActivity(),
-	ActivityCompat.OnRequestPermissionsResultCallback,
-	NativeRequester {
+		ActivityCompat.OnRequestPermissionsResultCallback,
+		NativeRequester {
 
 	private lateinit var viewModel: PekoViewModel
 
@@ -43,13 +43,13 @@ internal class PekoActivity : FragmentActivity(),
 				val permission = permissions[i]
 				when (grantResults[i]) {
 					PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(
-						permission
+							permission
 					)
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
 			val needsRationalePermissions =
-				deniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
+					deniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
 			val doNotAskAgainPermissions = deniedPermissions.filter { p -> !needsRationalePermissions.contains(p) }
 			if (permissions.isEmpty()) {
 				viewModel.channel.trySend(PermissionResult.Cancelled)

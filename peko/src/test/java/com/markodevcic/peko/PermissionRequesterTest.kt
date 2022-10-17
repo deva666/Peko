@@ -40,11 +40,11 @@ class PermissionRequesterTest {
 		val permission = "CONTACTS"
 
 		Mockito.`when`(requestBuilder.createPermissionRequest(context, permission)).thenReturn(
-			PermissionRequest(
-				listOf(), listOf(
-					permission
+				PermissionRequest(
+						listOf(), listOf(
+						permission
 				)
-			)
+				)
 		)
 
 

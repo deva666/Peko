@@ -25,17 +25,17 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 	fun requestPermissions(vararg permission: String) {
 		viewModelScope.launch {
 			permissionRequester.flowPermissions(*permission)
-				.onEach {
-					liveData.value = it
-					permissionChannel.send(it)
-				}
-				.collect()
+					.onEach {
+						liveData.value = it
+						permissionChannel.send(it)
+					}
+					.collect()
 		}
 	}
 
 	suspend fun isPermissionGranted(permission: String): Boolean {
 		return permissionRequester.flowPermissions(permission)
-			.first() is PermissionResult.Granted
+				.first() is PermissionResult.Granted
 	}
 
 	override fun onCleared() {
@@ -45,7 +45,7 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 }
 
 class MainViewModelFactory(private val requester: PermissionRequester) : ViewModelProvider.Factory {
-	override fun <T: ViewModel>create(modelClass: Class<T>): T {
+	override fun <T : ViewModel> create(modelClass: Class<T>): T {
 		return MainViewModel(requester) as T
 	}
 }

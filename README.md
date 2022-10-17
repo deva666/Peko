@@ -53,9 +53,9 @@ launch {
 ### Why Flows?
 Requesting multiple permissions in a single go represents a data stream of `PermissionsResult` objects. `Flow` fits here perfectly.
 Each permission requested is either granted or denied, with `Flow` we can operate on each emitted result item and inspect it individually, that is check if it is Granted, Denied or Needs Rationale.
-Furthermore, `Flow` is now part of `Kotlin Coroutines library, so no new dependencies are added.
+Furthermore, Flows are async and require a coroutine to collect, and they are now part of Kotlin Coroutines library, so no new dependencies are added.
 
-Don't want to use `Flow` API and collect items? No problem, suspendable extension functions that collect for you are there.
+Don't want to use `Flow`? No problem, suspendable extension functions that collect for you are there.
 ```kotlin
 // just check all granted
 launch {
@@ -108,8 +108,8 @@ Support for `LiveData` is removed. `Flow` can easily be adapted to work with `Li
 ## Breaking changes from Peko Version `2`
 
 * `PermissionResult` now has a single `String` permission as property.
-
 * `Peko` singleton is removed. `PermissionRequester` interface is now its replacement.
+* Extension functions for `Fragment` and `Activity` are removed.
 
 
 

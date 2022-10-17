@@ -45,7 +45,7 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 }
 
 class MainViewModelFactory(private val requester: PermissionRequester) : ViewModelProvider.Factory {
-	override fun <T : ViewModel> create(modelClass: Class<T>): T {
+	override fun <T: ViewModel>create(modelClass: Class<T>): T {
 		return MainViewModel(requester) as T
 	}
 }

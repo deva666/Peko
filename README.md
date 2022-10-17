@@ -5,7 +5,7 @@
 ---
 ### Android Permissions with Kotlin Coroutines and Flow API
 No more callbacks, builders, listeners or verbose code for requesting Android permissions.  
-Get Permission Request Result as async stream of permission result data. 
+Get Permission Request Result with one function call.    
 Built with [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines) and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/).
 ***
 
@@ -100,15 +100,15 @@ Easiest way is to use `PermissionRequester` with lifecycle aware Jetpack `ViewMo
 
 
 ### What is new
-Peko Version `3` now uses coroutine `Flow` instead of `suspend` function for returning `PermissionResult`.
+Peko Version `3` is now in Alpha stage. The API is mostly stabilised but still subject to change. 
+Peko now uses coroutine `Flow` instead of `suspend` function for returning `PermissionResult`.
 Support for `LiveData` is removed. `Flow` can easily be adapted to work with `LiveData`.
 
-##
-Breaking changes from Peko Version `2`
+## Breaking changes from Peko Version `2`
 
 * `PermissionResult` now has a single `String` permission as property.
 
-* `Peko` singleton is removed. `PermissionRequester` interface is now its replacement 
+* `Peko` singleton is removed. `PermissionRequester` interface is now its replacement.
 
 
 

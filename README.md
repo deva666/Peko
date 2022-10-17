@@ -49,15 +49,15 @@ Request one or more permissions. For each permission receive `PermissionResult` 
 ```kotlin
 launch {
 	requester.requestPermissions(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
-			.collect { p ->
-				when (p) {
-					is PermissionResult.Granted -> print("${p.permission} granted") // nice, proceed 
-					is PermissionResult.Denied -> print("${p.permission} denied") // denied, not interested in reason
-					is PermissionResult.Denied.NeedsRationale -> print("${p.permission} needs rationale") // show rationale
-					is PermissionResult.Denied.DeniedPermanently -> print("${p.permission} denied for good") // no go
-					is PermissionResult.Cancelled -> print("request cancelled") // op canceled, repeat the request
-				}
-			}
+        .collect { p ->
+            when (p) {
+                is PermissionResult.Granted -> print("${p.permission} granted") // nice, proceed 
+                is PermissionResult.Denied -> print("${p.permission} denied") // denied, not interested in reason
+                is PermissionResult.Denied.NeedsRationale -> print("${p.permission} needs rationale") // show rationale
+                is PermissionResult.Denied.DeniedPermanently -> print("${p.permission} denied for good") // no go
+                is PermissionResult.Cancelled -> print("request cancelled") // op canceled, repeat the request
+            }
+        }
 }
 ```
 Need to check only if permissions are granted? Let's skip the horrible Android API. No coroutine required.
@@ -79,20 +79,23 @@ Don't want to use `Flow`? No problem, suspendable extension functions that colle
 ```kotlin
 // just check all granted
 launch {
-	val allGranted: Boolean = requester.requestPermissions(Manifest.permission.CAMERA).allGranted()
+	val allGranted: Boolean = requester.requestPermissions(Manifest.permission.CAMERA)
+            .allGranted()
 }
 
 // give me just granted permissions
 launch {
 	val granted: Collection<PermissionResult> =
-			requester.requestPermissions(Manifest.permission.CAMERA).grantedPermissions()
+			requester.requestPermissions(Manifest.permission.CAMERA)
+                    .grantedPermissions()
 }
 
 
 // give me all denied permissions, whatever the reason
 launch {
 	val denied: Collection<PermissionResult> =
-			requester.requestPermissions(Manifest.permission.CAMERA).deniedPermissions()
+			requester.requestPermissions(Manifest.permission.CAMERA)
+                    .deniedPermissions()
 
 // these can be then separated to see needs rationale or denied permanently permissions
 	val needsRationale = denied.filterIsInstance<PermissionResult.Denied.NeedsRationale>()
@@ -102,13 +105,15 @@ launch {
 // give me needs rationale permissions
 launch {
 	val needsRationale: Collection<PermissionResult> =
-			requester.requestPermissions(Manifest.permission.CAMERA).needsRationalePermissions()
+			requester.requestPermissions(Manifest.permission.CAMERA)
+                    .needsRationalePermissions()
 }
 
 // give me needs denied permanently permissions
 launch {
 	val deniedPermanently: Collection<PermissionResult> =
-			requester.requestPermissions(Manifest.permission.CAMERA).deniedPermanently()
+			requester.requestPermissions(Manifest.permission.CAMERA)
+                    .deniedPermanently()
 }
 ```
 

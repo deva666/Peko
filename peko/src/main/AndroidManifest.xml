@@ -1,12 +1,12 @@
-<manifest package="com.markodevcic.peko"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.markodevcic.peko">
 
     <application>
         <activity
             android:name=".PekoActivity"
-            android:screenOrientation="unspecified"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/TransparentTheme"
-            android:exported="true"/>
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/TransparentTheme" />
     </application>
 </manifest>

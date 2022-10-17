@@ -1,135 +1,143 @@
 package com.markodevcic.samples
 
 import android.Manifest
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.markodevcic.peko.ActivityRotatingException
-import com.markodevcic.peko.Peko
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.markodevcic.peko.PermissionRequester
 import com.markodevcic.peko.PermissionResult
+import com.markodevcic.peko.allGranted
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity(), CoroutineScope {
+class MainActivity : AppCompatActivity() {
 
-    private var job = Job()
+	private lateinit var viewModel: MainViewModel
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		PermissionRequester.initialize(applicationContext)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+		viewModel = ViewModelProvider(
+				this@MainActivity,
+				MainViewModelFactory(PermissionRequester.instance())
+		)[MainViewModel::class.java]
 
-        if (Peko.isRequestInProgress()) {
-            launch {
-                setResults(Peko.resumeRequest())
-            }
-        }
+		setContentView(R.layout.activity_main)
+		setSupportActionBar(toolbar)
 
-        btnFineLocation.setOnClickListener {
-            clearResults()
-            requestPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-        btnFile.setOnClickListener {
-            clearResults()
-            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-        btnCamera.setOnClickListener {
-            clearResults()
-            requestPermission(Manifest.permission.CAMERA)
-        }
-        btnAll.setOnClickListener {
-            clearResults()
-            requestPermission(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        }
-        btnLiveData.setOnClickListener {
-            val intent = Intent(this, LiveDataActivity::class.java)
-            startActivity(intent)
-        }
-    }
+//		viewModel.liveData.observe(this) {
+//			setResult(it)
+//		}
 
-    private fun requestPermission(vararg permissions: String) {
-        launch {
-            val result = Peko.requestPermissionsAsync(applicationContext, *permissions)
-            setResults(result)
-        }
-    }
+		lifecycleScope.launchWhenStarted {
+			viewModel.permissionsFlow
+					.collect { setResult(it) }
+		}
 
-    private fun setResults(result: PermissionResult) {
-        if (result is PermissionResult.Granted) {
+		btnContacts.setOnClickListener {
+			requestPermission(Manifest.permission.READ_CONTACTS)
+		}
+		btnFineLocation.setOnClickListener {
+			requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+		}
+		btnFile.setOnClickListener {
+			requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+		}
+		btnCamera.setOnClickListener {
+			requestPermission(Manifest.permission.CAMERA)
+		}
+		btnAll.setOnClickListener {
+			viewModel.requestPermissions(
+					Manifest.permission.WRITE_EXTERNAL_STORAGE,
+					Manifest.permission.CAMERA,
+					Manifest.permission.ACCESS_COARSE_LOCATION,
+					Manifest.permission.READ_CONTACTS
+			)
+		}
+	}
 
-            val granted = "GRANTED"
-            if (Manifest.permission.ACCESS_FINE_LOCATION in result.grantedPermissions) {
-                textLocationResult.text = granted
-                textLocationResult.setTextColor(Color.GREEN)
-            }
-            if (Manifest.permission.WRITE_EXTERNAL_STORAGE in result.grantedPermissions) {
-                textFileResult.text = granted
-                textFileResult.setTextColor(Color.GREEN)
-            }
-            if (Manifest.permission.CAMERA in result.grantedPermissions) {
-                textCameraResult.text = granted
-                textCameraResult.setTextColor(Color.GREEN)
-            }
-        } else if (result is PermissionResult.Denied) {
-            val message = when (result) {
-                is PermissionResult.Denied.NeedsRationale -> "NEEDS RATIONALE"
-                is PermissionResult.Denied.DeniedPermanently -> "DENIED PERMANENT"
-                is PermissionResult.Denied.JustDenied -> "JUST DENIED"
-                else -> "DENIED"
-            }
-            if (Manifest.permission.ACCESS_FINE_LOCATION in result.deniedPermissions) {
-                textLocationResult.text = message
-                textLocationResult.setTextColor(Color.RED)
-            }
-            if (Manifest.permission.WRITE_EXTERNAL_STORAGE in result.deniedPermissions) {
-                textFileResult.text = message
-                textFileResult.setTextColor(Color.RED)
-            }
-            if (Manifest.permission.CAMERA in result.deniedPermissions) {
-                textCameraResult.text = message
-                textCameraResult.setTextColor(Color.RED)
-            }
-        }
-    }
+	private fun checkAllGranted(vararg permissions: String) {
+		lifecycleScope.launch {
+			val allGranted = viewModel.flowPermissions(*permissions).allGranted()
+		}
+	}
 
-    private fun clearResults() {
-        textCameraResult.text = ""
-        textFileResult.text = ""
-        textLocationResult.text = ""
-    }
+	private fun requestPermission(vararg permissions: String) {
+		viewModel.requestPermissions(*permissions)
+	}
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
+	private fun setResult(result: PermissionResult) {
+		if (result is PermissionResult.Granted) {
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+			val granted = "GRANTED"
+			if (Manifest.permission.ACCESS_COARSE_LOCATION == result.permission) {
+				textLocationResult.text = granted
+				textLocationResult.setTextColor(Color.GREEN)
+			}
+			if (Manifest.permission.WRITE_EXTERNAL_STORAGE == result.permission) {
+				textFileResult.text = granted
+				textFileResult.setTextColor(Color.GREEN)
+			}
+			if (Manifest.permission.CAMERA == result.permission) {
+				textCameraResult.text = granted
+				textCameraResult.setTextColor(Color.GREEN)
+			}
+			if (Manifest.permission.READ_CONTACTS == result.permission) {
+				textContactsResult.text = granted
+				textContactsResult.setTextColor(Color.GREEN)
+			}
+		} else if (result is PermissionResult.Denied) {
+			if (Manifest.permission.ACCESS_COARSE_LOCATION == result.permission) {
+				textLocationResult.text = deniedReasonText(result)
+				textLocationResult.setTextColor(Color.RED)
+			}
+			if (Manifest.permission.WRITE_EXTERNAL_STORAGE == result.permission) {
+				textFileResult.text = deniedReasonText(result)
+				textFileResult.setTextColor(Color.RED)
+			}
+			if (Manifest.permission.CAMERA == result.permission) {
+				textCameraResult.text = deniedReasonText(result)
+				textCameraResult.setTextColor(Color.RED)
+			}
+			if (Manifest.permission.READ_CONTACTS == result.permission) {
+				textContactsResult.text = deniedReasonText(result)
+				textContactsResult.setTextColor(Color.RED)
+			}
+		} else if (result is PermissionResult.Cancelled) {
+			textLocationResult.text = "CANCELLED"
+			textLocationResult.setTextColor(Color.RED)
+			textFileResult.text = "CANCELLED"
+			textFileResult.setTextColor(Color.RED)
+			textCameraResult.text = "CANCELLED"
+			textCameraResult.setTextColor(Color.RED)
+			textContactsResult.text = "CANCELLED"
+			textContactsResult.setTextColor(Color.RED)
+		}
+	}
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (isChangingConfigurations) {
-            job.completeExceptionally(ActivityRotatingException())
-        } else {
-            job.cancel()
-        }
-    }
+	private fun deniedReasonText(result: PermissionResult): String {
+		return when (result) {
+			is PermissionResult.Denied.NeedsRationale -> "NEEDS RATIONALE"
+			is PermissionResult.Denied.DeniedPermanently -> "DENIED PERMANENTLY"
+			else -> ""
+		}
+	}
+
+
+	override fun onCreateOptionsMenu(menu: Menu): Boolean {
+		menuInflater.inflate(R.menu.menu_main, menu)
+		return true
+	}
+
+	override fun onOptionsItemSelected(item: MenuItem): Boolean {
+		return when (item.itemId) {
+			R.id.action_settings -> true
+			else -> super.onOptionsItemSelected(item)
+		}
+	}
 }

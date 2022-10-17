@@ -1,211 +1,146 @@
 # PEKO
+
 **PE**rmissions with **KO**tlin
 
 [![Build Status](https://travis-ci.org/deva666/Peko.svg?branch=master)](https://travis-ci.org/deva666/Peko) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=deva666_Peko&metric=alert_status)](https://sonarcloud.io/dashboard?id=deva666_Peko) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Peko-blue.svg?style=flat)](https://android-arsenal.com/details/1/6861) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ---
-### Android Permissions with Kotlin Coroutines or LiveData
-No more callbacks, builders, listeners or verbose code for requesting Android permissions.  
+
+### Android Permissions with Kotlin Coroutines and Flow API
+
+No more callbacks, listeners or verbose code for requesting Android permissions.    
 Get Permission Request Result asynchronously with one function call.  
-Thanks to [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), permissions requests are async and lightweight (no new threads are used/created).
-
-Or if you don't use Coroutines, and don't want to manage Lifecycles ... receive Permission Results with LiveData.
-
+`Context` or `Activity` not needed for requests, request permissions from your View Model or Presenter.  
+Built with [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
+and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-flow/).
 ***
 
-
 ### Thanks to JetBrains
+
 Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
 
 [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width=200 height=200/>](https://www.jetbrains.com/)
 
 ### Installation
 
-Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/2.2.0/aar)
+Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/3.0.0-ALPHA-01/aar)
 
 ```
-implementation 'com.markodevcic:peko:2.2.0'
+implementation 'com.markodevcic:peko:3.0.0-ALPHA-01'
 ```
 
-### Example 
-In an Activity or a Fragment that implements `CoroutineScope` interface:
+### Example
+
+First initialize the `PermissionRequester` with Application Context. This enables all requests to be made without
+a `Context` or `Activity`.   
+If you pass an `Activity` as `Context`, `IllegalStateException` is raised.
+
+```kotlin
+PermissionRequester.initialize(applicationContext)
+```
+
+Get the instance of `PermissionRequester` interface.
+
+```kotlin
+val requester = PermissionRequester.instance()
+```
+
+Request one or more permissions. For each permission receive `PermissionResult` as async `Flow` stream of data.
+
 ```kotlin
 launch {
-    val result = Peko.requestPermissionsAsync(this, Manifest.permission.READ_CONTACTS) 
-    
-    if (result is PermissionResult.Granted) {
-        // we have contacts permission
-    } else {
-        // permission denied
-    }
+	requester.requestPermissions(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
+			.collect { p ->
+				when (p) {
+					is PermissionResult.Granted -> print("${p.permission} granted") // nice, proceed 
+					is PermissionResult.Denied -> print("${p.permission} denied") // denied, not interested in reason
+					is PermissionResult.Denied.NeedsRationale -> print("${p.permission} needs rationale") // show rationale
+					is PermissionResult.Denied.DeniedPermanently -> print("${p.permission} denied for good") // no go
+					is PermissionResult.Cancelled -> print("request cancelled") // op canceled, repeat the request
+				}
+			}
 }
 ```
-
-Or use one of the extension functions on an Activity or a Fragment:
+Need to check only if permissions are granted? Let's skip the horrible Android API. No coroutine required.
 ```kotlin
+val granted: Boolean = requester.areGranted(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
+
+```
+
+### Why Flows?
+
+Requesting multiple permissions in a single request represents a data stream of `PermissionsResult` objects. `Flow` fits here
+perfectly. Each permission requested is either granted or denied, with `Flow` we can operate on each emitted result item
+and inspect it individually, that is check if it is Granted, Denied or Needs Rationale. Flows are async and require a
+coroutine to collect so this is not a huge update from Peko version 2. Also, they are now part of Kotlin Coroutines
+library, so no new dependencies are added.
+
+Don't want to use `Flow`? No problem, suspendable extension functions that collect for you are there.
+
+```kotlin
+// just check all granted
 launch {
-    val result = requestPermissionsAsync(Manifest.permission.READ_CONTACTS) 
-    
-    if (result is PermissionResult.Granted) {
-        // we have contacts permission
-    } else {
-        // permission denied
-    }
+	val allGranted: Boolean = requester.requestPermissions(Manifest.permission.CAMERA).allGranted()
 }
-```
 
-Request multiple permissions:
-```kotlin
+// give me just granted permissions
 launch {
-    val result = requestPermissionsAsync(Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA) 
-    
-    if (result is PermissionResult.Granted) {
-        // we have both permissions
-    } else if (result is PermissionResult.Denied) {
-        result.deniedPermissions.forEach { p ->
-            // this one was denied
-        }
-    }
+	val granted: Collection<PermissionResult> =
+			requester.requestPermissions(Manifest.permission.CAMERA).grantedPermissions()
 }
-```
 
-Denied Result has three subtypes which can be checked to see if we need Permission Rationale or 
-user Clicked Do Not Ask Again.
-```kotlin
+
+// give me all denied permissions, whatever the reason
 launch {
-    val result = requestPermissionsAsync(Manifest.permission.BLUETOOTH, Manifest.permission.CAMERA) 
-    
-    when (result) {
-        is PermissionResult.Granted -> { } // woohoo, all requested permissions granted
-        is PermissionResult.Denied.JustDenied -> { } // at least one permission was denied, maybe we forgot to register it in the AndroidManifest?
-        is PermissionResult.Denied.NeedsRationale -> { } // user clicked Deny, let's show a rationale
-        is PermissionResult.Denied.DeniedPermanently -> { } // Android System won't show Permission dialog anymore, let's tell the user we can't proceed
-        is PermissionResult.Cancelled -> { } // interaction was interrupted
-    }
+	val denied: Collection<PermissionResult> =
+			requester.requestPermissions(Manifest.permission.CAMERA).deniedPermissions()
+
+// these can be then separated to see needs rationale or denied permanently permissions
+	val needsRationale = denied.filterIsInstance<PermissionResult.Denied.NeedsRationale>()
+	val deniedPermanently = denied.filterIsInstance<PermissionResult.Denied.DeniedPermanently>()
+}
+
+// give me needs rationale permissions
+launch {
+	val needsRationale: Collection<PermissionResult> =
+			requester.requestPermissions(Manifest.permission.CAMERA).needsRationalePermissions()
+}
+
+// give me needs denied permanently permissions
+launch {
+	val deniedPermanently: Collection<PermissionResult> =
+			requester.requestPermissions(Manifest.permission.CAMERA).deniedPermanently()
 }
 ```
 
-If you want to know which permissions were denied, they are a property of `Denied` class.
-```
-class Denied(val deniedPermissions: Collection<String>)
-```
+### Testing
 
-Need to check if permission is granted? Yes, let's skip the horrible Android API.
-Single call, accepts multiple Strings as arguments, returns true if all are granted.
-```
-val granted = Peko.areGranted(activity, Manifest.permission.READ_CONTACTS)
-```
-
-### LiveData
-Hate Coroutines? No problem ... just create an instance of `PermissionsLiveData` and observe the results with your `LifecycleOwner`
-
-In a ViewModel ... if you need to support orientation changes, or anywhere else if not (Presenter)
-```kotlin
-    val permissionLiveData = PermissionsLiveData()
-    
-    fun checkPermissions(vararg permissions: String) {
-        permissionLiveData.checkPermissions(*permissions)
-    }
-```
-
-In your `LifecycleOwner`, for example in an Activity
-```kotlin
-override fun onCreate(savedInstanceState: Bundle?) {
-    viewModel = ViewModelProviders.of(this).get(YourViewModel::class.java)
-    // observe has to be called before checkPermissions, so we can get the LifecycleOwner
-    viewModel.permissionLiveData.observe(this, Observer { r: PermissionResult ->
-        // do something with permission results
-    })
-}
-
-private fun askContactsPermissions() {
-    viewModel.checkPermissions(Manifest.permission.READ_CONTACTS)
-}
-
-```
+Using permission requests as part of your business logic and want to run your unit tests on JVM?
+Perfect, `PermissionRequester` is an interface which can be easily mocked in your unit tests. It does not require
+a `Context` or `Activity` for any methods. Only a one time registration of Application `Context` needs to be done during
+app startup with `PermissionRequester.initialize` method.
 
 ### Screen rotations
-Library has support for screen rotations. 
-To avoid memory leaks, all Coroutines that have not completed yet, should be cancelled in the `onDestroy` function.
-When you detect a orientation change, cancel the `Job` of a `CoroutineScope` with an instance of `ActivityRotatingException`. Internally, this will retain the current request that is in progress. The request is then resumed with calling `resumeRequest` method.
 
-Example:
-
-First:
-```kotlin
-
-// job that will be cancelled in onDestroy
-private val job = Job()
-
-private fun requestPermission(vararg permissions: String) {
-    launch { 
-        val result = Peko.requestPermissionsAsync(this@MainActivity, *permissions)
-        // check granted permissions
-    }
-}
-```
-
-Then in `onDestroy` of an Activity:
-```kotlin
-if (isChangingConfigurations) {
-    job.cancel(ActivityRotatingException()) // screen rotation, retain the results
-} else { 
-    job.cancel() // no rotation, just cancel the Coroutine
-}
-``` 
-
-And when this Activity gets recreated in one of the Activity lifecycle functions, e.g.`onCreate`:
-```kotlin
-
-// check if we have a request already (or some other way you detect screen orientation)
-if (Peko.isRequestInProgress()) {
-    launch {
-        // get the existing request and await the result
-        val result = Peko.resumeRequest() 
-        // check granted permissions
-    }
-}
-```
-
-### LiveData and screen rotations
-You don't have to do anything, this logic is already inside the `PermissionsLiveData` class. 
-You just have to call observe in the `onCreate` method and of course use `androidx.lifecycle.ViewModel`. 
-
+Library supports screen rotations. The only requirement is to preserve the instance of `PermissionRequester` during
+device orientation change. How to do this is entirely up to a developer. Easiest way is to use `PermissionRequester`
+with lifecycle aware Jetpack `ViewModel` which does this automatically.
 
 ### What is new
-Peko Version `2` now uses Android X packages, Kotlin v1.5.30 and Coroutines 1.5.2.
-##
-Breaking changes from Peko Version `1.0`
 
-* `PermissionRequestResult` is renamed to `PermissionResult` and is now a sealed class.
+Peko Version `3` is now in Alpha stage. The API is mostly stabilised but still subject to change. Peko now uses
+coroutine `Flow` instead of `suspend` function for returning `PermissionResult`. Support for `LiveData` is
+removed. `Flow` can easily be adapted to work with `LiveData`.
 
-    `PermissionResult` has a sealed class hierarchy of following types:
-    `PermissionResult.Granted` -> returned when all requested permissions were granted
-    
-    `PermissionResult.Denied` -> returned when at least one of the permissions was denied
-    
-    `PermissionResult.Denied.NeedsRationale` -> subclass of `PermissionResult.Denied`, returned 
-    when Android OS signals that at least one of the permissions needs to show a rationale
-    
-    `PermissionResult.Denied.DeniedPermanently` -> subclass of `PermissionResult.Denied`, returned when no 
-    permissions need a Rationale and at least one of the permissions has a ticked Do Not Ask Again check box
+## Breaking changes from Peko Version `2`
 
-    `PermissionResult.Denied.JustDenied` -> subclass of `PermissionResult.Denied`, returned when 
-    previous two cases are not the cause, for example if you forget to register the Permission in
-     AndroidManifest
+* `PermissionResult` now has a single `String` permission as property.
+* `Peko` singleton is removed. `PermissionRequester` interface is now its replacement.
+* Extension functions for `Fragment` and `Activity` are removed.
 
-    `PermissionResult.Cancelled` -> returned when Android System cancels the request, ie returned
-
-* `PermissionRationale` interface was removed. Library does not show Permission Rationales anymore.
-    You can check now if `PermissionResult` is of type `PermissionResult.NeedsRationale` and implement the rationale yourself.
-    
-*  Added support for requesting permissions with LiveData
-
-
-##
-Peko Version `1.0` uses AppCompat libraries and is [here](https://github.com/deva666/Peko/tree/release/1.0.1).
-
+Peko Version `2.0` uses vanilla Kotlin coroutines, and is [here](https://github.com/deva666/Peko/tree/release/2.2.0).
 
 ### License
+
 ```text
 Copyright 2022 Marko Devcic
 

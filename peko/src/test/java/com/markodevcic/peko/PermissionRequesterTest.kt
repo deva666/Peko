@@ -57,4 +57,21 @@ class PermissionRequesterTest {
 			Assert.assertTrue(sut.flowPermissions(permission).allGranted())
 		}
 	}
+
+        @Test
+	fun testAnyGranted(){
+            val denied = "COARSE_LOCATION"
+	    val granted = "FUSED_LOCATION"
+
+            Mockito.`when`(requestBuilder.createPermissionRequest(context, denied, granted)).thenReturn(
+                PermissionRequest(
+                    granted = listOf(granted),
+                    denied = listOf(denied)
+                )
+            )
+
+            val isAnyGranted = sut.isAnyGranted(denied, granted)
+
+            Assert.assertTrue(isAnyGranted)
+	}
 }

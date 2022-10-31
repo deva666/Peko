@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.toSet
 interface PermissionRequester {
 	fun areGranted(vararg permissions: String): Boolean
 	fun flowPermissions(vararg permissions: String): Flow<PermissionResult>
+	fun isAnyGranted(vararg permissions: String): Boolean
 
 	companion object {
 		fun initialize(context: Context) {
@@ -32,21 +33,19 @@ interface PermissionRequester {
 	) : PermissionRequester {
 
 		override fun areGranted(vararg permissions: String): Boolean {
-			val context = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
-			val request = permissionRequestBuilder.createPermissionRequest(context, *permissions)
+			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
 			return request.denied.isEmpty()
 		}
 
 		override fun flowPermissions(vararg permissions: String): Flow<PermissionResult> {
-			val context = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
-			val request = permissionRequestBuilder.createPermissionRequest(context, *permissions)
+			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
 
 			val flow = channelFlow {
 				for (granted in request.granted) {
 					trySend(PermissionResult.Granted(granted))
 				}
 				if (request.denied.isNotEmpty()) {
-					val requester = requesterFactory.getRequesterAsync(context).await()
+					val requester = requesterFactory.getRequesterAsync(requireContext()).await()
 					requester.requestPermissions(request.denied.toTypedArray())
 					for (result in requester.resultsChannel) {
 						trySend(result)
@@ -59,6 +58,13 @@ interface PermissionRequester {
 			}
 			return flow
 		}
+
+		override fun isAnyGranted(vararg permissions: String): Boolean {
+			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
+			return request.granted.isNotEmpty()
+		}
+
+            private fun requireContext() = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
 	}
 }
 

@@ -28,8 +28,8 @@ interface PermissionRequester {
 	}
 
 	private class PekoPermissionRequester(
-			private val requesterFactory: NativeRequesterFactory,
-			private val permissionRequestBuilder: PermissionRequestBuilder
+		private val requesterFactory: NativeRequesterFactory,
+		private val permissionRequestBuilder: PermissionRequestBuilder
 	) : PermissionRequester {
 
 		override fun areGranted(vararg permissions: String): Boolean {
@@ -64,7 +64,8 @@ interface PermissionRequester {
 			return request.granted.isNotEmpty()
 		}
 
-            private fun requireContext() = checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
+		private fun requireContext() =
+			checkNotNull(appContext) { "App Context is null. Forgot to call the initialize method?" }
 	}
 }
 

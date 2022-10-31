@@ -61,7 +61,7 @@ interface PermissionRequester {
 
 		override fun isAnyGranted(vararg permissions: String): Boolean {
 			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
-			return request.granted.isNotEmpty()
+			return permissions.isNotEmpty() && request.granted.isNotEmpty()
 		}
 
 		private fun requireContext() =

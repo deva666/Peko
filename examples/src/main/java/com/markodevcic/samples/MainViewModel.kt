@@ -19,12 +19,12 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 	val permissionsFlow: Flow<PermissionResult> = permissionChannel.receiveAsFlow()
 
 	fun flowPermissions(vararg permission: String): Flow<PermissionResult> {
-		return permissionRequester.flowPermissions(*permission)
+		return permissionRequester.request(*permission)
 	}
 
 	fun requestPermissions(vararg permission: String) {
 		viewModelScope.launch {
-			permissionRequester.flowPermissions(*permission)
+			permissionRequester.request(*permission)
 					.onEach {
 						liveData.value = it
 						permissionChannel.send(it)
@@ -34,7 +34,7 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 	}
 
 	suspend fun isPermissionGranted(permission: String): Boolean {
-		return permissionRequester.flowPermissions(permission)
+		return permissionRequester.request(permission)
 				.first() is PermissionResult.Granted
 	}
 

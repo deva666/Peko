@@ -54,7 +54,7 @@ class PermissionRequesterTest {
 				permissionChannel.send(PermissionResult.Granted(permission))
 				permissionChannel.close()
 			}
-			Assert.assertTrue(sut.flowPermissions(permission).allGranted())
+			Assert.assertTrue(sut.request(permission).allGranted())
 		}
 	}
 

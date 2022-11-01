@@ -9,9 +9,25 @@ import kotlinx.coroutines.flow.toSet
 
 
 interface PermissionRequester {
+
+	/**
+	 * Checks if all permissions are granted
+	 * @return [Boolean]
+	 */
 	fun areGranted(vararg permissions: String): Boolean
-	fun flowPermissions(vararg permissions: String): Flow<PermissionResult>
+
+	/**
+	 * Checks if any of the permissions are granted
+	 * @return [Boolean]
+	 */
 	fun isAnyGranted(vararg permissions: String): Boolean
+
+	/**
+	 * Starts the permission request flow.
+	 * The result is a flow of [PermissionResult] for each permission requested.
+	 * @return Flow of [PermissionResult]
+	 */
+	fun request(vararg permissions: String): Flow<PermissionResult>
 
 	companion object {
 		fun initialize(context: Context) {
@@ -37,7 +53,7 @@ interface PermissionRequester {
 			return request.denied.isEmpty()
 		}
 
-		override fun flowPermissions(vararg permissions: String): Flow<PermissionResult> {
+		override fun request(vararg permissions: String): Flow<PermissionResult> {
 			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
 
 			val flow = channelFlow {

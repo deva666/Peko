@@ -18,6 +18,7 @@ sealed class PermissionResult {
 	 * @param permission, the permission which is denied
 	 */
 	sealed class Denied(open val permission: String) : PermissionResult() {
+
 		/**
 		 * Represents a permission that needs a rationale to be shown before the next request
 		 * @param permission, the permission which needs rationale

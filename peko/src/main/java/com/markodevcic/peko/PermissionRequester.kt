@@ -2,10 +2,7 @@ package com.markodevcic.peko
 
 import android.app.Activity
 import android.content.Context
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.flow.*
 
 
 interface PermissionRequester {
@@ -104,4 +101,8 @@ suspend fun Flow<PermissionResult>.needsRationalePermissions(): Collection<Permi
 
 suspend fun Flow<PermissionResult>.grantedPermissions(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Granted>().toSet()
+}
+
+suspend fun Flow<PermissionResult>.isCancelled(): Boolean {
+	return this.filterIsInstance<PermissionResult.Cancelled>().firstOrNull() != null
 }

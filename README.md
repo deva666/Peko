@@ -157,7 +157,7 @@ Support for `LiveData` is removed. `Flow` can easily be adapted to work with `Li
 * `PermissionResult` now has a single `String` permission as property.
 * `Peko` singleton is removed. `PermissionRequester` interface is now its replacement.
 * Extension functions for `Fragment` and `Activity` are removed.
-*`PermissionLiveData` class removed
+* `PermissionLiveData` class removed
 
 Peko Version `2.0` uses vanilla Kotlin coroutines, and
 is [here](https://github.com/deva666/Peko/tree/release/2.1.2).

@@ -24,10 +24,10 @@ Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensou
 
 ### Installation
 
-Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/3.0.0-ALPHA-01/aar)
+Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko/3.0.0-BETA-1b/aar)
 
 ```
-implementation 'com.markodevcic:peko:3.0.0-ALPHA-01'
+implementation 'com.markodevcic:peko:3.0.0-BETA-1a'
 ```
 
 ### Example
@@ -148,7 +148,7 @@ with lifecycle aware Jetpack `ViewModel` which does this automatically.
 
 ### What is new
 
-Peko Version `3` is now in Alpha stage. The API is mostly stabilised but still subject to change.
+Peko Version `3` is now in Beta stage. The API is mostly stabilised but still subject to change.
 Peko now uses coroutine `Flow` instead of `suspend` function for returning `PermissionResult`.
 Support for `LiveData` is removed. `Flow` can easily be adapted to work with `LiveData`.
 

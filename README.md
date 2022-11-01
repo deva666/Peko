@@ -51,7 +51,7 @@ stream of data.
 
 ```kotlin
 launch {
-    requester.requestPermissions(
+    requester.request(
             Manifest.permission.CAMERA,
             Manifest.permission.READ_CONTACTS
     ).collect { p ->
@@ -73,7 +73,11 @@ required.
 val granted: Boolean = requester.areGranted(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
 
 ```
+ Or are any of the requested granted?
+```kotlin
+val anyGranted: Boolean = requester.anyGranted(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
 
+```
 ### Why Flows?
 
 Requesting multiple permissions in a single request represents a data stream of `PermissionsResult`
@@ -89,14 +93,14 @@ there.
 ```kotlin
 // just check all granted
 launch {
-    val allGranted: Boolean = requester.requestPermissions(Manifest.permission.CAMERA)
+    val allGranted: Boolean = requester.request(Manifest.permission.CAMERA)
             .allGranted()
 }
 
 // give me just granted permissions
 launch {
     val granted: Collection<PermissionResult> =
-            requester.requestPermissions(Manifest.permission.CAMERA)
+            requester.request(Manifest.permission.CAMERA)
                     .grantedPermissions()
 }
 
@@ -104,7 +108,7 @@ launch {
 // give me all denied permissions, whatever the reason
 launch {
     val denied: Collection<PermissionResult> =
-            requester.requestPermissions(Manifest.permission.CAMERA)
+            requester.request(Manifest.permission.CAMERA)
                     .deniedPermissions()
 
 // these can be then separated to see needs rationale or denied permanently permissions
@@ -115,14 +119,14 @@ launch {
 // give me needs rationale permissions
 launch {
     val needsRationale: Collection<PermissionResult> =
-            requester.requestPermissions(Manifest.permission.CAMERA)
+            requester.request(Manifest.permission.CAMERA)
                     .needsRationalePermissions()
 }
 
 // give me needs denied permanently permissions
 launch {
     val deniedPermanently: Collection<PermissionResult> =
-            requester.requestPermissions(Manifest.permission.CAMERA)
+            requester.request(Manifest.permission.CAMERA)
                     .deniedPermanently()
 }
 ```

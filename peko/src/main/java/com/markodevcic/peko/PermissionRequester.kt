@@ -82,27 +82,50 @@ interface PermissionRequester {
 	}
 }
 
-
+/**
+ * Suspending function that checks if all permissions form the flow are granted.
+ * Suspends until the underlying [Flow] completes.
+ */
 suspend fun Flow<PermissionResult>.allGranted(): Boolean {
 	return this.toSet().all { p -> p is PermissionResult.Granted }
 }
 
+/**
+ * Suspending function that returns a collection of permissions that are denied
+ * Suspends until the underlying [Flow] completes.
+ */
 suspend fun Flow<PermissionResult>.deniedPermissions(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Denied>().toSet()
 }
 
+/**
+ * Suspending function that returns a collection of permissions that are denied permanently
+ * Suspends until the underlying [Flow] completes.
+ */
 suspend fun Flow<PermissionResult>.deniedPermanently(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Denied.DeniedPermanently>().toSet()
 }
 
+/**
+ * Suspending function that returns a collection of permissions that need a permission rationale shown.
+ * Suspends until the underlying [Flow] completes.
+ */
 suspend fun Flow<PermissionResult>.needsRationalePermissions(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Denied.NeedsRationale>().toSet()
 }
 
+/**
+ * Suspending function that returns a collections of permissions that are granted.
+ * Suspends until the underlying [Flow] completes.
+ */
 suspend fun Flow<PermissionResult>.grantedPermissions(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Granted>().toSet()
 }
 
+/**
+ * Suspending function that checks if the permission request was cancelled.
+ * Suspends until the underlying [Flow] completes.
+ */
 suspend fun Flow<PermissionResult>.isCancelled(): Boolean {
 	return this.filterIsInstance<PermissionResult.Cancelled>().firstOrNull() != null
 }

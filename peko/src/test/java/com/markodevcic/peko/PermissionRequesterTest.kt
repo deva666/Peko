@@ -40,11 +40,11 @@ class PermissionRequesterTest {
 		val permission = "CONTACTS"
 
 		Mockito.`when`(requestBuilder.createPermissionRequest(context, permission)).thenReturn(
-				PermissionRequest(
-						listOf(), listOf(
-						permission
+			PermissionRequest(
+				listOf(), listOf(
+					permission
 				)
-				)
+			)
 		)
 
 
@@ -58,20 +58,20 @@ class PermissionRequesterTest {
 		}
 	}
 
-        @Test
-	fun testAnyGranted(){
-            val denied = "COARSE_LOCATION"
-	    val granted = "FUSED_LOCATION"
+	@Test
+	fun testAnyGranted() {
+		val denied = "COARSE_LOCATION"
+		val granted = "FUSED_LOCATION"
 
-            Mockito.`when`(requestBuilder.createPermissionRequest(context, denied, granted)).thenReturn(
-                PermissionRequest(
-                    granted = listOf(granted),
-                    denied = listOf(denied)
-                )
-            )
+		Mockito.`when`(requestBuilder.createPermissionRequest(context, denied, granted)).thenReturn(
+			PermissionRequest(
+				granted = listOf(granted),
+				denied = listOf(denied)
+			)
+		)
 
-            val isAnyGranted = sut.isAnyGranted(denied, granted)
+		val isAnyGranted = sut.isAnyGranted(denied, granted)
 
-            Assert.assertTrue(isAnyGranted)
+		Assert.assertTrue(isAnyGranted)
 	}
 }

@@ -4,7 +4,10 @@ import android.app.Activity
 import android.content.Context
 import kotlinx.coroutines.flow.*
 
-
+/**
+ * Interface for requesting or checking if permissions are granted.
+ * Obtain the default implementation with the [instance] function.
+ */
 interface PermissionRequester {
 
 	/**
@@ -27,6 +30,13 @@ interface PermissionRequester {
 	fun request(vararg permissions: String): Flow<PermissionResult>
 
 	companion object {
+		/**
+		 * Initialize the [PermissionRequester].
+		 * Use Android Application Context to avoid memory leaks.
+		 * Needs to be called before any other invocation on [PermissionRequester]
+		 * @throws [IllegalStateException] if the passed [Context] is an Activity
+		 * @param [context] Android Application Context
+		 */
 		fun initialize(context: Context) {
 			check(context !is Activity) { "Application Context expected as parameter to avoid memory leaks." }
 			appContext = context
@@ -37,6 +47,10 @@ interface PermissionRequester {
 		internal var requesterFactory = NativeRequesterFactory.default()
 		internal var requestBuilder = PermissionRequestBuilder.default()
 
+		/**
+		 * Default Peko implementation of the [PermissionRequester]
+		 * @return [PermissionRequester]
+		 */
 		fun instance(): PermissionRequester = PekoPermissionRequester(requesterFactory, requestBuilder)
 	}
 
@@ -85,6 +99,7 @@ interface PermissionRequester {
 /**
  * Suspending function that checks if all permissions form the flow are granted.
  * Suspends until the underlying [Flow] completes.
+ * @return [Boolean]
  */
 suspend fun Flow<PermissionResult>.allGranted(): Boolean {
 	return this.toSet().all { p -> p is PermissionResult.Granted }
@@ -95,6 +110,7 @@ suspend fun Flow<PermissionResult>.allGranted(): Boolean {
  * Suspending function that checks if any of the permissions form the flow are granted.
  * Commonly used with Android >= 12 and location requests, where either Coarse or Fine location permission can be enough to proceed.
  * Suspends until the underlying [Flow] completes.
+ * @return [Boolean]
  */
 suspend fun Flow<PermissionResult>.anyGranted(): Boolean {
 	return this.toSet().any { p -> p is PermissionResult.Granted }
@@ -103,6 +119,7 @@ suspend fun Flow<PermissionResult>.anyGranted(): Boolean {
 /**
  * Suspending function that returns a collection of permissions that are denied
  * Suspends until the underlying [Flow] completes.
+ * @return Collection of [PermissionResult]
  */
 suspend fun Flow<PermissionResult>.deniedPermissions(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Denied>().toSet()
@@ -111,6 +128,7 @@ suspend fun Flow<PermissionResult>.deniedPermissions(): Collection<PermissionRes
 /**
  * Suspending function that returns a collection of permissions that are denied permanently
  * Suspends until the underlying [Flow] completes.
+ * @return Collection of [PermissionResult]
  */
 suspend fun Flow<PermissionResult>.deniedPermanently(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Denied.DeniedPermanently>().toSet()
@@ -119,6 +137,7 @@ suspend fun Flow<PermissionResult>.deniedPermanently(): Collection<PermissionRes
 /**
  * Suspending function that returns a collection of permissions that need a permission rationale shown.
  * Suspends until the underlying [Flow] completes.
+ * @return Collection of [PermissionResult]
  */
 suspend fun Flow<PermissionResult>.needsRationalePermissions(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Denied.NeedsRationale>().toSet()
@@ -127,6 +146,7 @@ suspend fun Flow<PermissionResult>.needsRationalePermissions(): Collection<Permi
 /**
  * Suspending function that returns a collections of permissions that are granted.
  * Suspends until the underlying [Flow] completes.
+ * @return Collection of [PermissionResult]
  */
 suspend fun Flow<PermissionResult>.grantedPermissions(): Collection<PermissionResult> {
 	return this.filterIsInstance<PermissionResult.Granted>().toSet()
@@ -135,6 +155,7 @@ suspend fun Flow<PermissionResult>.grantedPermissions(): Collection<PermissionRe
 /**
  * Suspending function that checks if the permission request was cancelled.
  * Suspends until the underlying [Flow] completes.
+ * @return [Boolean]
  */
 suspend fun Flow<PermissionResult>.isCancelled(): Boolean {
 	return this.filterIsInstance<PermissionResult.Cancelled>().firstOrNull() != null

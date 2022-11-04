@@ -24,8 +24,8 @@ interface PermissionRequester {
 
 	/**
 	 * Starts the permission request flow.
-	 * The result is a flow of [PermissionResult] for each permission requested.
-	 * @return Flow of [PermissionResult]
+	 * The result is a [Flow] of [PermissionResult] for each permission requested.
+	 * @return [Flow] of [PermissionResult]
 	 */
 	fun request(vararg permissions: String): Flow<PermissionResult>
 

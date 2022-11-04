@@ -90,6 +90,16 @@ suspend fun Flow<PermissionResult>.allGranted(): Boolean {
 	return this.toSet().all { p -> p is PermissionResult.Granted }
 }
 
+
+/**
+ * Suspending function that checks if any of the permissions form the flow are granted.
+ * Commonly used with Android >= 12 and location requests, where either Coarse or Fine location permission can be enough to proceed.
+ * Suspends until the underlying [Flow] completes.
+ */
+suspend fun Flow<PermissionResult>.anyGranted(): Boolean {
+	return this.toSet().any { p -> p is PermissionResult.Granted }
+}
+
 /**
  * Suspending function that returns a collection of permissions that are denied
  * Suspends until the underlying [Flow] completes.

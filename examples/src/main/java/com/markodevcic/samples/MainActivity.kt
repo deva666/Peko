@@ -3,8 +3,10 @@ package com.markodevcic.samples
 import android.Manifest
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +14,10 @@ import com.markodevcic.peko.PermissionRequester
 import com.markodevcic.peko.PermissionResult
 import com.markodevcic.peko.allGranted
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +32,13 @@ class MainActivity : AppCompatActivity() {
 				MainViewModelFactory(PermissionRequester.instance())
 		)[MainViewModel::class.java]
 
+		CoroutineScope(Dispatchers.Main).launch {
+			PermissionRequester.instance().request(Manifest.permission.CALL_PHONE)
+				.collect {
+					Log.d("PEKO", "RESULT: $it")
+				}
+		}
+
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(toolbar)
 
@@ -34,10 +46,10 @@ class MainActivity : AppCompatActivity() {
 //			setResult(it)
 //		}
 
-		lifecycleScope.launchWhenStarted {
-			viewModel.permissionsFlow
-					.collect { setResult(it) }
-		}
+//		lifecycleScope.launchWhenStarted {
+//			viewModel.permissionsFlow
+//					.collect { setResult(it) }
+//		}
 
 		btnContacts.setOnClickListener {
 			requestPermission(Manifest.permission.READ_CONTACTS)
@@ -58,6 +70,17 @@ class MainActivity : AppCompatActivity() {
 					Manifest.permission.ACCESS_COARSE_LOCATION,
 					Manifest.permission.READ_CONTACTS
 			)
+		}
+
+		val context = applicationContext
+		val permissionRequester = PermissionRequester.instance() // Creates new instance
+		lifecycleScope.launchWhenStarted { // Fails
+			Log.d("HANG", "LAUNCHING")
+				permissionRequester.request(Manifest.permission.ACCESS_FINE_LOCATION)
+					.collect { result ->
+						Log.d("HANG", "GOTRESULTS")
+						Toast.makeText(context, "result: $result", Toast.LENGTH_LONG).apply { show() }
+					}
 		}
 	}
 

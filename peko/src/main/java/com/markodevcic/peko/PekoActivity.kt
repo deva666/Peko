@@ -1,12 +1,14 @@
 package com.markodevcic.peko
 
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class PekoActivity : FragmentActivity(),
@@ -22,12 +24,15 @@ internal class PekoActivity : FragmentActivity(),
 		super.onCreate(savedInstanceState)
 		window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 		viewModel = ViewModelProvider(this@PekoActivity)[PekoViewModel::class.java]
+
 	}
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {
 		super.onPostCreate(savedInstanceState)
-		requesterDeferred?.complete(this)
-		requesterDeferred = null
+		val permissions = intent.getStringArrayListExtra("permissions") ?: return
+		val channel = permissionsToChannelMap.remove(permissions)
+		channel?.trySend(this)
+		channel?.close()
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {
@@ -71,11 +76,10 @@ internal class PekoActivity : FragmentActivity(),
 	override fun finish() {
 		super.finish()
 		viewModel.channel.close()
-		requesterDeferred = null
 	}
 
 	companion object {
 		private const val REQUEST_CODE = 931
-		internal var requesterDeferred: CompletableDeferred<NativeRequester>? = null
+		internal var permissionsToChannelMap = mutableMapOf<List<String>, Channel<NativeRequester>>()
 	}
 }

@@ -29,7 +29,7 @@ class PermissionRequesterTest {
 		PermissionRequester.requestBuilder = requestBuilder
 		PermissionRequester.initialize(context)
 
-		Mockito.`when`(requesterFactory.getRequesterAsync(context)).thenReturn(CompletableDeferred(nativeRequester))
+		Mockito.`when`(requesterFactory.requesterChannel(context)).thenReturn(CompletableDeferred(nativeRequester))
 		Mockito.`when`(nativeRequester.resultsChannel).thenReturn(permissionChannel)
 
 		sut = PermissionRequester.instance()

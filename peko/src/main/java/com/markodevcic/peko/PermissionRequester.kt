@@ -2,7 +2,11 @@ package com.markodevcic.peko
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
+import com.markodevcic.peko.PermissionRequester.Companion.instance
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 
 /**
  * Interface for requesting or checking if permissions are granted.
@@ -72,7 +76,9 @@ interface PermissionRequester {
 					trySend(PermissionResult.Granted(granted))
 				}
 				if (request.denied.isNotEmpty()) {
-					val requester = requesterFactory.getRequesterAsync(requireContext()).await()
+					val requester = withContext(Dispatchers.IO) {
+						requesterFactory.getRequesterAsync(requireContext()).await()
+					}
 					requester.requestPermissions(request.denied.toTypedArray())
 					for (result in requester.resultsChannel) {
 						trySend(result)

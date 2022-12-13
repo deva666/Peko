@@ -1,6 +1,7 @@
 package com.markodevcic.peko
 
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker

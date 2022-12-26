@@ -16,7 +16,7 @@ and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core
 .
 ***
 
-### Thanks to JetBrains
+### Thanks to supporters
 
 Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
 

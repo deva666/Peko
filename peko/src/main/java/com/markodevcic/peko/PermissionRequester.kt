@@ -2,7 +2,6 @@ package com.markodevcic.peko
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import com.markodevcic.peko.PermissionRequester.Companion.instance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*

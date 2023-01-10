@@ -2,7 +2,6 @@ package com.markodevcic.peko
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 

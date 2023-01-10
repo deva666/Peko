@@ -9,10 +9,11 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.ReceiveChannel
+import java.util.concurrent.ConcurrentHashMap
 
 internal class PekoActivity : FragmentActivity(),
-		ActivityCompat.OnRequestPermissionsResultCallback,
-		NativeRequester {
+	ActivityCompat.OnRequestPermissionsResultCallback,
+	NativeRequester {
 
 	private lateinit var viewModel: PekoViewModel
 
@@ -27,8 +28,11 @@ internal class PekoActivity : FragmentActivity(),
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {
 		super.onPostCreate(savedInstanceState)
-		requesterDeferred?.complete(this)
-		requesterDeferred = null
+		val allPermissions =
+			intent.getStringExtra("permissions") ?: throw IllegalStateException("missing permissions intent flag")
+		val completableDeferred =
+			permissionsToRequesterMap[allPermissions] ?: throw IllegalStateException("missing completable deferred")
+		completableDeferred.complete(this)
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {
@@ -44,13 +48,13 @@ internal class PekoActivity : FragmentActivity(),
 				val permission = permissions[i]
 				when (grantResults[i]) {
 					PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP -> deniedPermissions.add(
-							permission
+						permission
 					)
 					PermissionChecker.PERMISSION_GRANTED -> grantedPermissions.add(permission)
 				}
 			}
 			val needsRationalePermissions =
-					deniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
+				deniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
 			val doNotAskAgainPermissions = deniedPermissions.filter { p -> !needsRationalePermissions.contains(p) }
 			if (permissions.isEmpty()) {
 				viewModel.channel.trySend(PermissionResult.Cancelled)
@@ -72,11 +76,10 @@ internal class PekoActivity : FragmentActivity(),
 	override fun finish() {
 		super.finish()
 		viewModel.channel.close()
-		requesterDeferred = null
 	}
 
 	companion object {
 		private const val REQUEST_CODE = 931
-		internal var requesterDeferred: CompletableDeferred<NativeRequester>? = null
+		internal var permissionsToRequesterMap = ConcurrentHashMap<String, CompletableDeferred<NativeRequester>>()
 	}
 }

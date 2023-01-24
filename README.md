@@ -27,7 +27,7 @@ Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensou
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko)
 
 ```
-implementation 'com.markodevcic:peko:3.0.1'
+implementation 'com.markodevcic:peko:3.0.2'
 ```
 
 ### Example

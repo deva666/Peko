@@ -59,6 +59,22 @@ class PermissionRequesterTest {
 	}
 
 	@Test
+	fun testAlreadyGranted() {
+		val permission = "CONTACTS"
+
+		Mockito.`when`(requestBuilder.createPermissionRequest(context, permission)).thenReturn(
+			PermissionRequest(
+				listOf(permission), listOf()
+			)
+		)
+
+
+		runBlocking {
+			Assert.assertTrue(sut.request(permission).allGranted())
+		}
+	}
+
+	@Test
 	fun testAnyGranted() {
 		val denied = "COARSE_LOCATION"
 		val granted = "FUSED_LOCATION"

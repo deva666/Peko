@@ -16,11 +16,15 @@ and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core
 .
 ***
 
-### Thanks to JetBrains
+### Thanks to supporters
 
 Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
 
 [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width=200 height=200/>](https://www.jetbrains.com/)
+
+Sponsored by [CloudBit](https://www.cloudbit.hr)
+
+[<img src="https://www.cloudbit.hr/img/logo.png" width=300 height=200/>](https://www.cloudbit.hr/)
 
 ### Installation
 

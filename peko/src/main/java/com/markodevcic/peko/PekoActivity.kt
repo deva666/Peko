@@ -16,6 +16,8 @@ internal class PekoActivity : FragmentActivity(),
 
 	private lateinit var viewModel: PekoViewModel
 
+	private lateinit var allPermissions: String
+
 	override val resultsChannel: ReceiveChannel<PermissionResult>
 		get() = viewModel.channel
 
@@ -27,11 +29,16 @@ internal class PekoActivity : FragmentActivity(),
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {
 		super.onPostCreate(savedInstanceState)
-		val allPermissions =
+		allPermissions =
 			intent.getStringExtra("permissions") ?: throw IllegalStateException("missing permissions intent flag")
 		val completableDeferred =
 			permissionsToRequesterMap[allPermissions] ?: throw IllegalStateException("missing completable deferred")
 		completableDeferred.complete(this)
+	}
+
+	override fun onDestroy() {
+		permissionsToRequesterMap.remove(allPermissions)
+		super.onDestroy()
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {

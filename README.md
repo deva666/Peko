@@ -31,7 +31,7 @@ Sponsored by [CloudBit](https://www.cloudbit.hr)
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko)
 
 ```
-implementation 'com.markodevcic:peko:3.0.3'
+implementation 'com.markodevcic:peko:3.0.4'
 ```
 
 ### Example

@@ -75,7 +75,7 @@ interface PermissionRequester {
 					trySend(PermissionResult.Granted(granted))
 				}
 				if (request.denied.isNotEmpty()) {
-					val requester = withContext(Dispatchers.IO) {
+					val requester = withContext(Dispatchers.Main) {
 						requesterFactory.getRequesterAsync(requireContext()).await()
 					}
 					requester.requestPermissions(request.denied.toTypedArray())

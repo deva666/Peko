@@ -29,10 +29,8 @@ internal class PekoActivity : FragmentActivity(),
 		super.onPostCreate(savedInstanceState)
 		val requestId =
 			intent.getStringExtra("requestId") ?: throw IllegalStateException("missing request Id intent flag")
-		val completableDeferred =
-			idToRequesterMap[requestId] ?: throw IllegalStateException("missing completable deferred")
-		completableDeferred.complete(this)
-		idToRequesterMap.remove(requestId)
+		val completableDeferred = idToRequesterMap.remove(requestId)
+		completableDeferred?.complete(this)
 	}
 
 	override fun requestPermissions(permissions: Array<out String>) {

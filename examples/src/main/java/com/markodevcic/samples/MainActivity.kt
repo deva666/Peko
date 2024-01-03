@@ -105,13 +105,13 @@ class MainActivity : AppCompatActivity() {
 				textContactsResult.setTextColor(Color.RED)
 			}
 		} else if (result is PermissionResult.Cancelled) {
-			textLocationResult.text = "CANCELLED"
+			textLocationResult.text = cancelled
 			textLocationResult.setTextColor(Color.RED)
-			textFileResult.text = "CANCELLED"
+			textFileResult.text = cancelled
 			textFileResult.setTextColor(Color.RED)
-			textCameraResult.text = "CANCELLED"
+			textCameraResult.text = cancelled
 			textCameraResult.setTextColor(Color.RED)
-			textContactsResult.text = "CANCELLED"
+			textContactsResult.text = cancelled
 			textContactsResult.setTextColor(Color.RED)
 		}
 	}
@@ -137,3 +137,5 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 }
+
+private const val cancelled = "CNCELLED"

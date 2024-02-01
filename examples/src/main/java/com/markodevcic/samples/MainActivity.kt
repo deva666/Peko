@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 			requestPermission(Manifest.permission.READ_CONTACTS)
 		}
 		btnFineLocation.setOnClickListener {
-			requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+			requestPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
 		}
 		btnFile.setOnClickListener {
 			requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 			viewModel.requestPermissions(
 					Manifest.permission.WRITE_EXTERNAL_STORAGE,
 					Manifest.permission.CAMERA,
-					Manifest.permission.ACCESS_COARSE_LOCATION,
+					Manifest.permission.ACCESS_BACKGROUND_LOCATION,
 					Manifest.permission.READ_CONTACTS
 			)
 		}
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 		if (result is PermissionResult.Granted) {
 
 			val granted = "GRANTED"
-			if (Manifest.permission.ACCESS_COARSE_LOCATION == result.permission) {
+			if (Manifest.permission.ACCESS_BACKGROUND_LOCATION == result.permission) {
 				textLocationResult.text = granted
 				textLocationResult.setTextColor(Color.GREEN)
 			}
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 				textContactsResult.setTextColor(Color.GREEN)
 			}
 		} else if (result is PermissionResult.Denied) {
-			if (Manifest.permission.ACCESS_COARSE_LOCATION == result.permission) {
+			if (Manifest.permission.ACCESS_BACKGROUND_LOCATION == result.permission) {
 				textLocationResult.text = deniedReasonText(result)
 				textLocationResult.setTextColor(Color.RED)
 			}

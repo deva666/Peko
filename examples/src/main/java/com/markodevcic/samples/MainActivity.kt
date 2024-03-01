@@ -30,10 +30,6 @@ class MainActivity : AppCompatActivity() {
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(toolbar)
 
-//		viewModel.liveData.observe(this) {
-//			setResult(it)
-//		}
-
 		lifecycleScope.launchWhenStarted {
 			viewModel.permissionsFlow
 					.collect { setResult(it) }

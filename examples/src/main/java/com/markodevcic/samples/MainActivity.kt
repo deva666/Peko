@@ -138,4 +138,4 @@ class MainActivity : AppCompatActivity() {
 	}
 }
 
-private const val cancelled = "CNCELLED"
+private const val cancelled = "CANCELLED"

@@ -16,7 +16,7 @@ and [Flow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core
 .
 ***
 
-### Thanks to supporters
+### Thanks to the supporters
 
 Supported by [JetBrains Open Source](https://www.jetbrains.com/community/opensource/#support)
 
@@ -31,7 +31,7 @@ Sponsored by [CloudBit](https://www.cloudbit.hr)
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko)
 
 ```
-implementation 'com.markodevcic:peko:3.0.4'
+implementation 'com.markodevcic:peko:3.0.5'
 ```
 
 ### Example
@@ -169,7 +169,7 @@ is [here](https://github.com/deva666/Peko/tree/release/2.1.2).
 ### License
 
 ```text
-Copyright 2022 Marko Devcic
+Copyright 2024 Marko Devcic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

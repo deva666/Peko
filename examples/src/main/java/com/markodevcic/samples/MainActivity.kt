@@ -14,6 +14,8 @@ import com.markodevcic.peko.allGranted
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.launch
 
+private const val cancelled = "CANCELLED"
+
 class MainActivity : AppCompatActivity() {
 
 	private lateinit var viewModel: MainViewModel
@@ -137,5 +139,3 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 }
-
-private const val cancelled = "CANCELLED"

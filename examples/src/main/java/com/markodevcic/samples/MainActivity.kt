@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity() {
 		PermissionRequester.initialize(applicationContext)
 
 		viewModel = ViewModelProvider(
-				this@MainActivity,
-				MainViewModelFactory(PermissionRequester.instance())
+			this@MainActivity,
+			MainViewModelFactory(PermissionRequester.instance())
 		)[MainViewModel::class.java]
 
 		setContentView(R.layout.activity_main)
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
 		lifecycleScope.launchWhenStarted {
 			viewModel.permissionsFlow
-					.collect { setResult(it) }
+				.collect { setResult(it) }
 		}
 
 		btnContacts.setOnClickListener {
@@ -51,10 +51,10 @@ class MainActivity : AppCompatActivity() {
 		}
 		btnAll.setOnClickListener {
 			viewModel.requestPermissions(
-					Manifest.permission.WRITE_EXTERNAL_STORAGE,
-					Manifest.permission.CAMERA,
-					Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-					Manifest.permission.READ_CONTACTS
+				Manifest.permission.WRITE_EXTERNAL_STORAGE,
+				Manifest.permission.CAMERA,
+				Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+				Manifest.permission.READ_CONTACTS
 			)
 		}
 	}

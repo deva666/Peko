@@ -59,12 +59,6 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun checkAllGranted(vararg permissions: String) {
-		lifecycleScope.launch {
-			val allGranted = viewModel.flowPermissions(*permissions).allGranted()
-		}
-	}
-
 	private fun requestPermission(vararg permissions: String) {
 		viewModel.requestPermissions(*permissions)
 	}

@@ -10,9 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.markodevcic.peko.PermissionRequester
 import com.markodevcic.peko.PermissionResult
-import com.markodevcic.peko.allGranted
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.launch
 
 private const val cancelled = "CANCELLED"
 

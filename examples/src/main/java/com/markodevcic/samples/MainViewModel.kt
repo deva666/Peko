@@ -25,17 +25,17 @@ class MainViewModel(private val permissionRequester: PermissionRequester) : View
 	fun requestPermissions(vararg permission: String) {
 		viewModelScope.launch {
 			permissionRequester.request(*permission)
-					.onEach {
-						liveData.value = it
-						permissionChannel.send(it)
-					}
-					.collect()
+				.onEach {
+					liveData.value = it
+					permissionChannel.send(it)
+				}
+				.collect()
 		}
 	}
 
 	suspend fun isPermissionGranted(permission: String): Boolean {
 		return permissionRequester.request(permission)
-				.first() is PermissionResult.Granted
+			.first() is PermissionResult.Granted
 	}
 
 	override fun onCleared() {

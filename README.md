@@ -27,7 +27,7 @@ Sponsored by [CloudBit](https://www.cloudbit.hr)
 Hosted on [Maven Central](https://search.maven.org/artifact/com.markodevcic/peko)
 
 ```
-implementation 'com.markodevcic:peko:3.0.5'
+implementation 'com.markodevcic:peko:3.1.+'
 ```
 
 ### Example
@@ -66,6 +66,30 @@ launch {
 }
 ```
 
+Need to inspect a permission's current state **before requesting** it? Use `checkPermissionsState()`.
+It returns a `Flow<PermissionState>` **without triggering the system permission dialog**.
+
+This is useful for handling sensitive UX flows or deciding whether to show a rationale before requesting permission.
+
+```kotlin
+launch {
+    requester.checkPermissionsState(
+        Manifest.permission.CAMERA,
+        Manifest.permission.READ_CONTACTS
+    ).collect { p ->
+        when (p) {
+            is PermissionState.Granted -> print("${p.permission} granted") // already granted
+            is PermissionState.NeedsRationale -> print("${p.permission} needs rationale") // show rationale
+            is PermissionState.NeverAskedOrDeniedPermanently -> print("${p.permission} never asked or permanently denied") // ambiguous state
+        }
+    }
+}
+```
+⚠️ `NeverAskedOrDeniedPermanently` reflects Android's behavior, where a permission that was never requested and one that was permanently denied both return the same state.
+If needed, you can still call `request()` afterward to resolve the actual condition.
+
+🚧 **Coming in Version 4.0.0**: PEKO is planned to introduce internal permission state tracking to help eliminate this ambiguity and become a **Single Source of Truth (SSOT)** for permission management.
+
 Need to check only if permissions are granted? Let's skip the horrible Android API. No coroutine
 required.
 
@@ -75,7 +99,7 @@ val granted: Boolean = requester.areGranted(Manifest.permission.CAMERA, Manifest
 ```
  Or are any of the requested granted?
 ```kotlin
-val anyGranted: Boolean = requester.anyGranted(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
+val anyGranted: Boolean = requester.isAnyGranted(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
 
 ```
 ### Why Flows?

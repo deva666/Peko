@@ -6,12 +6,9 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://plugins.gradle.org/m2/' }
-        maven { url 'https://groovy.jfrog.io/artifactory/libs-release/' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        classpath 'com.android.tools.build:gradle:7.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
         classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
@@ -22,9 +19,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://plugins.gradle.org/m2/' }
-        maven { url 'https://groovy.jfrog.io/artifactory/libs-release/' }
     }
 }
 

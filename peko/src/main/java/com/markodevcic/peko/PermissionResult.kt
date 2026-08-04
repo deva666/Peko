@@ -34,6 +34,12 @@ sealed class PermissionResult {
 	}
 
 	/**
+	 * Represents a permission, not granted nor denied
+	 * @param permission, the permission which is untouched
+	 */
+	data class NeverAskedOrDeniedPermanently(val permission: String) : PermissionResult()
+
+	/**
 	 * Represents a permission request that was cancelled.
 	 * It is safe to repeat the request.
 	 */

@@ -7,17 +7,14 @@ import androidx.core.content.PermissionChecker
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.Channel
 import java.util.concurrent.ConcurrentHashMap
 
 internal class PekoActivity : FragmentActivity(),
 	ActivityCompat.OnRequestPermissionsResultCallback,
-	NativeRequester {
+	NativeActivity {
 
 	private lateinit var viewModel: PekoViewModel
-
-	override val resultsChannel: ReceiveChannel<PermissionResult>
-		get() = viewModel.channel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -33,13 +30,34 @@ internal class PekoActivity : FragmentActivity(),
 		completableDeferred?.complete(this)
 	}
 
-	override fun requestPermissions(permissions: Array<out String>) {
-		ActivityCompat.requestPermissions(this@PekoActivity, permissions, REQUEST_CODE)
+	override fun requestPermissions(permissions: Array<out String>, channel: Pair<Int, Channel<PermissionResult>>) {
+		viewModel.putChannel(channel)
+		ActivityCompat.requestPermissions(this@PekoActivity, permissions, channel.first)
+	}
+
+	override fun checkStateOfDeniedPermissions(permissions: Array<out String>,channel: Channel<PermissionState>) {
+		if (permissions.isEmpty()){
+			channel.close()
+		}
+		val needRationalePermissions = permissions
+			.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this@PekoActivity,p) }
+		val permanentlyDeniedPermissions = permissions
+			.filter { p -> !needRationalePermissions.contains(p) }
+
+		needRationalePermissions.forEach { permission ->
+			channel.trySend(PermissionState.NeedsRationale(permission))
+		}
+		permanentlyDeniedPermissions.forEach { permission ->
+			channel.trySend(PermissionState.NeverAskedOrDeniedPermanently(permission))
+		}
+		channel.close()
+
 	}
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-		if (requestCode == REQUEST_CODE) {
+		val channel = viewModel.getChannel(requestCode)
+		if (channel != null) {
 			val grantedPermissions = mutableSetOf<String>()
 			val deniedPermissions = mutableSetOf<String>()
 			for (i in permissions.indices) {
@@ -55,29 +73,23 @@ internal class PekoActivity : FragmentActivity(),
 				deniedPermissions.filter { p -> ActivityCompat.shouldShowRequestPermissionRationale(this, p) }
 			val doNotAskAgainPermissions = deniedPermissions.filter { p -> !needsRationalePermissions.contains(p) }
 			if (permissions.isEmpty()) {
-				viewModel.channel.trySend(PermissionResult.Cancelled)
+				channel.trySend(PermissionResult.Cancelled)
 			} else {
 				for (p in grantedPermissions) {
-					viewModel.channel.trySend(PermissionResult.Granted(p))
+					channel.trySend(PermissionResult.Granted(p))
 				}
 				for (p in needsRationalePermissions) {
-					viewModel.channel.trySend(PermissionResult.Denied.NeedsRationale(p))
+					channel.trySend(PermissionResult.Denied.NeedsRationale(p))
 				}
 				for (p in doNotAskAgainPermissions) {
-					viewModel.channel.trySend(PermissionResult.Denied.DeniedPermanently(p))
+					channel.trySend(PermissionResult.Denied.DeniedPermanently(p))
 				}
 			}
-			viewModel.channel.close()
+			channel.close()
 		}
 	}
 
-	override fun finish() {
-		super.finish()
-		viewModel.channel.close()
-	}
-
 	companion object {
-		private const val REQUEST_CODE = 931
-		internal var idToRequesterMap = ConcurrentHashMap<String, CompletableDeferred<NativeRequester>>()
+		internal var idToRequesterMap = ConcurrentHashMap<String, CompletableDeferred<NativeActivity>>()
 	}
 }

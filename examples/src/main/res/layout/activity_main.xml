@@ -21,7 +21,9 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
-
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
@@ -58,6 +60,28 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btnFineLocationState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:text="Check LOCATION"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/textLocationState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                tools:text="Granted" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
                 android:id="@+id/btnCamera"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -71,6 +95,28 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:textSize="18sp"
+                tools:text="Granted" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnCameraState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:text="Check CAMERA"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/textCameraState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
                 tools:text="Granted" />
         </LinearLayout>
 
@@ -102,6 +148,28 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btnFileState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:text="Check FILE"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/textFileState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                tools:text="Granted" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
                 android:id="@+id/btnContacts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -118,6 +186,28 @@
                 tools:text="Granted" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnContactsState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:text="Check CONTACTS"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/textContactsState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                tools:text="Granted" />
+        </LinearLayout>
+
         <Button
             android:id="@+id/btnAll"
             android:layout_width="wrap_content"
@@ -127,7 +217,24 @@
             android:text="REQUEST ALL"
             android:textColor="@android:color/white" />
 
+        <Button
+            android:id="@+id/btnAllSates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Check ALL"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/textAllStates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textSize="18sp"
+            tools:text="Granted" />
 
     </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

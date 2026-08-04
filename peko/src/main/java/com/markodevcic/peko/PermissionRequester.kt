@@ -2,10 +2,13 @@ package com.markodevcic.peko
 
 import android.app.Activity
 import android.content.Context
-import com.markodevcic.peko.PermissionRequester.Companion.instance
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
 /**
  * Interface for requesting or checking if permissions are granted.
@@ -24,6 +27,12 @@ interface PermissionRequester {
 	 * @return [Boolean]
 	 */
 	fun isAnyGranted(vararg permissions: String): Boolean
+
+	/**
+	 * checks and returns state of all permissions
+	 * @return [Flow]
+	 */
+	fun checkPermissionsState(vararg permissions: String): Flow<PermissionState>
 
 	/**
 	 * Starts the permission request flow.
@@ -47,53 +56,114 @@ interface PermissionRequester {
 
 		private var appContext: Context? = null
 
-		internal var requesterFactory = NativeRequesterFactory.default()
-		internal var requestBuilder = PermissionRequestBuilder.default()
+		internal var activityFactory = NativeActivityFactory.default()
+		internal var permissionGrouper = PermissionGrouper.default()
+
 
 		/**
 		 * Default Peko implementation of the [PermissionRequester]
 		 * @return [PermissionRequester]
 		 */
-		fun instance(): PermissionRequester = PekoPermissionRequester(requesterFactory, requestBuilder)
+		fun instance(): PermissionRequester = PekoPermissionManager(activityFactory, permissionGrouper)
 	}
 
-	private class PekoPermissionRequester(
-		private val requesterFactory: NativeRequesterFactory,
-		private val permissionRequestBuilder: PermissionRequestBuilder
+	private class PekoPermissionManager (
+		private val activityFactory: NativeActivityFactory,
+		private val permissionGrouper: PermissionGrouper
 	) : PermissionRequester {
+		var nativeActivity: NativeActivity? = null
+		private val nativeActivityExecutors: MutableSet<Int> = mutableSetOf()
+		private val nativeActivityMutex = Mutex() // Mutex for synchronization
+
+		suspend fun initNativeActivity(): Int {
+			nativeActivityMutex.withLock {
+				var executorId: Int
+				do {
+					executorId = Random.nextInt(0, Int.MAX_VALUE)
+				} while (nativeActivityExecutors.contains(executorId))
+				nativeActivityExecutors.add(executorId)
+
+				if (nativeActivity == null) {
+					nativeActivity = withContext(Dispatchers.Main) {
+						activityFactory.getActivityAsync(requireContext()).await()
+					}
+				}
+
+				return executorId
+			}
+		}
+
+		suspend fun finishNativeActivity(executorId:Int) {
+			nativeActivityMutex.withLock{
+				nativeActivityExecutors.remove(executorId)
+				if (nativeActivityExecutors.isEmpty()){
+					nativeActivity?.finish()
+					nativeActivity = null
+				}
+			}
+		}
 
 		override fun areGranted(vararg permissions: String): Boolean {
-			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
-			return request.denied.isEmpty()
+			val permissionGroup = permissionGrouper.group(requireContext(), *permissions)
+			return permissionGroup.denied.isEmpty()
 		}
 
 		override fun request(vararg permissions: String): Flow<PermissionResult> {
-			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
-
-			val flow = channelFlow {
-				for (granted in request.granted) {
+			return channelFlow {
+				val permissionGroup = permissionGrouper.group(requireContext(), *permissions)
+				for (granted in permissionGroup.granted) {
 					trySend(PermissionResult.Granted(granted))
 				}
-				if (request.denied.isNotEmpty()) {
-					val requester = withContext(Dispatchers.Main) {
-						requesterFactory.getRequesterAsync(requireContext()).await()
+				if (permissionGroup.denied.isNotEmpty()) {
+					val requestId = initNativeActivity()
+					val channel = Channel<PermissionResult>(Channel.UNLIMITED)
+					try {
+						nativeActivity!!.requestPermissions(
+							permissionGroup.denied.toTypedArray(),
+							Pair(requestId, channel)
+						)
+						for (result in channel) {
+							trySend(result)
+						}
+					} finally {
+						channel.close()
+						finishNativeActivity(requestId)
 					}
-					requester.requestPermissions(request.denied.toTypedArray())
-					for (result in requester.resultsChannel) {
-						trySend(result)
-					}
-					requester.finish()
-					channel.close()
-				} else {
-					channel.close()
 				}
 			}
-			return flow
 		}
 
 		override fun isAnyGranted(vararg permissions: String): Boolean {
-			val request = permissionRequestBuilder.createPermissionRequest(requireContext(), *permissions)
-			return permissions.isNotEmpty() && request.granted.isNotEmpty()
+			val permissionGroup = permissionGrouper.group(requireContext(), *permissions)
+			return permissions.isNotEmpty() && permissionGroup.granted.isNotEmpty()
+		}
+
+		override fun checkPermissionsState(vararg permissions: String): Flow<PermissionState> {
+			return channelFlow {
+				if (permissions.isEmpty()) return@channelFlow
+
+				val permissionGroup = permissionGrouper.group(requireContext(), *permissions)
+				permissionGroup.granted.forEach { granted ->
+					trySend(PermissionState.Granted(granted))
+				}
+
+				if (permissionGroup.denied.isNotEmpty()) {
+					val checkStateId = initNativeActivity()
+					val channel = Channel<PermissionState>(Channel.UNLIMITED)
+					try {
+						nativeActivity!!.checkStateOfDeniedPermissions(
+							permissionGroup.denied.toTypedArray(),
+							channel
+						)
+						for (state in channel) {
+							trySend(state)
+						}
+					} finally {
+						channel.close()
+						finishNativeActivity(checkStateId)
+					}
+				}
+			}
 		}
 
 		private fun requireContext() =

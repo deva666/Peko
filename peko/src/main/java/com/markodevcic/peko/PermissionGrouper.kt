@@ -4,20 +4,20 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 
-internal interface PermissionRequestBuilder {
-	fun createPermissionRequest(context: Context, vararg permissions: String): PermissionRequest
+internal interface PermissionGrouper {
+	fun group(context: Context, vararg permissions: String): PermissionGroup
 
-	private class PekoPermissionRequestBuilder : PermissionRequestBuilder {
-		override fun createPermissionRequest(context: Context, vararg permissions: String): PermissionRequest {
+	private class PekoPermissionGrouper : PermissionGrouper {
+		override fun group(context: Context, vararg permissions: String): PermissionGroup {
 			val permissionsGroup = permissions.groupBy { p -> ContextCompat.checkSelfPermission(context, p) }
 			val denied = permissionsGroup[PackageManager.PERMISSION_DENIED] ?: listOf()
 			val granted = permissionsGroup[PackageManager.PERMISSION_GRANTED] ?: listOf()
-			return PermissionRequest(granted, denied)
+			return PermissionGroup(granted, denied)
 		}
 
 	}
 
 	companion object {
-		fun default(): PermissionRequestBuilder = PekoPermissionRequestBuilder()
+		fun default(): PermissionGrouper = PekoPermissionGrouper()
 	}
 }
